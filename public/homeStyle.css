@@ -1,0 +1,49 @@
+/* Reset basic margins and set up Flexbox container */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex; /* Makes children (sidebar and content) lay out side-by-side */
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 200px; /* Fixed width for the sidebar */
+    height: 100vh; /* Make it full height of the viewport */
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    /* Keeps the sidebar visible while scrolling main content */
+    position: fixed; 
+    left: 0;
+    top: 0;
+}
+
+/* Main Content Styling */
+.content {
+    /* Use margin-left to push the content past the fixed sidebar */
+    margin-left: 200px; 
+    flex-grow: 1; /* Allows content to take up the rest of the available space */
+    padding: 20px;
+}
+
+/* Navigation Link Styling */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #575757;
+}
