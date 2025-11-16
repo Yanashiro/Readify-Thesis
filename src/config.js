@@ -34,6 +34,61 @@ const loginSchema = new mongoose.Schema({
     },
 });
 
+//  Example Test
+// {
+//   "_id": { "$oid": "65566f140026e959c90a1f73" },
+//   "testId": 103,
+//   "passageTitle": "The Antarctic Ice Shelf",
+//   "passage": "...",
+//   "testType": 2, // <--- This means ALL questions are True False Not Given
+//   "questions": [
+//     {
+//       "questionNumber": 1,
+//       "questionText": "Ice shelves are permanently attached to land.",
+//       "correctAnswer": "True"
+//     },
+//     {
+//       "questionNumber": 2,
+//       "questionText": "The shelf was discovered in 1841.",
+//       "correctAnswer": "Not Given"
+//     }
+//   ]
+// }
+
+const QuestionSchema = new mongoose.Schema({
+    questionNumber: { 
+        type: Number, 
+        required: true },
+    questionText: { 
+        type: String, 
+        required: true },
+    data: { 
+        type: mongoose.Schema.Types.Mixed }, 
+    correctAnswer: { 
+        type: mongoose.Schema.Types.Mixed, required: true }
+}, { _id: false }) // Stops Object ID Generation; 
+
+const PassageSchema = new mongoose.Schema({
+    testId: { 
+        type: Number, 
+        required: true, 
+        unique: true },
+    testType: { 
+        type: Number, 
+        required: true,
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] 
+    },
+    passageTitle: { 
+        type: String, 
+        required: true },
+    passage: { 
+        type: String, 
+        required: true },
+    questions: { 
+        type: [QuestionSchema], 
+        default: [] }
+});
+
 // Database Collection
 const readifyCollection = new mongoose.model("users", loginSchema);
 
