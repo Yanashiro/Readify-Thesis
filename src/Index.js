@@ -2,14 +2,17 @@ const express = require('express');
 const pasth = require('path');
 const bcrypt = require('bcrypt');
 const readifyCollection = require("./config");
+const passageCollection = require("./config");
 const { name } = require('ejs');
 const { Collection } = require('mongoose');
+
 // Express
 const app = express()
 
 // For conversion of data into json
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
+
 // View Engine Setup
 app.set('view engine', 'ejs')
 

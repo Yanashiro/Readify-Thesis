@@ -14,6 +14,8 @@ connect.then(() => {
 })
 
 // Schema Creation - Edit Here when creating new variables for the database
+
+// Schema for New Users
 const loginSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -55,20 +57,26 @@ const loginSchema = new mongoose.Schema({
 //   ]
 // }
 
+// Schema for Tests
 const QuestionSchema = new mongoose.Schema({
     questionNumber: { 
         type: Number, 
-        required: true },
+        required: true 
+    },
     questionText: { 
         type: String, 
-        required: true },
+        required: true 
+    },
     data: { 
-        type: mongoose.Schema.Types.Mixed }, 
+        type: mongoose.Schema.Types.Mixed 
+    }, 
     correctAnswer: { 
-        type: mongoose.Schema.Types.Mixed, required: true }
-}, { _id: false }) // Stops Object ID Generation; 
+        type: mongoose.Schema.Types.Mixed, 
+        required: true 
+    }
+}, { _id: false }) // Stops Object ID Generation
 
-const PassageSchema = new mongoose.Schema({
+const passageSchema = new mongoose.Schema({
     testId: { 
         type: Number, 
         required: true, 
@@ -86,11 +94,13 @@ const PassageSchema = new mongoose.Schema({
         required: true },
     questions: { 
         type: [QuestionSchema], 
-        default: [] }
+        default: [] },
+        required: true
 });
 
 // Database Collection
 const readifyCollection = new mongoose.model("users", loginSchema);
+const passageCollection = new mongoose.model("passages", passageSchema);
 
 // Exporting Model
 module.exports = readifyCollection;
