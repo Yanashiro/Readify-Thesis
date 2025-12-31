@@ -19,6 +19,11 @@ app.set('view engine', 'ejs')
 // Static Files
 app.use(express.static("public"))
 
+// Home Render
+app.get('/home', (req, res) =>{
+    res.render("home");
+})
+
 // Login Screen Render
 app.get("/", (req , res) =>{
     res.render("Login");
@@ -27,6 +32,11 @@ app.get("/", (req , res) =>{
 // Signup Render
 app.get('/signup', (req, res) =>{
     res.render("SignUp");
+})
+
+// Creat Test Render
+app.get('/createTest', (req, res) =>{
+    res.render("TestCreation");
 })
 
 // Function for Signing Up Users
