@@ -2,7 +2,9 @@ const express = require('express');
 const pasth = require('path');
 const bcrypt = require('bcrypt');
 const readifyCollection = require("./config");
+const questionCollection = require("./config");
 const passageCollection = require("./config");
+
 const { name } = require('ejs');
 const { Collection } = require('mongoose');
 
@@ -36,7 +38,7 @@ app.get('/signup', (req, res) =>{
 
 // Creat Test Render
 app.get('/createTest', (req, res) =>{
-    res.render("TestCreation");
+    res.render("PassageCreation");
 })
 
 // Function for Signing Up Users
@@ -88,6 +90,39 @@ app.post('/login', async (req, res) =>{
         res.send("Wrong Details");
     } 
 })
+
+// Create Test Passage
+app.post('/createPassage', async (req, res) => {
+    try {
+
+        const formData = req.body;
+
+        // Handle Checkbox: If unchecked, it won't exist in req.body. 
+        // We force it to a Boolean.
+        formData.testDesignation = formData.testDesignation === 'true';
+
+        // Optional: Parse the 'data' field in each question if you sent it as JSON string
+        if (formData.questions) {
+            formData.questions = formData.questions.map(q => {
+                try {
+                    // If the user entered valid JSON (like {"options": ["A","B"]}), parse it.
+                    // Otherwise, keep it as a string.
+                    return { ...q, data: JSON.parse(q.data) };
+                } catch (e) {
+                    return q; 
+                }
+            });
+        }
+
+        const newPassage = new passageCollection(formData);
+        await newPassage.save();
+
+        res.send("Test created successfully! ID: " + newPassage.testId);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error saving test: " + err.message);
+    }
+});
 
 // Port for Express
 const port = 5000;

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passage Creation</title>
+    <link rel="stylesheet" href="passageCreation.css">
+</head>
+<body>
+    
+     <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="home">Home</a></li>
+                    <li><a href="profile">Profile</a></li>
+                    <li><a href="createTest">Create Passage</a></li>
+                    <li><a href="mainTests">Main Tests</a></li>
+                    <li><a href="practiceTests">Practice Tests</a></li>
+                </ul>
+            </nav>
+            </aside>
+            
+        <!-- Content -->
+        <main class="content">
+            <form action="/createPassage" method="POST">
+                <div class="section">
+                    <h3>Passage Details</h3>
+
+                    <div class="checkbox-group">
+                        <label for="testDesignation" style="margin:0">Main Test: </label>
+                        <input type="checkbox" name="testDesignation" id="testDesignation" value="true">
+                    </div>
+
+                    <label for="testType">Test Type (Question Category)</label>
+                    <select name="testType" required>
+                        <option value="1">1. Multiple Choice</option>
+                        <option value="2">2. True/False/Not Given</option>
+                        <option value="3">3. Yes/No/Not Given</option>
+                        <option value="4">4. Matching Information</option>
+                        <option value="5">5. Matching Headings</option>
+                        <option value="6">6. Matching Features</option>
+                        <option value="7">7. Matching Sentence Endings</option>
+                        <option value="8">8. Sentence Completion</option>
+                        <option value="9">9. Summary Completion</option>
+                        <option value="10">10. Diagram Label Completion</option>
+                        <option value="11">11. Short Answer</option>
+                    </select>
+
+                    <label for="passageTitle">Passage Title</label>
+                    <input type="text" name="passageTitle" required placeholder="Enter Title">
+
+                    <label for="passage">Passage Content</label>
+                    <textarea name="passage" required placeholder="Paste the reading text here..."></textarea>
+                </div>
+
+                <div class="section">
+                    <h3>Questions</h3>
+                    <div id="questions-container">
+                        </div>
+                    
+                    <button type="button" class="btn btn-add" onclick="addQuestion()">+ Add Question</button>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Save Test to Database</button>
+            </form>
+        </main>
+
+        <!-- Script -->
+    <script>
+            let questionCount = 0;
+            function addQuestion() {
+                const container = document.getElementById('questions-container');
+                const questionHtml = `
+                    <div class="question-card" id="q-block-${questionCount}">
+                        <label>Question Number</label>
+                        <input type="number" name="questions[${questionCount}][questionNumber]" value="${questionCount + 1}" required>
+
+                        <label>Question Text</label>
+                        <input type="text" name="questions[${questionCount}][questionText]" required>
+
+                        <label>Data (e.g., Options for MC, or Word Bank)</label>
+                        <input type="text" name="questions[${questionCount}][data]" placeholder='{"options": ["A", "B"]}'>
+                        <small>Enter as JSON or string depending on your logic</small>
+
+                        <label>Correct Answer</label>
+                        <input type="text" name="questions[${questionCount}][correctAnswer]" required>
+
+                        <button type="button" class="btn btn-remove" onclick="removeQuestion(${questionCount})">Remove Question</button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', questionHtml);
+                questionCount++;
+            }
+
+            function removeQuestion(id) {
+                const element = document.getElementById(`q-block-${id}`);
+                element.remove();
+            }
+
+            // Initialize with one question
+            addQuestion();
+    </script>
+    </div>
+
+    
+</body>
+</html>

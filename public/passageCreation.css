@@ -1,0 +1,61 @@
+/* Reset basic margins and set up Flexbox container */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex; /* Makes children (sidebar and content) lay out side-by-side */
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 200px; /* Fixed width for the sidebar */
+    height: 100vh; /* Make it full height of the viewport */
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    /* Keeps the sidebar visible while scrolling main content */
+    position: fixed; 
+    left: 0;
+    top: 0;
+}
+
+/* Main Content Styling */
+.content {
+    /* Use margin-left to push the content past the fixed sidebar */
+    margin-left: 200px; 
+    flex-grow: 1; /* Allows content to take up the rest of the available space */
+    padding: 20px;
+}
+
+/* Navigation Link Styling */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #575757;
+}
+
+body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9; }
+        .question-card { border-left: 5px solid #007bff; background: #fff; padding: 15px; margin: 10px 0; position: relative; }
+        label { display: block; font-weight: bold; margin-top: 10px; }
+        input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        textarea { height: 100px; }
+        .btn { padding: 10px 15px; cursor: pointer; border: none; border-radius: 4px; color: white; }
+        .btn-add { background: #28a745; margin-bottom: 10px; }
+        .btn-submit { background: #007bff; width: 100%; font-size: 1.1rem; }
+        .btn-remove { background: #dc3545; font-size: 0.8rem; margin-top: 10px; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
