@@ -86,5 +86,5 @@ const questionCollection = new mongoose.model("questions",questionSchema);
 const passageCollection = new mongoose.model("passages", passageSchema);
 
 // Exporting Model
-module.exports = {readifyCollection, questionCollection, passageCollection};
+module.exports = readifyCollection;
 
