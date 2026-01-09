@@ -37,7 +37,7 @@ app.get('/signup', (req, res) =>{
 })
 
 // Creat Test Render
-app.get('/createTest', (req, res) =>{
+app.get('/PassageCreation', (req, res) =>{
     res.render("PassageCreation");
 })
 
@@ -118,6 +118,7 @@ app.post('/createPassage', async (req, res) => {
         await newPassage.save();
 
         res.send("Test created successfully! ID: " + newPassage.testId);
+        res.render("Home");
     } catch (err) {
         console.error(err);
         res.status(500).send("Error saving test: " + err.message);
