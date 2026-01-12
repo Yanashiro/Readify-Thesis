@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+main.dashboard-main {
+    background-color: rgb(246, 246, 246);
+    display: block;
+}
+
+div.head-name {
+    font-family: "DM Serif Display", serif;
+    font-style: normal;
+    margin: 15px;
+}
+
+div.top-three {
+    display: flex;
+}
+
+div.main-board {
+    background-color: white;
+    margin: 15px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 30%;
+}
+
+div.main-title {
+    text-align: center;
+}
+
+div.main-pic {
+    align-items: center;
+}
+
+img.main-img {
+    border-radius: 20px;
+    width: 100%;
+}
+
+div.practice-board {
+    background-color: white;
+    margin: 15px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 30%;
+}
+
+div.practice-title {
+    text-align: center;
+}
+
+div.practice-pic {
+    align-items: center;
+}
+
+div.voc-board {
+    background-color: white;
+    margin: 15px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 30%;
+}
+
+div.voc-title {
+    text-align: center;
+}
+
+div.voc-pic {
+    align-items: center;
+}
+
+div.bottom-two {
+    display: flex;
+}
+
+div.act-board {
+    background-color: white;
+    margin: 15px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 62%; 
+}
+
+div.act-title {
+    text-align: center;
+}
+
+div.act-content {
+
+}
+
+
+div.achiev-board {
+    background-color: white;
+    margin: 15px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 30%;
+}
+
+div.achiev-title {
+    text-align: center;
+}
+
+div.achiev-content {
+    display: block;
+}
+
+div.achievement {
+    background-color: rgb(235, 235, 235);
+    margin: 10px;
+    border-radius: 20px;
+    padding: 10px;
+    display: flex;
+}
+
+p.achiev-p-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    margin-top: 10px;
+}
+
+p {
+    margin: 5px;
+}
+
+img.achiev-img {
+    width: 70px;
+}
+
+div.achieve-bottom {
+    margin: 10px;
+    margin-right: 33px;
+    margin-left: 250px;
+    text-align: center;
+}
+
+button.see-more {
+    width: 100%;
+    margin: 20px;
+    background-color: rgb(43, 50, 255);
+    color: white;
+    border-color: rgb(43, 50, 255);
+    border-radius: 20px;
+}
