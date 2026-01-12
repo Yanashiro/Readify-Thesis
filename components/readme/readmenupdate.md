@@ -16,11 +16,12 @@ maintest.jsx: in function 'active' set return setItemAnswered to 'isCompleted'
 
 root.jsx: Note: root.jsx is still on the development phase to determine how it will respond to EJS rendering
 
+navbar.jsx: Links still don't work if the JSX is used as a component, needs revision here
 
 }
 
 CSS updates {
 
-
+achievements.css: needs to add import fonts
 
 }
