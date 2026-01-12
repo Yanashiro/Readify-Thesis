@@ -1,6 +1,6 @@
 import React from 'react';
 import './tipsntricks.css'
-import tab from '../images/tab-tipsntricks.png';
+import tab from '../components/images/tab-tipsntricks.png';
 
 function TipsnTricks() {
     return (
