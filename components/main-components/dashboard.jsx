@@ -4,14 +4,14 @@ import React from 'react';
 import './dashboard.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import vocTest from '../images/vocabularytest.png';
-import pracTest from '../images/practicetest.png';
-import mainTest from '../images/maintest.png';
-import locked from '../images/locked.png';
-import firstSteps from '../images/first_steps.png'
-import getAHang from '../images/getting_the_hang_of_it.png'
-import marathon from '../images/marathon_reader.png'
-import comprehensionStart from '../images/comprehension_starter.png'
+import vocTest from '../components/images/vocabularytest.png';
+import pracTest from '../components/images/practicetest.png';
+import mainTest from '../components/images/maintest.png';
+import locked from '../components/images/locked.png';
+import firstSteps from '../components/images/first_steps.png'
+import getAHang from '../components/images/getting_the_hang_of_it.png'
+import marathon from '../components/images/marathon_reader.png'
+import comprehensionStart from '../components/images/comprehension_starter.png'
 
 function Dashboard() {
 
