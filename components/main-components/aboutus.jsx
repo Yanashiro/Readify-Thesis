@@ -2,7 +2,7 @@
 
 import React from 'react';
 import './aboutus.css';
-import picture from '../images/picture_aboutus.png';
+import picture from '../components/images/picture_aboutus.png';
 
 function AboutUs() {
     return (
