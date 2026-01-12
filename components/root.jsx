@@ -3,10 +3,8 @@
 import React from 'react'
 import ReactDOM, { createRoot } from 'react-dom/client'
 import './maintestboard.css'
-import App from './app'
-import Navbar from './navbar'
-import TipsnTricks from './tipsntricks'
-import Login from './login'
+import Navbar from './main-components/navbar'
+import Login from './main-components/login'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
