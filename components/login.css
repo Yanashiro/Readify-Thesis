@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+main.login-main {
+    background-image: url('../images/readify_login.png');
+    margin: 0px;
+    padding: 0px;
+}
+
+div.login-title {
+    text-align: center;
+    padding: 50px;
+    margin-right: 50px;
+}
+
+h1.h1-readify {
+    font-size: 50px;
+    font-family: "DM Serif Display", serif;
+    font-style: normal;
+    color: white;
+}
+
+h5.h5-login {
+    font-size: 20px;
+    font-family: "DM Serif Display", serif;
+    font-style: normal;
+    color: white;
+} 
+
+div.div-form {
+    text-align: center;
+    padding-bottom: 100px;
+    margin-right: 50px;
+}
+
+div.form-align {
+    text-align: center;
+    margin-left: 37%;
+    margin-right: 39%;
+}
+
+div.form-group {
+    display: block;
+}
+
+div.label-align {
+    text-align: left;
+}
+
+p.label-design {
+    color: white;
+    font-family: "DM Serif Display", serif;
+    font-style: normal;
+}
+
+div.input-align {
+    text-align: center;
+}
+
+input.login-input {
+     width: 100%;
+     padding: 12px;
+     margin: 5px;
+     margin-bottom: 10px;
+     font-family: "DM Serif Display", serif;
+     font-style: normal;
+}
+
+
+
+p.dont-have-account {
+    color: white;
+    font-family: "DM Serif Display", serif;
+    font-style: normal;
+}
+
+a.signup-href {
+    text-decoration: none;
+    color: white;
+}
+
+button.submit-btn {
+    background-color: rgb(253, 255, 182);
+    border-radius: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
