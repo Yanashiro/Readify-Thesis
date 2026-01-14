@@ -22,7 +22,7 @@ function Login() {
         //preventDefault() prevents the browser from refreshing every submission
         e.preventDefault();
         //axios is a promise-based HTTP-client for Node.js on the browser
-        axios.post('/login', formData)
+        axios.post('/api/login', formData)
             .then(res => console.log("Server received", res.data))
             .catch(err => console.error(err));
     }
