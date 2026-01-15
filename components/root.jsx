@@ -1,51 +1,34 @@
-//Note: root.jsx is still on the development phase to determine how it will respond to EJS rendering
-
 import React from 'react'
-import ReactDOM, { createRoot } from 'react-dom/client'
+import ReactDOM from 'react-dom/client'
+import Navbar from './navbar'
+import Login from './login'
+import Signup from './signup'
 import './maintestboard.css'
-import Navbar from './main-components/navbar'
-import Login from './main-components/login'
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const container = document.getElementById('root');
 
+if (container) {
+    const root = ReactDOM.createRoot(container);
 
+    const path = window.location.pathname;
 
-function renderMainTestPage(a) {
-    
-   /* switch(a) {
-        case '/Home':
-            return (
-                render(
-                <React.StrictMode>
-                    <Navbar />
-                </React.StrictMode>
-                )
-            );
-            break;
-        case '/Login':
-            return (
-                render(
-                    <React.StrictMode>
-                        <Login />
-                    </React.StrictMode>
-                )
-            )
-            break;
-        default:
-            return(
-                render(
-                    <React.StrictMode>
-                        <Login />
-                    </React.StrictMode>
-                )
-            )
-    } */
-
-    a.render(
-        <React.StrictMode>
-            <Navbar/>
-        </React.StrictMode>
-    )
+    if (path === '/' || path === '/login') {
+        root.render(
+            <React.StrictMode>
+                <Login />
+            </React.StrictMode>
+        );
+    } else if (path === '/home') {
+        root.render(
+            <React.StrictMode>
+                <Navbar />
+            </React.StrictMode>
+        );
+    } else if (path === '/signup') {
+        root.render(
+            <React.StrictMode>
+                <Signup />
+            </React.StrictMode>
+        )
+    }
 }
-
-renderMainTestPage(root);
