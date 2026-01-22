@@ -1,7 +1,7 @@
 const express = require('express');
 const pasth = require('path');
 const bcrypt = require('bcrypt');
-const readifyCollection = require("./config");
+const readifyUser_Collection = require("./config");
 const questionCollection = require("./config");
 const passageCollection = require("./config");
 
@@ -24,6 +24,20 @@ app.use(express.static("public"))
 // Home Render
 app.get('/home', (req, res) =>{
     res.render("home");
+})
+
+// Profile Render
+app.get('/Leaderboard', async (req,res)=>{
+    try {
+        // Find ALL users, but exclude sensitive fields
+        const users = await readifyUser_Collection.find({}).select('-password -email -isAdmin');
+
+        // Pass the 'users' array to your EJS template
+        res.render('Leaderboard', { allUsers: users });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
 })
 
 // Login Screen Render
@@ -51,7 +65,7 @@ app.post("/signup", async (req, res) => {
     }
 
     // Checks if User already exists in the Database
-    const existingUser = await readifyCollection.findOne({name: data.name});
+    const existingUser = await readifyUser_Collection.findOne({name: data.name});
     if(existingUser){
         res.send("Username already exists. Please choose a different username.");
     } 
@@ -61,7 +75,7 @@ app.post("/signup", async (req, res) => {
         const hashedPassword = await bcrypt.hash(data.password, saltRounds);
         data.password = hashedPassword;
         // Sends the data to the database
-        const userdata = await readifyCollection.insertMany(data);
+        const userdata = await readifyUser_Collection.insertMany(data);
         // Logging
         console.log(userdata);
     } 
@@ -71,7 +85,7 @@ app.post("/signup", async (req, res) => {
 // Function for Logging Users In
 app.post('/login', async (req, res) =>{
     try{
-        const check = await readifyCollection.findOne({name: req.body.username});
+        const check = await readifyUser_Collection.findOne({name: req.body.username});
         if(!check){
             res.send("Username or Password Incorrect.");
         }

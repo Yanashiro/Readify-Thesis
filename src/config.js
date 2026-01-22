@@ -16,7 +16,7 @@ connect.then(() => {
 // Schema Creation - Edit Here when creating new variables for the database
 
 // Schema for New Users
-const loginSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -29,6 +29,13 @@ const loginSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    achievements: [{
+        title: { type: String, required: true },
+        description: String,
+        pointsValue: Number,
+        earnedAt: { type: Date, default: Date.now },
+        icon: String // URL to an image/icon
+    }],
     isAdmin: {
         type: Boolean,
         required: true,
@@ -81,10 +88,10 @@ const passageSchema = new mongoose.Schema({
 });
 
 // Database Collection
-const readifyCollection = new mongoose.model("users", loginSchema);
+const readifyUser_Collection = new mongoose.model("users", userSchema);
 const questionCollection = new mongoose.model("questions",questionSchema);
 const passageCollection = new mongoose.model("passages", passageSchema);
 
 // Exporting Model
-module.exports = readifyCollection;
+module.exports = readifyUser_Collection;
 
