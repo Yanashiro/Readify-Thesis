@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import SideTimer from '../main-components/timer';
+import SideTimer from './timer';
 import './maintestpage.css';
 
 function IdentifyingInformation() {
@@ -140,7 +140,7 @@ function IdentifyingInformation() {
                                         </div>
                                     ))}
                                 </div>
-                                <div>
+                                <div className='next-back-buttons'>
                                     {currentPage > 0 && (
                                     <React.Fragment>
                                         <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
@@ -150,7 +150,7 @@ function IdentifyingInformation() {
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={() => console.log("Final Answers:", userAnswers)} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage}>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
                                     )}
                                 </div>
                             </div>
