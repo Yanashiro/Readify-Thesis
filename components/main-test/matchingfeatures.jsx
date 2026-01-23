@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import SideTimer from '../main-components/timer';
+import SideTimer from './timer';
 import axios from 'axios';
 import './maintestpage.css'
 
@@ -144,7 +144,7 @@ function MatchingFeatures() {
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={() => console.log("Final Answers:", userAnswers)} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage}>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
                                     )}
                                 </div>
                             </div>
