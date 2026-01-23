@@ -114,31 +114,31 @@ function MTPage() {
                 </div>
                 <div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "./root.jsx", active("Multiple Choice"))} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices", active("Multiple Choice"))} >
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "./root.jsx", active("Identifying Information"))} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation", active("Identifying Information"))} >
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "./root.jsx", active("Identifying Writer's Views"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews", active("Identifying Writer's Views"))}>
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "./root.jsx", active("Matching Information"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation", active("Matching Information"))}>
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "./root.jsx", active("Matching Headings"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings", active("Matching Headings"))}>
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
