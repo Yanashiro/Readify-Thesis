@@ -4,31 +4,22 @@ import Navbar from './main-components/navbar'
 import Login from './main-components/login'
 import Signup from './main-components/signup'
 import './maintestboard.css'
+import MainTestRoute from './maintestrouter'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-const container = document.getElementById('root');
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-if (container) {
-    const root = ReactDOM.createRoot(container);
+root.render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/home" element={<Navbar />} />
 
-    const path = window.location.pathname;
-
-    if (path === '/' || path === '/login') {
-        root.render(
-            <React.StrictMode>
-                <Login />
-            </React.StrictMode>
-        );
-    } else if (path === '/home') {
-        root.render(
-            <React.StrictMode>
-                <Navbar />
-            </React.StrictMode>
-        );
-    } else if (path === '/signup') {
-        root.render(
-            <React.StrictMode>
-                <Signup />
-            </React.StrictMode>
-        )
-    }
-}
+                <Route path="/maintest/*" element={<MainTestRoute />} />
+            </Routes>
+        </BrowserRouter>
+    </React.StrictMode>
+);
