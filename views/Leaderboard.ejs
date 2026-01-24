@@ -26,7 +26,6 @@
             <% allUsers.forEach(user => { %>
                 <section class="user-section">
                     <h2>Welcome <%= user.name %></h2>
-                    
                     <div class="achievement-grid">
                         <% if (user.achievements.length > 0) { %>
                             <% user.achievements.forEach(ach => { %>
