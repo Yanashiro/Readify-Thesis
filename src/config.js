@@ -30,11 +30,11 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     achievements: [{
-        title: { type: String, required: true },
-        description: String,
-        pointsValue: Number,
-        earnedAt: { type: Date, default: Date.now },
-        icon: String // URL to an image/icon
+        title: { type: String, required: true }, // Title 
+        description: String,                     // Short Description 
+        pointsValue: Number,                     // Value Points to be summed up and put on profile
+        earnedAt: { type: Date, default: Date.now }, // Date and Time
+        icon: String // URL to an image/icon 
     }],
     isAdmin: {
         type: Boolean,
