@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import './navbar.css';
 
-import userIcon from '../components/images/icons/user.png';
-import dashboardIcon from '../components/images/icons/dashboard.png';
-import mainTestIcon from '../components/images/icons/main-test.png';
-import practiceTestIcon from '../components/images/icons/practice-test.png';
-import vocabularyIcon from '../components/images/icons/vocabulary.png';
-import achievementIcon from '../components/images/icons/achievement.png';
-import tipsIcon from '../components/images/icons/tips.png';
-import settingsIcon from '../components/images/icons/settings.png';
-import profileIcon from '../components/images/icons/profile.png';
-import logoutIcon from '../components/images/icons/logout.png';
-import aboutUsIcon from '../components/images/icons/aboutus.png';
+import userIcon from '../../images/icons/user.png';
+import dashboardIcon from '../../images/icons/dashboard.png';
+import mainTestIcon from '../../images/icons/main-test.png';
+import practiceTestIcon from '../../images/icons/practice-test.png';
+import vocabularyIcon from '../../images/icons/vocabulary.png';
+import achievementIcon from '../../images/icons/achievement.png';
+import tipsIcon from '../../images/icons/tips.png';
+import settingsIcon from '../../images/icons/settings.png';
+import profileIcon from '../../images/icons/profile.png';
+import logoutIcon from '../../images/icons/logout.png';
+import aboutUsIcon from '../../images/icons/aboutus.png';
 import Dashboard from './dashboard';
 import MTPage from './maintest';
 import TipsnTricks from './tipsntricks';
