@@ -1,1 +1,3 @@
 nodemon src/Index.js
+npm run build (for production and showing the whole page)
+npm run dev (for development, only good for debugging specific pages)
