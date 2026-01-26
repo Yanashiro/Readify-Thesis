@@ -20,6 +20,8 @@ app.set('view engine', 'ejs')
 
 // Static Files
 app.use(express.static("public"))
+// Static files for bundle.js and bundle.css created by Vite/Rollup - new from patrick
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // Home Render
 app.get('/home', (req, res) =>{
