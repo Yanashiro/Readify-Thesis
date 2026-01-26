@@ -57,6 +57,11 @@ app.get('/PassageCreation', (req, res) =>{
     res.render("PassageCreation");
 })
 
+// MainTest Render - new from patrick
+app.get(/^\/maintest(.*)/, (req, res) =>{
+    res.render("MainTest")
+})
+
 // Function for Signing Up Users
 app.post("/signup", async (req, res) => {
     // Gets data from Body to send to Database
