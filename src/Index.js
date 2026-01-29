@@ -20,6 +20,8 @@ app.set('view engine', 'ejs')
 
 // Static Files
 app.use(express.static("public"))
+// Static files for bundle.js and bundle.css created by Vite/Rollup - new from patrick
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // Home Render
 app.get('/home', (req, res) =>{
@@ -53,6 +55,11 @@ app.get('/signup', (req, res) =>{
 // Creat Test Render
 app.get('/PassageCreation', (req, res) =>{
     res.render("PassageCreation");
+})
+
+// MainTest Render - new from patrick
+app.get(/^\/maintest(.*)/, (req, res) =>{
+    res.render("MainTest")
 })
 
 // Function for Signing Up Users

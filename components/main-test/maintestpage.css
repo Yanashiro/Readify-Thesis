@@ -19,6 +19,13 @@ main.main-maintest {
     position: sticky;
 }
 
+h1.name {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+
+}
+
 section.sidebar {
     width: 200px;
     height: 280vh;
@@ -39,6 +46,7 @@ div.section-flex {
 }
 
 section.testing-flex {
+    display: flex;
     border-bottom: solid;
     border-color: black;
     border-width: 1.5px;
@@ -91,6 +99,17 @@ div.title-div {
     }
 }
 
+div.view-size-buttons {
+    margin: 25px;
+}
+
+button.font-size-btn {
+    background-color: rgb(207, 207, 207);
+    border: none;
+    width: 70px;
+    height: 35px;
+}
+
 div.test-title {
     font-family: "Poppins", sans-serif;
     font-weight: 600;
@@ -116,6 +135,8 @@ div.test-passage {
 
 section.questions-side {
     padding: 20px;
+    width: 50%;
+    position: sticky;
 }
 
 p.questionRange {
@@ -129,6 +150,10 @@ div.question-container {
     margin-top: 20px;
 }
 
+div.question-block-summary {
+    display: flex;
+}
+
 p.questions {
     margin-top: 20px;
 }
@@ -139,12 +164,24 @@ div.feature-block {
     border-style: solid;
     padding: 10px;
     margin-top: 30px;
+    margin-right: 70px;
+}
+
+div.summary-block {
+    margin-top: 30px;
+    margin-right: 70px;
 }
 
 p.features-font {
     font-family: "Poppins", sans-serif;
     font-weight: 600;
     font-style: normal;
+}
+
+p.summary-font {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal; 
 }
 
 p.currentFeatures-font {
@@ -159,11 +196,32 @@ p.questions {
     font-style: normal;
 }
 
+p.questions-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px
+}
+
+div.display-flex {
+    display: flex;
+
+}
+
 input.answer-input {
     font-family: "Poppins", sans-serif;
     font-family: 400;
     font-style: normal;
-    margin-left: 20px;
+    margin-left: 25px;
+}
+
+input.answer-input-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px;    
+    background-color: rgb(227, 227, 227);
+    width: 300px;
 }
 
 div.next-back-buttons {
@@ -181,6 +239,15 @@ button.opt-btn {
     margin: 1px;
 }
 
+button.opt-btn-letters {
+    background-color: rgb(207, 207, 207);
+    border: none;
+    width: 40px;
+    text-align: center;
+    padding: 10px;
+    margin: 5px;
+}
+
 button.active-opt {
     background-color: rgb(160, 190, 255);
     border: none;
@@ -189,6 +256,15 @@ button.active-opt {
     text-align: left;
     padding: 10px;
     margin: 1px;
+}
+
+button.active-opt-letters {
+    background-color: rgb(160, 190, 255);
+    border: none;
+    width: 40px;
+    text-align: center;
+    padding: 10px;
+    margin: 5px;
 }
 
 button.back-btn {

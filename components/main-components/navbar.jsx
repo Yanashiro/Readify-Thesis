@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import './navbar.css';
 
-import userIcon from '../components/images/icons/user.png';
-import dashboardIcon from '../components/images/icons/dashboard.png';
-import mainTestIcon from '../components/images/icons/main-test.png';
-import practiceTestIcon from '../components/images/icons/practice-test.png';
-import vocabularyIcon from '../components/images/icons/vocabulary.png';
-import achievementIcon from '../components/images/icons/achievement.png';
-import tipsIcon from '../components/images/icons/tips.png';
-import settingsIcon from '../components/images/icons/settings.png';
-import profileIcon from '../components/images/icons/profile.png';
-import logoutIcon from '../components/images/icons/logout.png';
-import aboutUsIcon from '../components/images/icons/aboutus.png';
+import userIcon from '../images/icons/user.png';
+import dashboardIcon from '../images/icons/dashboard.png';
+import mainTestIcon from '../images/icons/main-test.png';
+import practiceTestIcon from '../images/icons/practice-test.png';
+import vocabularyIcon from '../images/icons/vocabulary.png';
+import achievementIcon from '../images/icons/achievement.png';
+import tipsIcon from '../images/icons/tips.png';
+import settingsIcon from '../images/icons/settings.png';
+import profileIcon from '../images/icons/profile.png';
+import logoutIcon from '../images/icons/logout.png';
+import aboutUsIcon from '../images/icons/aboutus.png';
 import Dashboard from './dashboard';
 import MTPage from './maintest';
 import TipsnTricks from './tipsntricks';
@@ -43,15 +44,62 @@ function PageNavigation({input}) {
 }
 
 function Navbar() {
+  const [cookies, , removeCookie] = useCookies(['examinee-cookie'])
   const [activeMenu, setActiveMenu] = useState('');
 
   const handleMenuClick = (menuName) => {
     setActiveMenu(menuName);
-  };
+  }
+
+useEffect(() => {
+    // function to clear sessionStorage of exams
+    const clearExamData = () => {
+    // object collection of all sessionStorage
+    const examKeys = [
+        "Answer", 
+        "Font Size", 
+        "Passage History", 
+        "Questions History", 
+        "Features History",
+        "Endings History",
+        "Page History", 
+        "Timer remain",
+        "Headings History",
+        "Summary History"
+    ]; 
+    examKeys.forEach(key => sessionStorage.removeItem(key));
+    console.log("Storage cleared: User returned to Home/Category selection.");
+    };
+    // testing feature if its not on main test anymore (not working, needs reload)
+    if (!window.location.pathname.includes('/maintest/*')) {
+      // attempt clearing exam data (unsuccessful)
+    clearExamData();
+    }
+    // once the page is redirected
+    window.addEventListener('pageshow', (event) => {
+    if (event.persisted && !window.location.pathname.includes('/maintest/*')) {
+        // clear exam data function
+        clearExamData();
+        // reload to ensure the sessionStorage updates
+        if (window.location.reload) window.location.reload(); 
+    }
+    });
+    // happens only once every time the page reloads 
+}, [])
+
+  useEffect(() => {
+    if(!cookies['examinee-cookie']) {
+      alert("User Identity lost, logging out");
+      sessionStorage.clear();
+      window.location.replace('/');
+    }
+  }, [cookies['examinee-cookie']]);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      alert("Logging out...");
+      removeCookie('examinee-cookie', {path: '/'});
+      sessionStorage.clear();
+      window.location.replace('/');
     }
   };
 
@@ -60,13 +108,13 @@ function Navbar() {
       {/* HEADER */}
       <div className="header">
         <div className="logo-placeholder">
-          <div className="logo-icon">R</div>
+          {/*<div className="logo-icon">R</div>*/}
           <div className="app-title">Readify</div>
         </div>
 
         <div className="user-dropdown">
           <img src={userIcon} className="user-nav-icon" alt="User" />
-          <span>Micah Rocero</span>
+          <span>{cookies['examinee-cookie'] || "User"}</span>
           {/*<img src={dropdownIcon} className="dropdown-icon" alt="Dropdown" /> */}
         </div>
       </div>
@@ -123,15 +171,15 @@ function Navbar() {
           </a>
 
           <div className="settings-separator">Settings</div>
-
+        {/*
           <a 
             className={`menu-item ${activeMenu === 'Settings' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Settings')}
             href="#!"
           >
-            <img src={settingsIcon} /*className="menu-icon"*/ alt="Settings" />
+            <img src={settingsIcon} /*className="menu-icon" alt="Settings" />
             <span>Settings</span>
-          </a>
+          </a> */}
 
           <a 
             className={`menu-item ${activeMenu === 'Profile' ? 'active' : ''}`} 

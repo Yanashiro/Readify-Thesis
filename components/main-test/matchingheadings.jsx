@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import SideTimer from './timer';
+import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './maintestpage.css'
 
-function IdentifyingWritersViews() {
+function MatchingHeadings() {
 
     const [cookies] = useCookies(['examinee-cookie'])
     const [userAnswers, setUserAnswers] = useState(() => {
@@ -20,31 +20,29 @@ function IdentifyingWritersViews() {
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
         return saved ? JSON.parse(saved) : []});
+    const [headingsHistory, setHeadingsHistory] = useState(() => {
+        const saved = sessionStorage.getItem("Headings History")
+        return saved ? JSON.parse(saved) : {}});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});
+        return saved ? JSON.parse(saved) : 20});;
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900});
+        return saved ? JSON.parse(saved) : 900})
 
-    // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
-    const currentPassage = passageHistory[currentPage];
-    // used to index an array of questions putting the maximum capacity to 3 questions per page
-    const questionsPerPage = 3;
-    // used as a 'cutter' to 'indexOfFirstQuestion' 
+    const questionsPerPage = 4;
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    // used to index the very first question after a "Next Page" removing the last question from the equation 
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
+    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage; 
     const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentPassage = passageHistory[currentPage];
+    const currentHeadings = headingsHistory[currentPage];
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
-    // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/identifyingwritersviews')
+            .post('/maintestroute/matchingheadings')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -52,8 +50,9 @@ function IdentifyingWritersViews() {
                 setAllQuestions(res.data.questions);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setHeadingsHistory([res.data.headings]);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => console.error(err))
         }
     }, [])
 
@@ -62,16 +61,16 @@ function IdentifyingWritersViews() {
         sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
         sessionStorage.setItem("Font Size", fontSize);
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
+        sessionStorage.setItem("Headings History", JSON.stringify(headingsHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, headingsHistory]);
 
     const userChoiceClick = (questionId, choiceValue) => {
-        // used to save user choices (answers) even if the page is moved
         setUserAnswers(prev => ({
             ...prev,
-            [questionId]: choiceValue
+            [questionId]: choiceValue,
         }))
     }
 
@@ -98,31 +97,34 @@ function IdentifyingWritersViews() {
 
         const totalLimit = 10;
 
-        if (passageHistory.length > currentPage + 1) {
-            // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
-            // then allow "Next Page" functionality and return 0, otherwise do skip this step;
-            setCurrentPage(prev => prev + 1);
-            return; // function stopper
+        if(passageHistory.length > currentPage +  1) {
+            setCurrentPage(prev => prev + 1)
+            return;
         }
-
-        if (allQuestions.length > totalLimit) { //apply >= if need exactly 10
-            // if length of allQuestions array is greater than variable totalLimit, function returns nothing
-            return; // stops the function
+        if(allQuestions.length >= totalLimit) {
+            return;
         }
-            axios.post('/maintestroute/identifyingwritersviews')
-                .then((res) => {
-                    setAllQuestions(prevQuestions => {
-                        const combined = [...prevQuestions, ...res.data.questions]
-                        return combined.length > totalLimit ? combined.slice(0, totalLimit) : combined;
-                    });
-
-                    setPassageHistory(prev => [...prev, res.data]); 
-                    setCurrentPage(prevPage => prevPage + 1);
-                })
-                .catch((err) => console.error(err));
+        axios
+            .post('/maintestroute/matchingheadings')
+            .then((res) => {
+                setAllQuestions(prevQuestions => {
+                    // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
+                    // it is made as an array because the next questions (by res.data.questions) are the newly randomized 
+                    // by the server and needs to be added in the "combined" array that defines setAllQuestions 
+                    const combined = [...prevQuestions, ...res.data.questions]
+                    // condition: length of combined array must be greater than totalLimit, if yes: remove starting from index 0 to index 10, otherwise return combined array
+                    return combined.length > totalLimit ? combined.slice(0, totalLimit) : combined;
+                });
+                // setCurrentPage is initiated as prevPage and returns itself + 1, the reason
+                // you do this over "setCurrentPage + 1" is to save the history of previous pages
+                // rather than completely disregarding it after a "Next Page"
+                setCurrentPage(prevPage => prevPage + 1);
+                // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
+                setPassageHistory(prev => [...prev, res.data]); 
+                setHeadingsHistory(prev => [...prev, res.data.headings]);
+            })
+            .catch((err) => console.error(err));
     }
-
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
@@ -133,7 +135,7 @@ function IdentifyingWritersViews() {
         };
         
         axios
-            .post('/maintestroute/identifyinginformation', submissionData)
+            .post('/maintestroute/imatchingheadings', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -143,6 +145,7 @@ function IdentifyingWritersViews() {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Headings History")
                 }
             })
             .catch((err) => {
@@ -153,22 +156,21 @@ function IdentifyingWritersViews() {
     return (
         <>
         <main className='main-maintest'>
-            {/* This is the sidebar, where the timer resides */}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
                 </div>
                 <div className='timer-component'>
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
+                    {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
+                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are <br/> Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
                 </div>
             </section>
             <div className='section-flex'>
                 <section className='testing-flex'>
                     <div className='title-div'>
-                        {/* This is the exam category*/}
                         <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
                     </div>
                     <div className='view-size-buttons'>
@@ -185,15 +187,12 @@ function IdentifyingWritersViews() {
                 </section>
                 <div className='two-sections'>
                     <div className='passage-view'>
-                        {/* This is the passage title */}
                         <div className='test-title'>
                             <>{currentPassage?.title}</>
                         </div>
-                        {/* This is the passage link */}
                         <div className='test-reference'>
                             <>{currentPassage?.linkReference}</>
                         </div>
-                        {/* This is the passage text/content */}
                         <div className='test-passage'>
                             <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
                         </div>
@@ -203,18 +202,23 @@ function IdentifyingWritersViews() {
                             <div>
                                 <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
+                                <div className='feature-block'>
+                                    <p className='features-font'>Headings</p>
+                                    {currentHeadings?.map((headings, index) => (
+                                        <div className='features-item' key={index}>
+                                            <p className='currentFeatures-font'> {headings.label}. {headings.name}</p>
+                                        </div>
+                                    ))}
+                                </div>
                                 <div className='question-container'>
-                                    {/* map loops over the array of question to determine how many questions does the current page have */}
                                     {currentQuestions.map((q, index) => (
-                                        // the question container - keys make the array of questions individually unique based on the "id" from the backend
                                         <div className='question-block' key={q.id || index}>
-                                            {/*  */} 
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
-                                            <div className='options-list'>
-                                                {(q.options || q.data).map((opt) => (
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p> {/* Change to sections if backend doesn't provide it */}
+                                            <div className='options-list display-flex'>
+                                                {(q.options || q.data).map((opt, index2) => (
                                                     <React.Fragment key={opt}>
                                                         <button
-                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
+                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
                                                             onClick={() => userChoiceClick(q.id || q.questionNumber, opt)}
                                                         >
                                                             {opt}
@@ -222,7 +226,7 @@ function IdentifyingWritersViews() {
                                                         <br/>
                                                     </React.Fragment>
                                                 ))}
-                                            </div>
+                                            </div>   
                                         </div>
                                     ))}
                                 </div>
@@ -244,9 +248,9 @@ function IdentifyingWritersViews() {
                     </section>
                 </div>
             </div>
-        </main>
+        </main>                                
         </>
     )
 }
 
-export default IdentifyingWritersViews;
+export default MatchingHeadings;
