@@ -196,6 +196,13 @@ p.questions {
     font-style: normal;
 }
 
+p.questions-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px
+}
+
 div.display-flex {
     display: flex;
 
@@ -205,7 +212,16 @@ input.answer-input {
     font-family: "Poppins", sans-serif;
     font-family: 400;
     font-style: normal;
-    margin-left: 20px;
+    margin-left: 25px;
+}
+
+input.answer-input-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px;    
+    background-color: rgb(227, 227, 227);
+    width: 300px;
 }
 
 div.next-back-buttons {
