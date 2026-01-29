@@ -1,11 +1,15 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import MatchingInformation from './main-test/matchinginformation';
-import MatchingFeatures from './main-test/matchingfeatures';
-import IdentifyingInformation from './main-test/identifyinginformation';
-import IdentifyingWritersViews from './main-test/identifyingwritersviews';
-import MultipleChoices from './main-test/multiplechoices';
-
+import { Route, Routes } from 'react-router-dom';
+import MatchingInformation from './matchinginformation';
+import MatchingFeatures from './matchingfeatures';
+import IdentifyingInformation from './identifyinginformation';
+import IdentifyingWritersViews from './identifyingwritersviews';
+import MultipleChoices from './multiplechoices';
+import MatchingSentenceEndings from './matchingsentenceendings';
+import MatchingHeadings from './matchingheadings';
+import SummaryCompletion from './summarycompletion';
+import TimerIsDown from './timerdown';
+import ExamSubmitted from './examsubmitted';
 
 export default function MainTestRoute() {
     return (
@@ -15,6 +19,11 @@ export default function MainTestRoute() {
             <Route path='matchinginformation' element={<MatchingInformation/>}/>
             <Route path='identifyinginformation' element={<IdentifyingInformation/>}/>
             <Route path='identifyingwritersviews' element={<IdentifyingWritersViews/>}/>
+            <Route path='matchingsentenceendings' element={<MatchingSentenceEndings/>}/>
+            <Route path='matchingheadings' element={<MatchingHeadings/>}/>
+            <Route path='summarycompletion' element={<SummaryCompletion/>}/>
+            <Route path='timerisdown' element={<TimerIsDown/>}/>
+            <Route path='examsubmitted' element={<ExamSubmitted/>}/>
         </Routes>
     )
 }
