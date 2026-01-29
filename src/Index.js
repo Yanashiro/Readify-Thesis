@@ -139,6 +139,24 @@ app.post('/createPassage', async (req, res) => {
     }
 });
 
+// Test Data Simulation
+const testData = {
+    testId: 101,
+    testDesignation: true,
+    testType: 1,
+    passageTitle: "The Renaissance Era",
+    passage: "The Renaissance was a fervent period of European cultural, artistic, political and economic 'rebirth' following the Middle Ages. It began in the 14th century and spread across Europe, marking the transition from the Middle Ages to Modernity.",
+    questions: [
+        { questionNumber: 1, questionText: "What does the word 'Renaissance' mean?", correctAnswer: "Rebirth" },
+        { questionNumber: 2, questionText: "Which era preceded the Renaissance?", correctAnswer: "The Middle Ages" },
+        { questionNumber: 3, questionText: "In which century did the Renaissance begin?", correctAnswer: "14th Century" }
+    ]
+};
+
+app.get('/testUI', (req, res) => {
+    res.render('TestView', { item: testData });
+});
+
 // Port for Express
 const port = 5000;
 app.listen(port, () => {

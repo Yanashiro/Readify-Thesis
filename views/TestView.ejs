@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; background: #f4f4f4; }
+        .containerTest { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .meta { color: #666; font-size: 0.9em; text-transform: uppercase; margin-bottom: 10px; }
+        .passage-content { font-size: 1.2em; border-left: 4px solid #007bff; padding-left: 20px; margin: 20px 0; }
+        .question-card { background: #f9f9f9; padding: 15px; margin-top: 15px; border-radius: 5px; border: 1px solid #ddd; }
+        .badge { background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+   <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="home">Home</a></li>
+                    <li><a href="Leaderboard">Leaderboard</a></li>
+                    <li><a href="PassageCreation">Create Passage</a></li>
+                    <li><a href="testUI">Take a Test</a></li>
+                </ul>
+            </nav>
+            </aside>
+
+        <main class="content">
+            <div class="container">
+                <div class="meta">
+                    Test ID: <%= item.testId %> | Type: <%= item.testType %> 
+                    <% if(item.testDesignation) { %> <span class="badge">Official</span> <% } %>
+                </div>
+
+                <h1><%= item.passageTitle %></h1>
+                
+                <div class="passage-content">
+                    <p><%= item.passage %></p>
+                </div>
+
+                <hr>
+
+                <h3>Questions</h3>
+                <% item.questions.forEach(q => { %>
+                    <div class="question-card">
+                        <strong>Q<%= q.questionNumber %>:</strong> <%= q.questionText %>
+                        <div style="margin-top: 10px; color: green;">
+                            <em>Correct Answer: <%= JSON.stringify(q.correctAnswer).replace(/"/g, '') %></em>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            </main>
+    </div>
+</body>
+</html>
