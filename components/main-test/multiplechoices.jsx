@@ -2,20 +2,22 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import SideTimer from './timer'
+import { useCookies } from 'react-cookie'
 import './maintestpage.css'
 
 function MultipleChoices() {
 
     // used to store and take questions and passages from the backend using Axios HTTP client
+    const [cookies] = useCookies(['examinee-cookie'])
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
     const [allQuestions, setAllQuestions] = useState(() => {
         const saved = sessionStorage.getItem("Questions History");
         return saved ? JSON.parse(saved) : []});
-    const [currentPage, setCurrentPage] = useState(/*() => {
-        const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : */0);
+    const [currentPage, setCurrentPage] = useState(() => {
+        const saved = sessionStorage.getItem("Page History");
+        return saved ? JSON.parse(saved) : 0});
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
         return saved ? JSON.parse(saved) : []});
@@ -36,8 +38,11 @@ function MultipleChoices() {
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
     // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
     const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const questionNumberStart = indexOfFirstQuestion;
+    const questionNumberEnd = indexOfLastQuestion;
     // immediate test collecting
     useEffect(() => {
+        if (passageHistory.length === 0) {
         axios
             // to intercept calls from '/hello' path
             .post('/maintestroute/multiplechoices')
@@ -51,6 +56,7 @@ function MultipleChoices() {
                 setPassageHistory([res.data]);
             })
             .catch((err) => {console.error(err)})
+        }
     }, []) 
 
     // immediat3e sessionStorage collecting
@@ -58,23 +64,10 @@ function MultipleChoices() {
         sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
         sessionStorage.setItem("Font Size", fontSize);
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
-        //sessionStorage.setItem("Page History", JSON.stringify(currentPage));
+        sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
         sessionStorage.setItem("Timer remain", time)
     }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
-    // immediate detection of current window change - Not yet finalized, still buggy
-    useEffect(() => {
-        return () => {
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/maintest/multiplechoices')) {
-                sessionStorage.removeItem("Answer");
-                sessionStorage.removeItem("Font Size");
-                sessionStorage.removeItem("Passage History");
-                sessionStorage.removeItem("Questions History");
-                console.log("Exam is clearned because examinee changed window location path");
-            }
-        }
-    }, [window.location.pathname])
 
     const userChoiceClick = (questionId, choiceValue) => {
         // used to save user choices (answers) even if the page is moved
@@ -133,6 +126,32 @@ function MultipleChoices() {
 
     if (allQuestions.length === 0) return <h1>Loading...</h1>
 
+    const sendUserAnswers = () => {
+        
+        const submissionData = {
+            examinee: cookies['examinee-cookie'],
+            answers: userAnswers,
+            data: new Date()
+        };
+        
+        axios
+            .post('/maintestroute/multiplechoices', submissionData)
+            .then((res) => {
+                if (res.status == 200) {
+                    window.location.replace('/maintest/examsubmitted');
+                    sessionStorage.removeItem("Answer")
+                    sessionStorage.removeItem("Font Size")
+                    sessionStorage.removeItem("Passage History")
+                    sessionStorage.removeItem("Page History")
+                    sessionStorage.removeItem("Questions History")
+                    sessionStorage.removeItem("Timer remain")
+                }
+            })
+            .catch((err) => {
+                alert("Submission failed. Please check your internet and try again.")
+                console.error(err)});
+    }
+
     return (
         <main className='main-maintest'>
             {/* This is the sidebar, where the timer resides */}
@@ -183,7 +202,7 @@ function MultipleChoices() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>{currentPassage?.questionNoRange}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
                                 <div className='question-container'>
                                     {/* map loops over the array of question to determine how many questions does the current page have */}
@@ -216,7 +235,7 @@ function MultipleChoices() {
                                     </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
-                                        <button onClick={() => console.log("Final Answers:", userAnswers)} className='submit-btn-test'>Submit Test</button>
+                                        <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
                                     ) : (
                                         <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
                                     )}
