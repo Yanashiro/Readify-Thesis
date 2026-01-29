@@ -15,6 +15,10 @@ function SideTimer({time, setTime}) {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Headings History")
+                    sessionStorage.removeItem("Summary History")
+                    sessionStorage.removeItem("Features History")
+                    sessionStorage.removeItem("Endings History")
                     return 0;
                 } else { 
                     return prevTime - 1};
