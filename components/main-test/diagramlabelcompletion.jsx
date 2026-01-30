@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import volcanoTemp from '../images/partsofavolcano.png'
+import volcanoTemp from '../images/partsofavolcano.png';
+import './maintestpage.css';
 
 function DiagramLabelCompletion() {
 
