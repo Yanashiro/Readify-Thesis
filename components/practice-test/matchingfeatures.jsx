@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
+import './practicetestpage.css';
 
 function MatchingFeatures() {
 
