@@ -8,7 +8,8 @@ main.dashboard-main {
 div.head-name {
     font-family: "DM Serif Display", serif;
     font-style: normal;
-    margin: 15px;
+    margin-left: 15px;
+    padding-top: 15px;
 }
 
 div.top-three {
@@ -20,11 +21,18 @@ div.main-board {
     margin: 15px;
     border-radius: 20px;
     box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
-    width: 30%;
+    width: 46%
+}
+
+h1.name-dashboard {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: normal;
 }
 
 div.main-title {
     text-align: center;
+    padding: 10px;
 }
 
 div.main-pic {
@@ -33,7 +41,8 @@ div.main-pic {
 
 img.main-img {
     border-radius: 20px;
-    width: 100%;
+    width: 260px;
+    height: 260px;
 }
 
 div.practice-board {
@@ -41,37 +50,77 @@ div.practice-board {
     margin: 15px;
     border-radius: 20px;
     box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
-    width: 30%;
+    width: 46%;
+}
+
+button.button-dashboard {
+    border-style: none;
+    background-color: white;
 }
 
 div.practice-title {
     text-align: center;
+    padding: 10px;
+}
+
+div.lower-title {
+    text-align: center;
+    padding: 10px;
 }
 
 div.practice-pic {
     align-items: center;
 }
 
-div.voc-board {
+/*div.voc-board {
     background-color: white;
     margin: 15px;
     border-radius: 20px;
     box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
     width: 30%;
-}
+}*/
 
 div.voc-title {
     text-align: center;
 }
 
-div.voc-pic {
+div.vocabulary-pic {
     align-items: center;
+    margin-top: 30px;
 }
 
 div.bottom-two {
     display: flex;
 }
 
+div.vocabularytest {
+    background-color: white;
+    margin: 7px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 31%;
+}
+
+div.tipsntricks {
+    background-color: white;
+    margin: 7px;
+    border-radius: 20px;
+    box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
+    width: 31%;
+}
+
+div.tipsandtricks-pic {
+    align-items: center;
+    margin-top: 30px;
+}
+
+img.lower-img {
+    border-radius: 20px;
+    width: 260px;
+    height: 260px;
+}
+
+/*
 div.act-board {
     background-color: white;
     margin: 15px;
@@ -82,23 +131,25 @@ div.act-board {
 
 div.act-title {
     text-align: center;
-}
-
-div.act-content {
-
-}
-
+} */
 
 div.achiev-board {
     background-color: white;
-    margin: 15px;
+    margin: 7px;
     border-radius: 20px;
     box-shadow: 1px 1px 2px 2px rgb(198, 198, 198);
-    width: 30%;
+    width: 31%;
 }
 
 div.achiev-title {
+    margin-top: 10px;
     text-align: center;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    h2 {
+        font-size: 20px;
+    }
 }
 
 div.achiev-content {
@@ -109,8 +160,9 @@ div.achievement {
     background-color: rgb(235, 235, 235);
     margin: 10px;
     border-radius: 20px;
-    padding: 10px;
+    padding: 1px;
     display: flex;
+    width: 95%;
 }
 
 p.achiev-p-title {
@@ -130,16 +182,26 @@ img.achiev-img {
 
 div.achieve-bottom {
     margin: 10px;
-    margin-right: 33px;
-    margin-left: 250px;
     text-align: center;
 }
 
 button.see-more {
-    width: 100%;
+    width: 30%;
     margin: 20px;
     background-color: rgb(43, 50, 255);
     color: white;
     border-color: rgb(43, 50, 255);
     border-radius: 20px;
+}
+
+h2 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+h1.name {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
 }
