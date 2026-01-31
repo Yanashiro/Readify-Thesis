@@ -61,6 +61,11 @@ app.get(/^\/maintest(.*)/, (req, res) =>{
     res.render("MainTest")
 })
 
+// PracticeTest Render - new from patrick
+app.get(/^\/practicetest(.*)/, (req, res) => {
+    res.render("PracticeTest")
+})
+
 // Function for Signing Up Users
 app.post("/signup", async (req, res) => {
     // Gets data from Body to send to Database

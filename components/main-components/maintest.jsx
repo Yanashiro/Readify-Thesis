@@ -78,19 +78,30 @@ function MTPage() {
     const handleButtonClick = (title, link, isAlreadyAnswered) =>
     {      
         setSelectedTitle(title);
+
+        axios
+            .post('/retrieveData', selectedTitle)
+            .then((res) => {
+                setCompleted(res.data.status)
+                setCorrectAnswers(res.data.answers)
+                setBandScore(res.data.band)
+                setMainResults(res.data)
+            })
+            .catch((err) => console.error(err))
+        
         setIsVisible(!isVisible);
         setFrontEndLink(link);
         active(isAlreadyAnswered)
     }
 
-    const active = (isCompleted, answer, band, mainResults) => {
-        
-        setCompleted(isCompleted);
-        setCorrectAnswers(answer);
-        setBandScore(band);
-        setMainResults(mainResults);
+    const active = (isExamCompleted, answer, band, mainResults) => {
+
+        isExamCompleted(isCompleted);
+        isCorrectAnswers(answer);
+        isBandScore(band);
+        isMainResults(mainResults);
         return (
-            setItemAnswered(false) //set isCompleted;
+            setItemAnswered(isCompleted) //set isCompleted;
         )    
     }
 
@@ -98,8 +109,10 @@ function MTPage() {
         axios
             .get('/status') //get reading comprehension test score here
             .then((res) => {
-                const {isCompleted, answer, band, mainResults} = res.data;
-                active(isCompleted, answer, band, mainResults);
+                setCompleted(res.data.status)
+                setCorrectAnswers(res.data.answers)
+                setBandScore(res.data.band)
+                setMainResults(res.data)
             })
             .catch((err) => {
                 console.error(err)

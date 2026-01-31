@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './practicetestpage.css';
 
 function MatchingInformation() {
 
@@ -46,7 +46,7 @@ function MatchingInformation() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/matchinginformation')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -113,7 +113,7 @@ function MatchingInformation() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/matchinginformation')
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -144,7 +144,7 @@ function MatchingInformation() {
         };
         
         axios
-            .post('/maintestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/matchinginformation', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');

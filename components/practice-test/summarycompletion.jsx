@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './practicetestpage.css';
 
-function MatchingInformation() {
+function SummaryCompletion() {
 
     // remember, function uses parameters
     // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
@@ -21,16 +21,20 @@ function MatchingInformation() {
         return saved ? JSON.parse(saved) : 0});
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});;
+        return saved ? JSON.parse(saved) : []});
+    const [summaryHistory, setSummaryHistory] = useState(() => {
+        const saved = sessionStorage.getItem("Summary History")
+        return saved ? JSON.parse(saved) : {}});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});;
+        return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
         return saved ? JSON.parse(saved) : 900})
     
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
+    const currentSummary = summaryHistory[currentPage];
     // used to index an array of questions putting the maximum capacity to 3 questions per page
     const questionsPerPage = 3;
     // used as a 'cutter' to 'indexOfFirstQuestion' 
@@ -46,7 +50,7 @@ function MatchingInformation() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/summarycompletion')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -54,6 +58,7 @@ function MatchingInformation() {
                 setAllQuestions(res.data.questions);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setSummaryHistory([res.data.summary])
             })
             .catch((err) => console.error(err));
         }
@@ -66,8 +71,9 @@ function MatchingInformation() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+        sessionStorage.setItem("Summary History", JSON.stringify(summaryHistory))
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, summaryHistory]);
 
     const userWriteDown = (questionId, writeValue) => {
         // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
@@ -113,7 +119,7 @@ function MatchingInformation() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/summarycompletion')
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -129,6 +135,7 @@ function MatchingInformation() {
                 setCurrentPage(prevPage => prevPage + 1);
                 // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
                 setPassageHistory(prev => [...prev, res.data]); 
+                setSummaryHistory(prev => [...prev, res.data.summary])
             })
             .catch((err) => console.error(err))
     }
@@ -144,7 +151,7 @@ function MatchingInformation() {
         };
         
         axios
-            .post('/maintestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/summarycompletion', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -154,6 +161,7 @@ function MatchingInformation() {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Summary History")
                 }
             })
             .catch((err) => {
@@ -211,14 +219,18 @@ function MatchingInformation() {
                             <div>
                                 <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
+                                <div className='summary-block'>
+                                    <p className='features-font'>{currentSummary?.summaryTitle}</p>
+                                    <p className='summary-font'>{currentSummary?.question}</p>
+                                </div>        
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
+                                        <div className='question-block-summary' key={q.id || index}>
+                                            <p className='questions-summary'><strong>{indexOfFirstQuestion + index + 1}.</strong></p>
                                             <input 
                                                 type='text'
-                                                className='answer-input'
+                                                className='answer-input-summary'
                                                 placeholder=''
                                                 value={userAnswers[q.id || q.questionNumber] || ''}
                                                 onChange={(e) => userWriteDown(q.id || q.questionNumber, e.target.value)}
@@ -248,4 +260,4 @@ function MatchingInformation() {
     )
 }
 
-export default MatchingInformation;
+export default SummaryCompletion;

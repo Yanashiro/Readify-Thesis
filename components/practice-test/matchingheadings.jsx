@@ -1,52 +1,48 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import SideTimer from '../main-components/timer';
+import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './practicetestpage.css';
 
-function MatchingInformation() {
+function MatchingHeadings() {
 
-    // remember, function uses parameters
-    // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
     const [cookies] = useCookies(['examinee-cookie'])
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
-    const [allQuestions, setAllQuestions] = useState(() => {
-        const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
     const [currentPage, setCurrentPage] = useState(() => {
         const saved = sessionStorage.getItem("Page History");
         return saved ? JSON.parse(saved) : 0});
+    const [allQuestions, setAllQuestions] = useState(() => {
+        const saved = sessionStorage.getItem("Questions History");
+        return saved ? JSON.parse(saved) : []});
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});;
+        return saved ? JSON.parse(saved) : []});
+    const [headingsHistory, setHeadingsHistory] = useState(() => {
+        const saved = sessionStorage.getItem("Headings History")
+        return saved ? JSON.parse(saved) : {}});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
         return saved ? JSON.parse(saved) : 20});;
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
         return saved ? JSON.parse(saved) : 900})
-    
-    // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
-    const currentPassage = passageHistory[currentPage];
-    // used to index an array of questions putting the maximum capacity to 3 questions per page
-    const questionsPerPage = 3;
-    // used as a 'cutter' to 'indexOfFirstQuestion' 
+
+    const questionsPerPage = 4;
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    // used to index the very first question after a "Next Page" removing the last question from the equation 
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
+    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage; 
     const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentPassage = passageHistory[currentPage];
+    const currentHeadings = headingsHistory[currentPage];
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
-    // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/matchingheadings')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -54,8 +50,9 @@ function MatchingInformation() {
                 setAllQuestions(res.data.questions);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setHeadingsHistory([res.data.headings]);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => console.error(err))
         }
     }, [])
 
@@ -64,19 +61,19 @@ function MatchingInformation() {
         sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
         sessionStorage.setItem("Font Size", fontSize);
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
+        sessionStorage.setItem("Headings History", JSON.stringify(headingsHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, headingsHistory]);
 
-    const userWriteDown = (questionId, writeValue) => {
-        // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
-        // before adding new questions and new answers made by the user
+    const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
             ...prev,
-            [questionId]: writeValue
+            [questionId]: choiceValue,
         }))
     }
+
     // increase font size of passage
     const increaseFontSize = () => {
         if (fontSize == 40) {
@@ -97,23 +94,18 @@ function MatchingInformation() {
     }
 
     const handleNextPage = () => {
-        // hard limit for questions
+
         const totalLimit = 10;
 
-        if (passageHistory.length > currentPage + 1) {
-            // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
-            // then allow "Next Page" functionality and return 0, otherwise do skip this step;
-            setCurrentPage(prev => prev + 1);
-            return; // function stopper
+        if(passageHistory.length > currentPage +  1) {
+            setCurrentPage(prev => prev + 1)
+            return;
         }
-
-        if (allQuestions.length > totalLimit) { //apply >= if need exactly 10
-            // if length of allQuestions array is greater than variable totalLimit, function returns nothing
-            return; // stops the function
+        if(allQuestions.length >= totalLimit) {
+            return;
         }
-        // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/matchingheadings')
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -129,11 +121,10 @@ function MatchingInformation() {
                 setCurrentPage(prevPage => prevPage + 1);
                 // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
                 setPassageHistory(prev => [...prev, res.data]); 
+                setHeadingsHistory(prev => [...prev, res.data.headings]);
             })
-            .catch((err) => console.error(err))
+            .catch((err) => console.error(err));
     }
-
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
@@ -144,7 +135,7 @@ function MatchingInformation() {
         };
         
         axios
-            .post('/maintestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/imatchingheadings', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -154,6 +145,7 @@ function MatchingInformation() {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Headings History")
                 }
             })
             .catch((err) => {
@@ -162,6 +154,7 @@ function MatchingInformation() {
     }
 
     return (
+        <>
         <main className='main-maintest'>
             <section className='sidebar'>
                 <div>
@@ -172,7 +165,7 @@ function MatchingInformation() {
                     <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
                 </div>
             </section>
             <div className='section-flex'>
@@ -195,8 +188,6 @@ function MatchingInformation() {
                 <div className='two-sections'>
                     <div className='passage-view'>
                         <div className='test-title'>
-                            {/* the print out version of the exam passages, "?." is an optional chaining that access the previous history/pages of passages.
-                                It also prevents white screen errors because it is accessing an array of previous stored passages. */}
                             <>{currentPassage?.title}</>
                         </div>
                         <div className='test-reference'>
@@ -211,18 +202,31 @@ function MatchingInformation() {
                             <div>
                                 <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
+                                <div className='feature-block'>
+                                    <p className='features-font'>Headings</p>
+                                    {currentHeadings?.map((headings, index) => (
+                                        <div className='features-item' key={index}>
+                                            <p className='currentFeatures-font'> {headings.label}. {headings.name}</p>
+                                        </div>
+                                    ))}
+                                </div>
                                 <div className='question-container'>
-                                    {/*  */}
                                     {currentQuestions.map((q, index) => (
                                         <div className='question-block' key={q.id || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
-                                            <input 
-                                                type='text'
-                                                className='answer-input'
-                                                placeholder=''
-                                                value={userAnswers[q.id || q.questionNumber] || ''}
-                                                onChange={(e) => userWriteDown(q.id || q.questionNumber, e.target.value)}
-                                            />
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p> {/* Change to sections if backend doesn't provide it */}
+                                            <div className='options-list display-flex'>
+                                                {(q.options || q.data).map((opt, index2) => (
+                                                    <React.Fragment key={opt}>
+                                                        <button
+                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
+                                                            onClick={() => userChoiceClick(q.id || q.questionNumber, opt)}
+                                                        >
+                                                            {opt}
+                                                        </button>
+                                                        <br/>
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>   
                                         </div>
                                     ))}
                                 </div>
@@ -244,8 +248,9 @@ function MatchingInformation() {
                     </section>
                 </div>
             </div>
-        </main>
+        </main>                                
+        </>
     )
 }
 
-export default MatchingInformation;
+export default MatchingHeadings;

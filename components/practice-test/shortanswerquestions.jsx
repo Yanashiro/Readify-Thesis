@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './practicetestpage.css';
 
-function MatchingInformation() {
+function ShortAnswerQuestions() {
 
     // remember, function uses parameters
     // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
+    // sessionStorage.getItem are placed here for the useState to collect saved data from a page refresh
     const [cookies] = useCookies(['examinee-cookie'])
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
@@ -46,7 +47,7 @@ function MatchingInformation() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/shortanswerquestions')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -113,7 +114,7 @@ function MatchingInformation() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/shortanswerquestions')
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -144,7 +145,7 @@ function MatchingInformation() {
         };
         
         axios
-            .post('/maintestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/shortanswerquestions', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -172,7 +173,7 @@ function MatchingInformation() {
                     <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination.</p>
                 </div>
             </section>
             <div className='section-flex'>
@@ -248,4 +249,4 @@ function MatchingInformation() {
     )
 }
 
-export default MatchingInformation;
+export default ShortAnswerQuestions;

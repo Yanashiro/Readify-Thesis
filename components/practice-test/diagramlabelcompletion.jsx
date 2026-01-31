@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import volcanoTemp from '../images/partsofavolcano.png'
+import './practicetestpage.css';
 
-function MatchingInformation() {
+function DiagramLabelCompletion() {
 
     // remember, function uses parameters
     // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
@@ -21,10 +22,10 @@ function MatchingInformation() {
         return saved ? JSON.parse(saved) : 0});
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});;
+        return saved ? JSON.parse(saved) : []});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});;
+        return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
         return saved ? JSON.parse(saved) : 900})
@@ -32,7 +33,7 @@ function MatchingInformation() {
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
     // used to index an array of questions putting the maximum capacity to 3 questions per page
-    const questionsPerPage = 3;
+    const questionsPerPage = 5;
     // used as a 'cutter' to 'indexOfFirstQuestion' 
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
     // used to index the very first question after a "Next Page" removing the last question from the equation 
@@ -46,12 +47,13 @@ function MatchingInformation() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/diagramlabelcompletion')
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
                 // taking all questions from the randomizer (JSON)
                 setAllQuestions(res.data.questions);
+                setPassageHistory(res.data.image);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
             })
@@ -113,7 +115,7 @@ function MatchingInformation() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/matchinginformation')
+            .post('/practicetestroute/diagramlabelcompletion')
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -129,6 +131,7 @@ function MatchingInformation() {
                 setCurrentPage(prevPage => prevPage + 1);
                 // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
                 setPassageHistory(prev => [...prev, res.data]); 
+                setPassageHistory(prev => [...prev, res.data.image]);
             })
             .catch((err) => console.error(err))
     }
@@ -144,7 +147,7 @@ function MatchingInformation() {
         };
         
         axios
-            .post('/maintestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/diagramlabelcompletion', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -154,6 +157,9 @@ function MatchingInformation() {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Summary History")
+                    sessionStorage.removeItem("Endings History")
+                    sessionStorage.removeItem("Features History")
                 }
             })
             .catch((err) => {
@@ -202,6 +208,10 @@ function MatchingInformation() {
                         <div className='test-reference'>
                             <>{currentPassage?.linkReference}</>
                         </div>
+                        <div className='test-image'>
+                            {/*<img src={currentPassage?.image}></img> -- Enable this once the exam coding is finished*/}
+                            <img className='temporary-image' src={volcanoTemp}></img>
+                        </div>
                         <div className='test-passage'>
                             <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
                         </div>
@@ -210,15 +220,16 @@ function MatchingInformation() {
                         <div>
                             <div>
                                 <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
-                                <p className='p-description'>{currentPassage?.description}</p>
+                                <p className='p-description'>Label the diagram below.</p>
+                                <p className='p-description'>{currentPassage?.description}</p>      
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
+                                        <div className='question-block-summary' key={q.id || index}>
+                                            <p className='questions-summary'><strong>{indexOfFirstQuestion + index + 1}.</strong></p>
                                             <input 
                                                 type='text'
-                                                className='answer-input'
+                                                className='answer-input-summary'
                                                 placeholder=''
                                                 value={userAnswers[q.id || q.questionNumber] || ''}
                                                 onChange={(e) => userWriteDown(q.id || q.questionNumber, e.target.value)}
@@ -248,4 +259,4 @@ function MatchingInformation() {
     )
 }
 
-export default MatchingInformation;
+export default DiagramLabelCompletion;

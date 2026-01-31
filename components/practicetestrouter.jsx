@@ -1,20 +1,20 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import MatchingInformation from './main-test/matchinginformation';
-import MatchingFeatures from './main-test/matchingfeatures';
-import IdentifyingInformation from './main-test/identifyinginformation';
-import IdentifyingWritersViews from './main-test/identifyingwritersviews';
-import MultipleChoices from './main-test/multiplechoices';
-import MatchingSentenceEndings from './main-test/matchingsentenceendings';
-import MatchingHeadings from './main-test/matchingheadings';
-import SummaryCompletion from './main-test/summarycompletion';
-import ShortAnswerQuestions from './main-test/shortanswerquestions';
-import SentenceCompletion from './main-test/sentencecompletion';
-import DiagramLabelCompletion from './main-test/diagramlabelcompletion';
+import MatchingInformation from './practice-test/matchinginformation';
+import MatchingFeatures from './practice-test/matchingfeatures';
+import IdentifyingInformation from './practice-test/identifyinginformation';
+import IdentifyingWritersViews from './practice-test/identifyingwritersviews';
+import MultipleChoices from './practice-test/multiplechoices';
+import MatchingSentenceEndings from './practice-test/matchingsentenceendings';
+import MatchingHeadings from './practice-test/matchingheadings';
+import SummaryCompletion from './practice-test/summarycompletion';
+import ShortAnswerQuestions from './practice-test/shortanswerquestions';
+import SentenceCompletion from './practice-test/sentencecompletion';
+import DiagramLabelCompletion from './practice-test/diagramlabelcompletion';
 import TimerIsDown from './timerdown';
 import ExamSubmitted from './examsubmitted';
 
-export default function MainTestRoute() {
+export default function PracticeTestRoute() {
     return (
         <Routes>
             <Route path='multiplechoices' element={<MultipleChoices/>}/>
