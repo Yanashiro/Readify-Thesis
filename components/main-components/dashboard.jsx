@@ -1,20 +1,23 @@
-// still needs revisions after the removal of the vocabulary test tab
-
 import React from 'react';
 import './dashboard.css';
 import { useEffect, useState } from 'react';
+//import { Link } from 'react-router-dom';
 import axios from 'axios';
-import vocTest from '../../images/vocabularytest.png';
-import pracTest from '../../images/practicetest.png';
-import mainTest from '../../images/maintest.png';
+import pracTest from '../../images/practicetest.jpg';
+import mainTest from '../../images/maintest.jpg';
+import vocTest from '../../images/vocabularytest.jpg';
+import tipsPic from '../../images/tipsntricks.jpg';
 import locked from '../../images/locked.png';
 import firstSteps from '../../images/first_steps.png'
 import getAHang from '../../images/getting_the_hang_of_it.png'
 import marathon from '../../images/marathon_reader.png'
 import comprehensionStart from '../../images/comprehension_starter.png'
+import PageNavigation from './navbar';
+import MTPage from './maintest'
+import { Cookies, useCookies } from 'react-cookie';
 
-function Dashboard() {
-
+function Dashboard({page, setPage}) {
+    const [cookies] = useCookies(['examinee-cookie'])
     const [firstName, setFirstName] = useState("");
     const [unlocked, setUnlocked] = useState({
         firstSteps: false,
@@ -23,9 +26,13 @@ function Dashboard() {
         comprehensionStart: false,
     });
 
+    function ChangePage(e) {
+        return e;
+    }
+
     useEffect(() => {
         axios
-            .get('/api/firstName')
+            .get('/firstName')
             .then((res) => {
                 setFirstName(res.data.firstName);
             })
@@ -34,8 +41,9 @@ function Dashboard() {
             });
         
         axios 
-            .get('/api/achievements')
+            .get('/achievements')
             .then((res) => {
+                const [firstSteps, getAHang, marathon, comprehensionStart] = res.data;
                 setUnlocked(res.data);
             })
             .catch((err) => {
@@ -43,34 +51,39 @@ function Dashboard() {
             });
     }, [])
 
+    if (ChangePage == "main-test") {
+        return <MTPage/>
+    } else if (ChangePage == "practice-test") {
+        return <MTPage/>
+    }
 
     return (
         <main className='dashboard-main'>
             <div className='head-name'>
-                <h1 className='name'>Welcome, {firstName || 'User'}!</h1>
+                <h1 className='name-dashboard'>Welcome, {cookies['examinee-cookie'] || 'User'}!</h1>
             </div>
             <div className='top-three'>
                 <div className='main-board'>
-                    <a href="/maintest.jsx" style={{textDecoration: 'none', color: 'black'}}>
+                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='main-title'>
                             <h2>Main Test</h2>
                         </div>
                         <div className='main-pic'>
                             <img className='main-img' src={mainTest}></img>
                         </div>
-                    </a>
+                    </button>
                 </div>
                 <div className='practice-board'>
-                    <a href="/maintest.jsx" style={{textDecoration: 'none', color: 'black'}}>
+                    <button className="button-dashboard" onClick={ChangePage("practice-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='practice-title'>
                             <h2>Practice Test</h2>
                         </div>
                         <div className='practice-pic'>
                             <img className='main-img' src={pracTest}></img>
                         </div>
-                    </a>
+                    </button>
                 </div>
-                <div className='voc-board'>
+{/*}            <div className='voc-board'>
                     <a href="/maintest.jsx" style={{textDecoration: 'none', color: 'black'}}>
                         <div className='voc-title'>
                             <h2>Vocabulary Test</h2>
@@ -79,16 +92,28 @@ function Dashboard() {
                             <img className='main-img' src={vocTest}></img>
                         </div>
                     </a>
-                </div>
+                </div> */}
             </div>
             <div className='bottom-two'>
-                <div className='act-board'>
-                    <div className='act-title'>
-                        <h2>Activity</h2>
-                    </div>
-                    <div className='act-content'>
-
-                    </div>  
+                <div className='vocabularytest'>
+                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                        <div className='lower-title'>
+                            <h2>Vocabulary Test</h2>
+                        </div>
+                        <div className='vocabulary-pic'>
+                            <img className="lower-img" src={vocTest}></img>
+                        </div>
+                    </button>  
+                </div>
+                <div className='tipsntricks'>
+                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                        <div className='lower-title'>
+                            <h2>Tips & Tricks</h2>
+                        </div>
+                        <div className='tipsandtricks-pic'>
+                            <img className="lower-img" src={tipsPic}></img>
+                        </div>
+                    </button>
                 </div>
                 <div className='achiev-board'>
                     <div className='achiev-title'>
@@ -141,4 +166,5 @@ function Dashboard() {
     )
 }
 
+export default Dashboard;
 export default Dashboard;
