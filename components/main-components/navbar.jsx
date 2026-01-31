@@ -2,19 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import './navbar.css';
 
-import userIcon from '../images/icons/user.png';
-import dashboardIcon from '../images/icons/dashboard.png';
-import mainTestIcon from '../images/icons/main-test.png';
-import practiceTestIcon from '../images/icons/practice-test.png';
-import vocabularyIcon from '../images/icons/vocabulary.png';
-import achievementIcon from '../images/icons/achievement.png';
-import tipsIcon from '../images/icons/tips.png';
-import settingsIcon from '../images/icons/settings.png';
-import profileIcon from '../images/icons/profile.png';
-import logoutIcon from '../images/icons/logout.png';
-import aboutUsIcon from '../images/icons/aboutus.png';
+import userIcon from '../../images/icons/user.png';
+import dashboardIcon from '../../images/icons/dashboard.png';
+import mainTestIcon from '../../images/icons/main-test.png';
+import practiceTestIcon from '../../images/icons/practice-test.png';
+import vocabularyIcon from '../../images/icons/vocabulary.png';
+import achievementIcon from '../../images/icons/achievement.png';
+import tipsIcon from '../../images/icons/tips.png';
+import settingsIcon from '../../images/icons/settings.png';
+import profileIcon from '../../images/icons/profile.png';
+import logoutIcon from '../../images/icons/logout.png';
+import aboutUsIcon from '../../images/icons/aboutus.png';
 import Dashboard from './dashboard';
 import MTPage from './maintest';
+import PTPage from './practicetest';
 import TipsnTricks from './tipsntricks';
 import AboutUs from './aboutus';
 import Achievements from './achievements';
@@ -29,7 +30,7 @@ function PageNavigation({input}) {
         case 'Main Test':
             return <MTPage/>
         case 'Practice Test':
-            return <MTPage/>  
+            return <PTPage/>  
         case 'Achievements':
             return <Achievements/>
         case 'Tips & Tricks':
@@ -45,7 +46,13 @@ function PageNavigation({input}) {
 
 function Navbar() {
   const [cookies, , removeCookie] = useCookies(['examinee-cookie'])
-  const [activeMenu, setActiveMenu] = useState('');
+  const [activeMenu, setActiveMenu] = useState(() => {
+    const currentPath = window.location.pathname;
+
+    if(currentPath === '/home') {
+      return 'Dashboard';
+    }
+    return ''});
 
   const handleMenuClick = (menuName) => {
     setActiveMenu(menuName);
@@ -124,16 +131,14 @@ useEffect(() => {
         {/* SIDEBAR */}
         <div className="sidebar-nav">
           <div className="sidebar-title">All Tests</div>
-
           <a 
             className={`menu-item ${activeMenu === 'Dashboard' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Dashboard')}
             href="#!"
-          >
+          > 
             <img src={dashboardIcon} className="menu-icon" alt="Dashboard" />
             <span>Dashboard</span>
           </a> 
-
           <a 
             className={`menu-item ${activeMenu === 'Main Test' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Main Test')}
@@ -214,6 +219,9 @@ useEffect(() => {
       </div>
     </div>
   );
+}
+
+export default Navbar;
 }
 
 export default Navbar;
