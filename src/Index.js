@@ -7,7 +7,6 @@ const passageCollection = require("./config");
 
 const { name } = require('ejs');
 const { Collection } = require('mongoose');
-
 // Express
 const app = express()
 
