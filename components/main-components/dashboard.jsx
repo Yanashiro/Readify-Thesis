@@ -30,16 +30,7 @@ function Dashboard({page, setPage}) {
         return e;
     }
 
-    useEffect(() => {
-        axios
-            .get('/firstName')
-            .then((res) => {
-                setFirstName(res.data.firstName);
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-        
+    useEffect(() => {;
         axios 
             .get('/achievements')
             .then((res) => {
