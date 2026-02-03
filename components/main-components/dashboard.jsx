@@ -16,7 +16,7 @@ import PageNavigation from './navbar';
 import MTPage from './maintest'
 import { Cookies, useCookies } from 'react-cookie';
 
-function Dashboard({page, setPage}) {
+function Dashboard({setPage}) {
     const [cookies] = useCookies(['examinee-cookie'])
     const [firstName, setFirstName] = useState("");
     const [unlocked, setUnlocked] = useState({
@@ -26,27 +26,17 @@ function Dashboard({page, setPage}) {
         comprehensionStart: false,
     });
 
-    function ChangePage(e) {
-        return e;
-    }
-
-    useEffect(() => {;
+    useEffect(() => {
         axios 
             .get('/achievements')
             .then((res) => {
-                const [firstSteps, getAHang, marathon, comprehensionStart] = res.data;
-                setUnlocked(res.data);
+                setUnlocked(...res.data);
             })
             .catch((err) => {
                 console.error(err);
             });
     }, [])
 
-    if (ChangePage == "main-test") {
-        return <MTPage/>
-    } else if (ChangePage == "practice-test") {
-        return <MTPage/>
-    }
 
     return (
         <main className='dashboard-main'>
@@ -55,7 +45,7 @@ function Dashboard({page, setPage}) {
             </div>
             <div className='top-three'>
                 <div className='main-board'>
-                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                    <button className="button-dashboard" onClick={() => setPage("Main Test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='main-title'>
                             <h2>Main Test</h2>
                         </div>
@@ -65,7 +55,7 @@ function Dashboard({page, setPage}) {
                     </button>
                 </div>
                 <div className='practice-board'>
-                    <button className="button-dashboard" onClick={ChangePage("practice-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                    <button className="button-dashboard" onClick={() => setPage("Practice Test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='practice-title'>
                             <h2>Practice Test</h2>
                         </div>
@@ -87,7 +77,7 @@ function Dashboard({page, setPage}) {
             </div>
             <div className='bottom-two'>
                 <div className='vocabularytest'>
-                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                    <button className="button-dashboard" onClick={() => setPage("Practice Test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='lower-title'>
                             <h2>Vocabulary Test</h2>
                         </div>
@@ -97,7 +87,7 @@ function Dashboard({page, setPage}) {
                     </button>  
                 </div>
                 <div className='tipsntricks'>
-                    <button className="button-dashboard" onClick={ChangePage("main-test")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
+                    <button className="button-dashboard" onClick={() => setPage("Tips & Tricks")} style={{textDecoration: 'none', color: 'black', borderRadius: '20px', width: '100%'}}>
                         <div className='lower-title'>
                             <h2>Tips & Tricks</h2>
                         </div>
@@ -149,7 +139,7 @@ function Dashboard({page, setPage}) {
                         </div>
                     </div>
                     <div className='achieve-bottom'>
-                        <button className='see-more'><p>See more</p></button>
+                        <button className='see-more' onClick={() => setPage("Achievements")}><p>See more</p></button>
                     </div>
                 </div>
             </div>
@@ -157,5 +147,4 @@ function Dashboard({page, setPage}) {
     )
 }
 
-export default Dashboard;
 export default Dashboard;
