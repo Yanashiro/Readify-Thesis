@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './maintest.css';
 import axios from 'axios';
+import lockTest from '../../images/locktest.png'
+import { useCookies } from 'react-cookie';
+import { Link } from 'react-router-dom';
 
 function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, mainResults}) {
+
+    const [cookies, setCookie, removeCookie] = useCookies(['examinee-cookie'])
     
     if (!isVisible) return null;
     
@@ -11,7 +16,7 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
         <> 
             <div className="test-details-container">
                 <div className="test-Title-Div">
-                    <h3 className="test-Title">{show}</h3>
+                    <h3 className="test-Title">{show}:</h3>
                 </div>
                 <div id="test-Items">
                     <ul id="test-List"> 
@@ -46,7 +51,7 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
                 </div>
                 <div id="button-Test-Completed">
                     <div id="button-Design-Completed">
-                        <p>Test Done <img width={"10px"} height={"10px"}></img></p>
+                        <p>Test Done <img src={lockTest} width={"10px"} height={"10px"}></img></p>
                     </div>
                 </div>
             </div>
@@ -55,7 +60,7 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
                     <p className="p-test-results">Current Main Test Results:</p>
                 </div>
                 <div>
-                    {mainResults}
+                    {mainResults.totalCorrectAnswers} / {mainResults.totalQuestions}
                 </div>
             </div>
         </div>
@@ -66,128 +71,140 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
 
 function MTPage() {
 
+    const [cookies, setCookie, removeCookie] = useCookies(['examinee-cookie'])
     const [isVisible, setIsVisible] = useState(false);
     const [selectedTitle, setSelectedTitle] = useState("");
     const [frontEndLink, setFrontEndLink] = useState("");
     const [isCorrectAnswers, setCorrectAnswers] = useState(0);
     const [isBandScore, setBandScore] = useState(0);
     let [isCompleted, setCompleted] = useState("");
-    const [isMainResults, setMainResults] = useState(0);
+    const [isMainResults, setMainResults] = useState({});
     const [isAnswered, setItemAnswered] = useState(false);
 
-    const handleButtonClick = (title, link, isAlreadyAnswered) =>
-    {      
-        setSelectedTitle(title);
+    // This function now handles everything when a button is clicked
+    const handleButtonClick = (title, link) => {
 
-        axios
-            .post('/retrieveData', selectedTitle)
-            .then((res) => {
-                setCompleted(res.data.status)
-                setCorrectAnswers(res.data.answers)
-                setBandScore(res.data.band)
-                setMainResults(res.data)
-            })
-            .catch((err) => console.error(err))
-        
-        setIsVisible(!isVisible);
+        const extractData = {
+            examinee: cookies['examinee-cookie'],
+            title: title
+        }
+
+        // If same title, close it. If new title, open it.
+        if (selectedTitle === title && isVisible) {
+            setIsVisible(false);
+        } else {
+            setSelectedTitle(title);
+            setIsVisible(true);
+        }
+
         setFrontEndLink(link);
-        active(isAlreadyAnswered)
-    }
 
-    const active = (isExamCompleted, answer, band, mainResults) => {
-
-        isExamCompleted(isCompleted);
-        isCorrectAnswers(answer);
-        isBandScore(band);
-        isMainResults(mainResults);
-        return (
-            setItemAnswered(isCompleted) //set isCompleted;
-        )    
-    }
-
-    useEffect(() => {
+        // Fetch the data for this specific test
         axios
-            .get('/status') //get reading comprehension test score here
+            // change this post route if needed
+            .post('/maintestselection/retrieveData', extractData)
             .then((res) => {
-                setCompleted(res.data.status)
-                setCorrectAnswers(res.data.answers)
-                setBandScore(res.data.band)
-                setMainResults(res.data)
+                // Update all states with the response from the backend
+                setCompleted(res.data.status);
+                setCorrectAnswers(res.data.answers);
+                setBandScore(res.data.band);
+                setMainResults(res.data.calculations);
+                
+                // update the status that TestDetails uses to switch views (IF/Else statement)
+                setItemAnswered(res.data.status); 
             })
-            .catch((err) => {
-                console.error(err)
-            });
-    }, []);
+            .catch((err) => console.error("Error retrieving data:", err));
+    };
+
+    // Keep the initial load status check
+    useEffect(() => {
+
+        const extractData = {
+            examinee: cookies['examinee-cookie'],
+        }
+
+        axios
+            // change t his get route if needed
+            .get('/maintestselection/status', extractData)
+            .then((res) => {
+                setCompleted(res.data.status);
+                setCorrectAnswers(res.data.answers);
+                setBandScore(res.data.band);
+                setMainResults(res.data);
+                setItemAnswered(res.data.status);
+            })
+            .catch((err) => console.error(err));
+    }, [])
 
     return (
         <main className='maintest-main'>
             <section id="section1">
-                <div>
-                    <h1>Main Test</h1>
+                <div className='maintest-title'>
+                    <h1 className='main-test-h1'>Main Test</h1>
                 </div>
                 <div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices", active("Multiple Choice"))} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices")} >
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation", active("Identifying Information"))} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation")} >
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews", active("Identifying Writer's Views"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews")}>
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation", active("Matching Information"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation")}>
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings", active("Matching Headings"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings")}>
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "./root.jsx", active("Matching Features"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/maintest/matchingfeatures")}>
                             <p className="title matchingFeat">Matching Features</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "./root.jsx", active("Matching Sentence Endings"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/maintest/matchingsentenceendings")}>
                             <p className="title matchingSent">Matching Sentence Endings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "./root.jsx", active("Sentence Completion"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/maintest/sentencecompletion")}>
                             <p className="title sentenceComp">Sentence Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary/Note/table/Flow-chart Comparison", "./root.jsx", active("Summary/Note/table/Flow-chart Comparison"))}>
-                            <p className="title summary">Summary/Note/table/Flow-chart Comparison</p>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/maintest/summarycompletion")}>
+                            <p className="title summary">Summary Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "./root.jsx", active("Diagram Label Completion"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/maintest/diagramlabelcompletion")}>
                             <p className="title diagramLabel">Diagram Label Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "./root.jsx", active("Short-Answer Questions"))}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/maintest/shortanswerquestions")}>
                             <p className="title shortAnswer">Short-Answer Questions</p>
                             <p className='main-arrow'>〉</p>
                         </button>
