@@ -1,10 +1,12 @@
+// you can change the route if needed, the routes are just a proof-of-concept
+
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import volcanoTemp from '../images/partsofavolcano.png';
-import './maintestpage.css';
+import volcanoTemp from '../../images/partsofavolcano.png'
+import './maintestpage.css'
 
 function DiagramLabelCompletion() {
 
@@ -47,7 +49,7 @@ function DiagramLabelCompletion() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/diagramlabelcompletion')
+            .post('/maintestroute/diagramlabelcompletion', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -68,8 +70,11 @@ function DiagramLabelCompletion() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [time])
 
     const userWriteDown = (questionId, writeValue) => {
         // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
@@ -115,7 +120,7 @@ function DiagramLabelCompletion() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/diagramlabelcompletion')
+            .post('/maintestroute/diagramlabelcompletion', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -142,8 +147,10 @@ function DiagramLabelCompletion() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Main",
+            testCategory: "Diagram Label Completion",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
@@ -178,7 +185,7 @@ function DiagramLabelCompletion() {
                     <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination.</p>
                 </div>
             </section>
             <div className='section-flex'>
@@ -225,7 +232,7 @@ function DiagramLabelCompletion() {
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block-summary' key={q.id || index}>
+                                        <div className='question-block-summary' key={q.questionNumber || index}>
                                             <p className='questions-summary'><strong>{indexOfFirstQuestion + index + 1}.</strong></p>
                                             <input 
                                                 type='text'
@@ -240,14 +247,14 @@ function DiagramLabelCompletion() {
                                 <div className='next-back-buttons'>
                                     {currentPage > 0 && (
                                     <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
+                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
                                         <br/>
                                     </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
                                     )}
                                 </div>
                             </div>
