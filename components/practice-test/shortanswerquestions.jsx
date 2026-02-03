@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function ShortAnswerQuestions() {
 
@@ -47,7 +47,7 @@ function ShortAnswerQuestions() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/shortanswerquestions')
+            .post('/practicetestroute/shortanswerquestions', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -67,8 +67,11 @@ function ShortAnswerQuestions() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [time])
 
     const userWriteDown = (questionId, writeValue) => {
         // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
@@ -114,7 +117,7 @@ function ShortAnswerQuestions() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/practicetestroute/shortanswerquestions')
+            .post('/practicetestroute/shortanswerquestions', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -140,12 +143,14 @@ function ShortAnswerQuestions() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Short Answer Questions",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/shortanswerquestions', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -215,7 +220,7 @@ function ShortAnswerQuestions() {
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
                                             <input 
                                                 type='text'
