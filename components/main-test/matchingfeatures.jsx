@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './maintestpage.css'
 
 function MatchingFeatures() {
 
@@ -42,7 +42,7 @@ function MatchingFeatures() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchingfeatures')
+            .post('/maintestroute/matchingfeatures', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -65,7 +65,11 @@ function MatchingFeatures() {
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, featuresHistory]);
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, featuresHistory]);
+
+    useEffect(() => {
+        sessionStorage.setItem("Timer remain", time)
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
@@ -105,7 +109,7 @@ function MatchingFeatures() {
             return;
         }
         axios
-            .post('/maintestroute/matchingfeatures')
+            .post('/maintestroute/matchingfeatures', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -130,12 +134,14 @@ function MatchingFeatures() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Main",
+            testCategory: "Matching Features",
+            submissionAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/maintestroute/matchingfeatures', submissionData)
+            .post('/maintestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -145,6 +151,7 @@ function MatchingFeatures() {
                     sessionStorage.removeItem("Page History")
                     sessionStorage.removeItem("Questions History")
                     sessionStorage.removeItem("Timer remain")
+                    sessionStorage.removeItem("Features History")
                 }
             })
             .catch((err) => {
@@ -211,7 +218,7 @@ function MatchingFeatures() {
                                 </div>
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
@@ -232,14 +239,14 @@ function MatchingFeatures() {
                                 <div className='next-back-buttons'>
                                     {currentPage > 0 && (
                                     <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
+                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
                                         <br/>
                                     </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
                                     )}
                                 </div>
                             </div>
