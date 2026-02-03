@@ -2,9 +2,12 @@
 
 body {
     margin: 0%;
+    padding: 0%;
 }
 
 main {
+    margin: 0%;
+    padding: 0%;
     background-color: rgb(241, 241, 241);
 }
 
@@ -14,9 +17,10 @@ main.aboutUsMain {
 
 div.about-us-header {
     h1 {
-        margin: 20px;
-        font-family: 'DM Serif Display', serif;
-        font-weight: 400;
+        padding-top: 15px;
+        margin-left: 20px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
         font-style: normal;
     }
     p {
@@ -29,8 +33,8 @@ div.meet-the-team {
     margin-left: 6px;
 
     h1 {
-        font-family: 'DM Serif Display', serif;
-        font-weight: 400;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
         font-style: normal;
     }
 }
