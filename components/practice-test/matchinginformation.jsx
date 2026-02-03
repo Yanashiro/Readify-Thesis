@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function MatchingInformation() {
 
@@ -46,7 +46,7 @@ function MatchingInformation() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/matchinginformation')
+            .post('/practicetestroute/matchinginformation', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -66,8 +66,11 @@ function MatchingInformation() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [time])
 
     const userWriteDown = (questionId, writeValue) => {
         // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
@@ -113,7 +116,7 @@ function MatchingInformation() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/practicetestroute/matchinginformation')
+            .post('/practicetestroute/matchinginformation', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -139,12 +142,14 @@ function MatchingInformation() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Matching Information",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/matchinginformation', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -172,7 +177,7 @@ function MatchingInformation() {
                     <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination.</p>
                 </div>
             </section>
             <div className='section-flex'>
@@ -214,7 +219,7 @@ function MatchingInformation() {
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
                                             <input 
                                                 type='text'
