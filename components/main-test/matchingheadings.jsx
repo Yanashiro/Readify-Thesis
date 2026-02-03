@@ -1,9 +1,11 @@
+// routes are just a proof of concept, you can change it any time
+
 import React from 'react';
 import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './maintestpage.css'
 
 function MatchingHeadings() {
 
@@ -42,7 +44,7 @@ function MatchingHeadings() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/matchingheadings')
+            .post('/maintestroute/matchingheadings', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -64,8 +66,11 @@ function MatchingHeadings() {
         sessionStorage.setItem("Headings History", JSON.stringify(headingsHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, headingsHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, headingsHistory]);
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
@@ -105,7 +110,7 @@ function MatchingHeadings() {
             return;
         }
         axios
-            .post('/maintestroute/matchingheadings')
+            .post('/maintestroute/matchingheadings', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -130,12 +135,14 @@ function MatchingHeadings() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Main",
+            testCategory: "Matching Headingns",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/maintestroute/imatchingheadings', submissionData)
+            .post('/maintestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -212,7 +219,7 @@ function MatchingHeadings() {
                                 </div>
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p> {/* Change to sections if backend doesn't provide it */}
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
@@ -233,14 +240,14 @@ function MatchingHeadings() {
                                 <div className='next-back-buttons'>
                                     {currentPage > 0 && (
                                     <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
+                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
                                         <br/>
                                     </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
                                     )}
                                 </div>
                             </div>
