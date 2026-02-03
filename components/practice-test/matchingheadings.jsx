@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function MatchingHeadings() {
 
@@ -42,7 +42,7 @@ function MatchingHeadings() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/matchingheadings')
+            .post('/practicetestroute/matchingheadings', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -65,7 +65,11 @@ function MatchingHeadings() {
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, headingsHistory]);
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, headingsHistory]);
+
+    useEffect(() => {
+        sessionStorage.setItem("Timer remain", time)
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
@@ -105,7 +109,7 @@ function MatchingHeadings() {
             return;
         }
         axios
-            .post('/practicetestroute/matchingheadings')
+            .post('/practicetestroute/matchingheadings', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -130,12 +134,14 @@ function MatchingHeadings() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Matching Headings",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/imatchingheadings', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -212,7 +218,7 @@ function MatchingHeadings() {
                                 </div>
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p> {/* Change to sections if backend doesn't provide it */}
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
