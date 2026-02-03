@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function MatchingSentenceEndings() {
 
@@ -42,7 +42,7 @@ function MatchingSentenceEndings() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/matchingsentenceendings')
+            .post('/practicetestroute/matchingsentenceendings', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -64,8 +64,11 @@ function MatchingSentenceEndings() {
         sessionStorage.setItem("Endings History", JSON.stringify(endingsHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, endingsHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, endingsHistory]);
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
@@ -105,7 +108,7 @@ function MatchingSentenceEndings() {
             return;
         }
         axios
-            .post('/practicetestroute/matchingsentenceendings')
+            .post('/practicetestroute/matchingsentenceendings', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -130,8 +133,10 @@ function MatchingSentenceEndings() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Matching Sentence Endings",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
@@ -211,7 +216,7 @@ function MatchingSentenceEndings() {
                                 </div>
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
