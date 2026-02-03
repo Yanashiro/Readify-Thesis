@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function IdentifyingWritersViews() {
 
@@ -44,7 +44,7 @@ function IdentifyingWritersViews() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/identifyingwritersviews')
+            .post('/practicetestroute/identifyingwritersviews', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -64,8 +64,11 @@ function IdentifyingWritersViews() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         // used to save user choices (answers) even if the page is moved
@@ -109,7 +112,7 @@ function IdentifyingWritersViews() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
-            axios.post('/practicetestroute/identifyingwritersviews')
+            axios.post('/practicetestroute/identifyingwritersviews', {randomize: true})
                 .then((res) => {
                     setAllQuestions(prevQuestions => {
                         const combined = [...prevQuestions, ...res.data.questions]
@@ -128,12 +131,14 @@ function IdentifyingWritersViews() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Identifying Writers Views",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/identifyinginformation', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -162,7 +167,7 @@ function IdentifyingWritersViews() {
                     <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
                 </div>
                 <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are <br/> Randomized. Multiple<br /> tab changes can result in exam <br />termination. Do not <br/> refresh the page or <br/> your data resets</p>
+                    <p className='warning-text'>Warning! Questions are <br/> Randomized. Multiple<br /> tab changes can result in exam <br />termination.</p>
                 </div>
             </section>
             <div className='section-flex'>
@@ -207,7 +212,7 @@ function IdentifyingWritersViews() {
                                     {/* map loops over the array of question to determine how many questions does the current page have */}
                                     {currentQuestions.map((q, index) => (
                                         // the question container - keys make the array of questions individually unique based on the "id" from the backend
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             {/*  */} 
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
                                             <div className='options-list'>
