@@ -13,7 +13,7 @@
 } */
 
 h1 {
-  font-family: "DM Serif Display", serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
@@ -21,6 +21,10 @@ h1 {
 section#section1 {
   width: 65%;
   height: 100%;
+}
+
+div.maintest-title {
+  padding-top: 15px;
 }
 
 section#section2 {
@@ -61,6 +65,9 @@ button.main-test-buttons {
     border-radius: 20px;
     p.title {
       width: 90%;
+      font-family: "Poppins", sans-serif;
+      font-weight: 400;
+      font-style: normal;
       text-align: left;
       margin-left: 10px;
       margin: 15px;
@@ -68,19 +75,20 @@ button.main-test-buttons {
 }
 
 button.main-test-buttons:hover {
-  background-color: rgb(26, 26, 126);
+  background-color: rgb(35, 53, 110);
   color: white;
 }
 
 button.main-test-buttons:focus {
-  background-color: rgb(26, 26, 126);
+  background-color: rgb(35, 53, 110);
   color: white
 }
 
 div.test-details-container {
+  padding: 10px;
   margin-top: 80px;
   border-radius: 20px;
-  background-color: rgb(52, 52, 138);
+  background-color: rgb(35, 53, 110);
   color: white;
   font-family: sans-serif;
   width: 85%;
@@ -99,16 +107,16 @@ h3.test-Title {
 }
 
 div#test-Items {
+  display: grid;
+  place-items: center;
 }
 
-ul#test-List {
-  margin-right: 50px;
-  text-align: center;
-  list-style-type: none;
+ul#test-List { 
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
-}
+  font-size: 20px;
+} 
 
 div#note-Test {
   text-align: center;
@@ -127,10 +135,12 @@ div#button-Test-Div {
 }
 
 div.test-details-container2 {
-  font-family: sans-serif;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
   margin-top: 80px;
   border-radius: 20px;
-  background-color: rgb(52, 52, 138);
+  background-color: rgb(35, 53, 110);
   color: white;
   width: 85%;
 }
@@ -189,9 +199,11 @@ div#button-Design-Completed {
 
 div.main-Test-Container {
   margin-top: 250px;
-  background-color: rgb(52, 52, 138);
+  background-color: rgb(35, 53, 110);
   color: white;
-  font-family: sans-serif;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
   border-radius: 20px;
   padding-bottom: 150px;
   width: 85%;
@@ -211,5 +223,11 @@ ul#correct-Answers {
   list-style-type: none;
   font-family: "Poppins", sans-serif;
   font-weight: 400;
+  font-style: normal;
+}
+
+h1.main-test-h1 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
   font-style: normal;
 }
