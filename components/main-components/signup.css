@@ -19,7 +19,7 @@ body {
 }
 
 main.signup-main {
-    background-image: url('../images/readify_login.png');
+    background-image: url('../../images/readify_login.png');
     margin: 0px;
     padding: 0px;
     height: 100vh;
