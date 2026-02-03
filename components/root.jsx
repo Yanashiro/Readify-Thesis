@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import Navbar from './navbar'
-import Login from './login'
-import Signup from './signup'
-import './maintestboard.css'
+import Navbar from './main-components/navbar'
+import Login from './main-components/login'
+import Signup from './main-components/signup'
+import './main-components/maintestboard.css'
 import MainTestRoute from './maintestrouter'
 import PracticeTestRoute from './practicetestrouter'
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
