@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import SideTimer from '../main-components/timer'
 import { useCookies } from 'react-cookie'
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function MultipleChoices() {
 
@@ -45,7 +45,7 @@ function MultipleChoices() {
         if (passageHistory.length === 0) {
         axios
             // to intercept calls from '/hello' path
-            .post('/practicetestroute/multiplechoices')
+            .post('/practicetestroute/multiplechoices', {randomize: true})
             .then((res) => {
                 // console.log for debugging what questions has been received
                 console.log("Number of question received", res.data.questions.length);
@@ -66,8 +66,11 @@ function MultipleChoices() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    },[time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         // used to save user choices (answers) even if the page is moved
@@ -111,7 +114,7 @@ function MultipleChoices() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
-            axios.post('/practicetestroute/multiplechoices')
+            axios.post('/practicetestroute/multiplechoices', {randomize: true})
                 .then((res) => {
                     setAllQuestions(prevQuestions => {
                         const combined = [...prevQuestions, ...res.data.questions]
@@ -130,12 +133,14 @@ function MultipleChoices() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Multiple Choices",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/multiplechoices', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -208,7 +213,7 @@ function MultipleChoices() {
                                     {/* map loops over the array of question to determine how many questions does the current page have */}
                                     {currentQuestions.map((q, index) => (
                                         // the question container - keys make the array of questions individually unique based on the "id" from the backend
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             {/*  */} 
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
                                             <div className='options-list'>
