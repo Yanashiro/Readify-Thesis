@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
 import axios from 'axios';
 import { useCookies } from 'react-cookie';
-import './practicetestpage.css';
+import './practicetestpage.css'
 
 function MatchingFeatures() {
 
@@ -42,7 +42,7 @@ function MatchingFeatures() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/practicetestroute/matchingfeatures')
+            .post('/practicetestroute/matchingfeatures', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -64,8 +64,11 @@ function MatchingFeatures() {
         sessionStorage.setItem("Features History", JSON.stringify(featuresHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, featuresHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time, featuresHistory]);
+    }, [time])
 
     const userChoiceClick = (questionId, choiceValue) => {
         setUserAnswers(prev => ({
@@ -105,7 +108,7 @@ function MatchingFeatures() {
             return;
         }
         axios
-            .post('/practicetestroute/matchingfeatures')
+            .post('/practicetestroute/matchingfeatures', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -130,12 +133,14 @@ function MatchingFeatures() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Practice",
+            testCategory: "Matching Features",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/matchingfeatures', submissionData)
+            .post('/practicetestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -211,7 +216,7 @@ function MatchingFeatures() {
                                 </div>
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
