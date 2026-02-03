@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useCookies } from 'react-cookie';
-import './maintestpage.css';
+import './maintestpage.css'
 
 function SentenceCompletion() {
 
@@ -47,7 +47,7 @@ function SentenceCompletion() {
     useEffect(() => {
         if (passageHistory.length === 0) {
         axios
-            .post('/maintestroute/sentencecompletion')
+            .post('/maintestroute/sentencecompletion', {randomize: true})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -67,8 +67,11 @@ function SentenceCompletion() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+
+    useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, time]);
+    }, [time])
 
     const userWriteDown = (questionId, writeValue) => {
         // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
@@ -114,7 +117,7 @@ function SentenceCompletion() {
         }
         // requesting data from the backend every "Next Page" click
         axios
-            .post('/maintestroute/sentencecompletion')
+            .post('/maintestroute/sentencecompletion', {randomize: true})
             .then((res) => {
                 setAllQuestions(prevQuestions => {
                     // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
@@ -140,12 +143,14 @@ function SentenceCompletion() {
         
         const submissionData = {
             examinee: cookies['examinee-cookie'],
-            answers: userAnswers,
-            data: new Date()
+            testType: "Main",
+            testCategory: "Sentence Completion",
+            submittedAnswers: userAnswers,
+            testDate: new Date()
         };
         
         axios
-            .post('/maintestroute/sentencecompletion', submissionData)
+            .post('/maintestroute/examSubmission', submissionData)
             .then((res) => {
                 if (res.status == 200) {
                     window.location.replace('/maintest/examsubmitted');
@@ -215,7 +220,7 @@ function SentenceCompletion() {
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.id || index}>
+                                        <div className='question-block' key={q.questionNumber || index}>
                                             <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
                                             <input 
                                                 type='text'
@@ -230,14 +235,14 @@ function SentenceCompletion() {
                                 <div className='next-back-buttons'>
                                     {currentPage > 0 && (
                                     <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
+                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
                                         <br/>
                                     </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
                                     ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
+                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
                                     )}
                                 </div>
                             </div>
