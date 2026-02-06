@@ -31,3 +31,9 @@ Or start them individually:
 ### Build
 
     npm run build
+
+## Troubleshooting
+
+- If stuck at loading tests, the backend might be down. Restart it with `node src/Index.js`.    
+    - If this doesn't work, try stopping the servers with `make stop` and then restarting them.
+    - If this still doesn't work, try clearing session storage in the browser (DevTools > Application > Session Storage > Clear) and refresh.
