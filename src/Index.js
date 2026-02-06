@@ -121,7 +121,6 @@ app.post("/login", async (req, res) => {
             req.send("Username or Password Incorrect");
         }
     } catch {
-        console.log(data);
         res.send("Wrong Details");
     }
 });
