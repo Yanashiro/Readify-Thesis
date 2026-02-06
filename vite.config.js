@@ -12,6 +12,12 @@ export default defineConfig({
     server: {
         proxy: {
             "/api": "http://127.0.0.1:5000",
+            "/login": "http://127.0.0.1:5000",
+            "/signup": "http://127.0.0.1:5000",
+            "/createPassage": "http://127.0.0.1:5000",
+            "/maintestselection": "http://127.0.0.1:5000",
+            "/maintestroute": "http://127.0.0.1:5000",
+            "/achievements": "http://127.0.0.1:5000",
         },
     },
     // vite config - allow any origin
