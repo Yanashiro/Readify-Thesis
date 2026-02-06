@@ -19,18 +19,20 @@ import { Cookies, useCookies } from 'react-cookie';
 function Dashboard({setPage}) {
     const [cookies] = useCookies(['examinee-cookie'])
     const [firstName, setFirstName] = useState("");
-    const [unlocked, setUnlocked] = useState({
-        firstSteps: false,
-        getAHang: false,
-        marathon: false,
-        comprehensionStart: false,
-    });
+    const [unlocked, setUnlocked] = useState([]);
+
+    const achievementList = [
+        {id: 'firstSteps', name: 'First Steps', desc: 'Completed first reading test', img: firstSteps},
+        {id: 'getAHang', name: 'Getting the Hang of it', desc: 'Completed 5 tests', img: getAHang},
+        {id: 'marathon', name: 'Marathon Reader', desc: 'Completed 10 tests', img: marathon},
+        {id: 'comprehensionStart', name: 'Comprehension Starter', desc: 'Scored 50% or higher in a test', img: comprehensionStart}
+    ]
 
     useEffect(() => {
         axios 
             .get('/achievements')
             .then((res) => {
-                setUnlocked(...res.data);
+                setUnlocked(res.data);
             })
             .catch((err) => {
                 console.error(err);
@@ -64,16 +66,6 @@ function Dashboard({setPage}) {
                         </div>
                     </button>
                 </div>
-{/*}            <div className='voc-board'>
-                    <a href="/maintest.jsx" style={{textDecoration: 'none', color: 'black'}}>
-                        <div className='voc-title'>
-                            <h2>Vocabulary Test</h2>
-                        </div>
-                        <div className='voc-pic'>
-                            <img className='main-img' src={vocTest}></img>
-                        </div>
-                    </a>
-                </div> */}
             </div>
             <div className='bottom-two'>
                 <div className='vocabularytest'>
@@ -101,42 +93,17 @@ function Dashboard({setPage}) {
                         <h2>Achievements</h2>
                     </div>
                     <div className='achiev-content'>
-                        <div className='achievement first-steps'>
+                        {achievementList.map((ach) => (
+                        <div className='achievement' key={ach.id}>
                             <div>
-                                <img className='achiev-img' src={unlocked.firstSteps ? firstSteps : locked}></img>
+                                <img className='achiev-img' src={unlocked[ach.id] ? ach.img : locked}></img>
                             </div>
                             <div>
-                                <p className='achiev-p-title'>First Steps</p>
-                                <p>Completed first reading test</p>
-                            </div>
-                        </div>
-                        <div className='achievement get-a-hang'>
-                            <div>
-                                <img className='achiev-img' src={unlocked.getAHang ? getAHang : locked}></img>
-                            </div>
-                            <div>
-                                <p className='achiev-p-title'>Getting the Hang of it</p>
-                                <p>Completed 5 tests</p>
+                                <p className='achiev-p-title'>{ach.name}</p>
+                                <p>{ach.desc}</p>
                             </div>
                         </div>
-                        <div className='achievement mar-reader'>
-                            <div>
-                                <img className='achiev-img' src={unlocked.marathon ? marathon : locked}></img>
-                            </div>
-                            <div>
-                                <p className='achiev-p-title'>Marathon Reader</p>
-                                <p>Completed 10 tests</p>
-                            </div>
-                        </div>
-                        <div className='achievement comp-starter'>
-                            <div>
-                                <img className='achiev-img' src={unlocked.comprehensionStart ? comprehensionStart : locked}></img>
-                            </div>
-                            <div>
-                                <p className='achiev-p-title'>Comprehension Starter</p>
-                                <p>Scored 50% or higher in a test</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                     <div className='achieve-bottom'>
                         <button className='see-more' onClick={() => setPage("Achievements")}><p>See more</p></button>
