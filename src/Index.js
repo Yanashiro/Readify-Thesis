@@ -1,9 +1,11 @@
 const express = require("express");
 const path = require("path");
 const bcrypt = require("bcrypt");
-const readifyUser_Collection = require("./config");
-const questionCollection = require("./config");
-const passageCollection = require("./config");
+const {
+    readifyUser_Collection,
+    questionCollection,
+    passageCollection,
+} = require("./config");
 
 const { name } = require("ejs");
 const { Collection } = require("mongoose");
@@ -154,6 +156,27 @@ app.post("/createPassage", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send("Error saving test: " + err.message);
+    }
+});
+
+// Multiple Choices Route
+app.post("/maintestroute/multiplechoices", async (req, res) => {
+    try {
+        const passage = await passageCollection.findOne({ testType: 1 });
+        if (!passage) {
+            return res.status(404).json({ error: "No passage found" });
+        }
+        res.json({
+            testTitle: "Multiple Choices",
+            title: passage.passageTitle,
+            passage: passage.passage,
+            description: "Choose the correct letter, A, B, C or D.",
+            linkReference: "",
+            questions: passage.questions,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
     }
 });
 
