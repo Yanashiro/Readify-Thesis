@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./login.css";
 /*function Wrongcredentials(wrongcredentials, isVisible) {
@@ -21,6 +21,7 @@ function Login() {
     const [account, setAccount] = useCookies(["examinee-cookie"]);
     const [message, setMessage] = useState("");
 
+    const navigate = useNavigate();
     // react state variable for remembering username and password
     const [formData, setFormData] = useState({
         username: "",
@@ -44,18 +45,20 @@ function Login() {
     // function to create cookies and perform submit to remove credentials on the input field
     const handleSubmit = (e) => {
         e.preventDefault();
-        setAccount("examinee-cookie", formData.username, { path: "/" });
-        window.location.href = "/home";
-    };
 
-    useEffect(() => {
         axios
-            .post("/login")
+            .post("/login", formData)
             .then((res) => {
-                setMessage([res.body]);
+                const serverMessage = res.data
+                setMessage(serverMessage);
+
+                if (serverMessage === "Password matched!") {
+                    setAccount("examinee-cookie", formData.username, { path: "/" });
+                    navigate('/home')
+                }
             })
             .catch((err) => console.error(err));
-    }, [message]);
+    };
 
     return (
         <>
@@ -113,9 +116,9 @@ function Login() {
                             </div>
                             <p className="dont-have-account">
                                 Don't have an account?{" "}
-                                <a href="/signup" className="signup-href">
+                                <Link to="/signup" className="signup-href">
                                     Signup
-                                </a>
+                                </Link>
                             </p>
                             <button
                                 type="submit"
