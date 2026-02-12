@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
     <link rel="stylesheet" href="homeStyle.css">
+    
+                    
 </head>
 <body>
    <div class="container">
@@ -24,7 +26,35 @@
         <main class="content">
             <h1>Welcome to the Homepage</h1>
             <p>This is the main content area that will flow next to the sidebar.</p>
-            </main>
+        </main>
+        <% if (query && query.msg === 'success') { %>
+    <div id="status-popup" style="
+        position: fixed; 
+        top: 20px; 
+        right: 20px; 
+        padding: 20px; 
+        background: #28a745; 
+        color: white; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 1000;">
+        <strong>Success!</strong> Test created with ID: <%= query.id %>
+    </div>
+
+    <script>
+        // Wait 3 seconds, then fade out and redirect/clean up
+        setTimeout(() => {
+            const popup = document.getElementById('status-popup');
+            if (popup) {
+                popup.style.transition = "opacity 0.5s ease";
+                popup.style.opacity = "0";
+                setTimeout(() => popup.remove(), 500);
+            }
+            // Clean the URL so the popup doesn't reappear on refresh
+            window.history.replaceState({}, document.title, "/");
+        }, 3000);
+    </script>
+<% } %>
     </div>
 </body>
 </html>

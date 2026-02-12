@@ -12,6 +12,12 @@ const { Collection } = require("mongoose");
 // Express
 const app = express();
 
+// Middleware to pass query parameters to all views
+app.use((req, res, next) => {
+    res.locals.query = req.query;
+    next();
+});
+
 // For conversion of data into json
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +32,7 @@ app.use(express.static(path.join(__dirname, "../dist")));
 
 // Home Render
 app.get("/home", (req, res) => {
-    res.render("home");
+    res.render('Home', { query: req.query });;
 });
 
 // Profile Render
@@ -151,7 +157,7 @@ app.post("/createPassage", async (req, res) => {
 
         const newPassage = new passageCollection(formData);
         await newPassage.save();
-        res.send("Test created successfully! ID: " + newPassage.testId);
+        res.redirect(`/Home?msg=success&id=${newPassage.testId}`);
     } catch (err) {
         console.error(err);
         res.status(500).send("Error saving test: " + err.message);
