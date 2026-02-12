@@ -151,9 +151,7 @@ app.post("/createPassage", async (req, res) => {
 
         const newPassage = new passageCollection(formData);
         await newPassage.save();
-
         res.send("Test created successfully! ID: " + newPassage.testId);
-        res.render("Home");
     } catch (err) {
         console.error(err);
         res.status(500).send("Error saving test: " + err.message);
