@@ -20,10 +20,11 @@ import TipsnTricks from './tipsntricks';
 import AboutUs from './aboutus';
 import Achievements from './achievements';
 import Profile from './profile';
+import VocPage from './vocabtest';
 import AdminHome from '../admin-components/adminhome';
 import PassageCreation from '../admin-components/passagecreation';
 import ManageUsers from '../admin-components/manageusers';
-import TestReview from '../admin-components/testreview';
+import TestReview from '../admin-components/testreviewtest';
 //import dropdownIcon from '../images/icons/dropdown.png';
 
 function PageNavigation({input, setInput}) {
@@ -39,6 +40,8 @@ function PageNavigation({input, setInput}) {
           return <MTPage/>
       case 'Practice Test':
           return <PTPage/>  
+      case 'Vocabulary Test':
+          return <VocPage/>
       case 'Achievements':
           return <Achievements/>
       case 'Tips & Tricks':
@@ -52,7 +55,7 @@ function PageNavigation({input, setInput}) {
     }
   } else if (isAdmin) {
     switch(input) {
-      case 'Home':
+      case 'Dashboard':
         return <AdminHome setPage={setInput}/>
       case 'Passage Creation':
         return <PassageCreation/>
@@ -60,6 +63,8 @@ function PageNavigation({input, setInput}) {
         return <ManageUsers setPage={setInput}/>
       case 'Test Review':
         return <TestReview/>
+      case 'About Us':
+        return <AboutUs/>
       default:
         return <AdminHome/>
     }
@@ -82,7 +87,7 @@ function Navbar() {
     } else if (isAdmin) {
       const currentPath = window.location.pathname;
       if(currentPath === '/home') {
-        return 'Home';
+        return 'Dashboard';
       }
       return ''
     }
@@ -113,12 +118,16 @@ function Navbar() {
       }
   }, []) */}
   useEffect(() => {
-    if(!cookies['examinee-cookie' || 'admin-cookie']) {
+
+    const isExaminee = !!cookies['examinee-cookie'];
+    const isAdmin = !!cookies['admin-cookie']
+
+    if(!isExaminee && !isAdmin) {
       alert("User Identity lost, logging out");
       sessionStorage.clear();
       window.location.replace('/');
     }
-  }, [cookies['examinee-cookie'], cookies['admin-cookie']]);
+  }, [cookies['examinee-cookie'] || cookies['admin-cookie']]);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
@@ -142,6 +151,7 @@ function Navbar() {
           <img src={userIcon} className="user-nav-icon" alt="User" />
           <span>{isExaminee ? cookies['examinee-cookie'] : isAdmin ? cookies['admin-cookie'] : 'User'}</span>
           {/*<img src={dropdownIcon} className="dropdown-icon" alt="Dropdown" /> */}
+
         </div>
       </div>
       {/* MAIN CONTAINER */}
@@ -175,6 +185,15 @@ function Navbar() {
             <img src={practiceTestIcon} className="menu-icon" alt="Practice Test" />
             <span>Practice Test</span>
           </a>
+
+          <a 
+            className={`menu-item ${activeMenu === 'Vocabulary Test' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Vocabulary Test')} 
+            href="#"
+          > 
+            <img src={dashboardIcon} className="menu-icon" alt="Vocabulary Test" />
+            <span>Vocabulary Test</span>
+          </a> 
 
           <a 
             className={`menu-item ${activeMenu === 'Achievements' ? 'active' : ''}`} 
@@ -227,12 +246,12 @@ function Navbar() {
         <div className="sidebar-nav">
           <div className="sidebar-title">All Tests</div>
           <a 
-            className={`menu-item ${activeMenu === 'Home' ? 'active' : ''}`} 
-            onClick={() => handleMenuClick('Home')} 
+            className={`menu-item ${activeMenu === 'Dashboard' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Dashboard')} 
             href="#"
           > 
             <img src={dashboardIcon} className="menu-icon" alt="Home" />
-            <span>Home</span>
+            <span>Dashboard</span>
           </a> 
 
           <a 
@@ -261,12 +280,131 @@ function Navbar() {
             <img src={practiceTestIcon} className="menu-icon" alt="Test Review" />
             <span>Test Review</span>
           </a> 
+
+          <div className="settings-separator">Settings</div>
+
+          <a 
+            className={`menu-item ${activeMenu === 'Profile' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Profile')}
+            href="#"
+          >
+            <img src={profileIcon} className="menu-icon" alt="Profile" />
+            <span>Profile</span>
+          </a>
+
+          <a 
+            className={`menu-item ${activeMenu === 'About Us' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('About Us')}
+            href="#"
+          >
+            <img src={aboutUsIcon} className="menu-icon" alt="About Us" />
+            <span>About Us</span>
+          </a>
+
+          <div className="logout-section">
+            <a className="logout-link" onClick={handleLogout}>
+              <img src={logoutIcon} className="menu-icon" alt="Log Out" />
+              <span>Log Out</span>
+            </a>
+          </div>
         </div>
       }
         {/* MAIN CONTENT */}
         <div className="main-content">
             <PageNavigation input={activeMenu} setInput={setActiveMenu} />
         </div>
+      </div>
+      <div>
+      {isExaminee &&
+      <footer className="readify-footer">
+      <div className="footer-inner">
+        <div className="footer-top-row">
+          {/* LEFT */}
+          <div className="left-brand-block">
+            <div className="readify-title">Readify</div>
+            <div className="readify-description">
+              Readify is an online reading comprehension platform designed to help senior high school
+              students improve their reading skills using the IELTS reading framework. It provides
+              automated tests, instant feedback, and progress tracking to support students and teachers.
+              Readify aims to make reading assessment accessible and prepare students for college-level
+              academic reading.
+            </div>
+
+            <div className="policy-links">
+              <a href="#" className="footer-link">Privacy Policy</a>
+              <a href="#" className="footer-link">Terms &amp; Conditions</a>
+            </div>
+          </div>
+
+        
+          <div className="right-nav-group">
+            <div className="nav-col">
+              <a onClick={() => handleMenuClick('Dashboard')} className="footer-link">Dashboard</a>
+              <a onClick={() => handleMenuClick('Main Test')} className="footer-link">Main Test</a>
+              <a onClick={() => handleMenuClick('Practice Test')} className="footer-link">Practice Test</a>
+              <a onClick={() => handleMenuClick('Vocabulary Test')} className="footer-link">Vocabulary Test</a>
+              <a onClick={() => handleMenuClick('Achievements')} className="footer-link">Achievements</a>
+              <a onClick={() => handleMenuClick('Tips & Tricks')} className="footer-link">Tips &amp; Tricks</a>
+            </div>
+
+            <div className="nav-col">
+              <a onClick={() => handleMenuClick('Profile')} className="footer-link">Profile</a>
+              <a onClick={() => handleMenuClick('About Us')} className="footer-link">About Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div className="footer-bottom-yellow">
+        <div className="footer-bottom-inner">© 2026 Readify. All Rights Reserved</div>
+      </div>
+      </footer>
+      }
+      {isAdmin &&
+        <footer className="readify-footer">
+      <div className="footer-inner">
+        <div className="footer-top-row">
+          {/* LEFT */}
+          <div className="left-brand-block">
+            <div className="readify-title">Readify</div>
+            <div className="readify-description">
+              Readify is an online reading comprehension platform designed to help senior high school
+              students improve their reading skills using the IELTS reading framework. It provides
+              automated tests, instant feedback, and progress tracking to support students and teachers.
+              Readify aims to make reading assessment accessible and prepare students for college-level
+              academic reading.
+            </div>
+
+            <div className="policy-links">
+              <a href="#" className="footer-link">Privacy Policy</a>
+              <a href="#" className="footer-link">Terms &amp; Conditions</a>
+            </div>
+          </div>
+
+        
+          <div className="right-nav-group">
+            <div className="nav-col">
+              <a onClick={() => handleMenuClick('Dashboard')} className="footer-link">Dashboard</a>
+              <a onClick={() => handleMenuClick('Manage Users')} className="footer-link">Manage Users</a>
+              <a onClick={() => handleMenuClick('Test Review')} className="footer-link">View Scores</a>
+              <a onClick={() => handleMenuClick('Passage Creation')} className="footer-link">Add Passages</a>
+            </div>
+
+            <div className="nav-col">
+              <a onClick={() => handleMenuClick('Profile')} className="footer-link">Profile</a>
+              <a onClick={() => handleMenuClick('About Us')} className="footer-link">About Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div className="footer-bottom-yellow">
+        <div className="footer-bottom-inner">© 2026 Readify. All Rights Reserved</div>
+      </div>
+      </footer>
+      }
       </div>
     </div>
   );
