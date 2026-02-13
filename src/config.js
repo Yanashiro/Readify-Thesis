@@ -34,6 +34,15 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    testHistory: [
+        {
+            passageId: { type: Number, required: true },
+            passageTitle: String,
+            score: { type: Number, required: true },
+            totalQuestions: { type: Number, required: true },
+            takenAt: { type: Date, default: Date.now },
+        }
+    ],
     achievements: [
         {
             title: { type: String, required: true }, // Title
@@ -50,7 +59,7 @@ const userSchema = new mongoose.Schema({
 });
 userSchema.plugin(autoIncrement, { inc_field: "userId" }); // Auto Increment for User ID
 
-// Schema for Tests
+// Schema for Passages & Questions
 const questionSchema = new mongoose.Schema({
         questionNumber: {
             type: Number,
@@ -78,6 +87,17 @@ const passageSchema = new mongoose.Schema({
     },
     testType: {
         // Dropdown
+        // testType 1 (Multiple Choices)
+        // testType 2 (Matching Features)
+        // testType 3 (Matching Information)
+        // testType 4 (Identifying Information)
+        // testType 5 (Identifying Writers Views)
+        // testType 6 (Matching Sentence Endings)
+        // testType 7 (Matching Headings)
+        // testType 8 (Summary Completion)
+        // testType 9 (Short Answer Questions)
+        // testType 10 (Sentence Completion)
+        // testType 11 (Diagram Label Completion)
         type: Number,
         required: true,
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -92,14 +112,17 @@ const passageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    passageImage:{
+        type: String,
+        required: false
+    },
     questions: {
         // Textbox
         type: [questionSchema],
         default: [],
     },
 });
-
-passageSchema.plugin(autoIncrement, { inc_field: "testId" }); // Auto Increment for Test ID
+passageSchema.plugin(autoIncrement, { inc_field: "passageId" }); // Auto Increment for Passage ID
 
 // Database Collection
 const readifyUser_Collection = new mongoose.model("users", userSchema);
