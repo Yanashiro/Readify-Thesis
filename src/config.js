@@ -51,7 +51,8 @@ const userSchema = new mongoose.Schema({
 userSchema.plugin(autoIncrement, { inc_field: "userId" }); // Auto Increment for User ID
 
 // Schema for Tests
-const questionSchema = new mongoose.Schema({
+const questionSchema = new mongoose.Schema(
+    {
         questionNumber: {
             type: Number,
             required: true,
@@ -68,7 +69,8 @@ const questionSchema = new mongoose.Schema({
             required: true,
         },
     },
-    { _id: false },); // Stops Object ID Generation
+    { _id: false },
+); // Stops Object ID Generation
 
 const passageSchema = new mongoose.Schema({
     testDesignation: {
@@ -99,16 +101,50 @@ const passageSchema = new mongoose.Schema({
     },
 });
 
-passageSchema.plugin(autoIncrement, { inc_field: "testId" }); // Auto Increment for Test ID
+passageSchema.plugin(autoIncrement, { inc_field: "testId" });
 
-// Database Collection
+const testAttemptSchema = new mongoose.Schema({
+    examinee: {
+        type: String,
+        required: true,
+    },
+    testType: {
+        type: String,
+        required: true,
+    },
+    testCategory: {
+        type: String,
+        required: true,
+    },
+    submittedAnswers: {
+        type: mongoose.Schema.Types.Mixed,
+        required: true,
+    },
+    score: {
+        type: Number,
+        required: true,
+    },
+    totalQuestions: {
+        type: Number,
+        required: true,
+    },
+    testDate: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
 const readifyUser_Collection = new mongoose.model("users", userSchema);
 const questionCollection = new mongoose.model("questions", questionSchema);
 const passageCollection = new mongoose.model("passages", passageSchema);
+const testAttemptCollection = new mongoose.model(
+    "testattempts",
+    testAttemptSchema,
+);
 
-// Exporting Model
 module.exports = {
     readifyUser_Collection,
     questionCollection,
     passageCollection,
+    testAttemptCollection,
 };
