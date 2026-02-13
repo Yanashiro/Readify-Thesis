@@ -98,7 +98,7 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
                 </button>
             </div>
 
-            {/* Account Info Header (Matching your screenshot) */}
+            {/* Account Info Header */}
             <div className='accountPage-flex'>
                 <div className="info-column">
                     <div>
