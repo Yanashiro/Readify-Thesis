@@ -1,64 +1,80 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import React from 'react';
-import { useCookies } from 'react-cookie';
-import './profile.css'
+import { useState, useEffect } from "react";
+import axios from "axios";
+import React from "react";
+import { useCookies } from "react-cookie";
+import "./profile.css";
 
 function Profile() {
-
-    const [cookie] = useCookies(['examinee-cookie'])
+    const [cookie] = useCookies(["examinee-cookie"]);
 
     const [details, setDetails] = useState(null);
     const [attempts, setAttempts] = useState([]);
     const mainTestAttempts = [...attempts];
 
     useEffect(() => {
-
         const extractData = {
-            examinee: cookie['examinee-cookie']
-        }
+            examinee: cookie["examinee-cookie"],
+        };
 
         axios
-            .get('/maintestAttempts', { params: extractData })
+            .get("/maintestAttempts", { params: extractData })
             .then((res) => {
-                setAttempts(res.data.history || [])
-                setDetails(res.data.user || res.data)
+                setAttempts(res.data.history || []);
+                setDetails(res.data.user || res.data);
             })
-            .catch((err) => console.error(err))
-    }, [cookie])
-
+            .catch((err) => console.error(err));
+    }, [cookie]);
 
     if (!details) {
-    return <div className='profile-examinee'><h1>Loading Profile...</h1></div>;
+        return (
+            <div className="profile-examinee">
+                <h1>Loading Profile...</h1>
+            </div>
+        );
     }
 
     return (
-        <main className='profile-examinee'>
-            <div className='profile-examinee-page'>
-                <div className='flexbox-profile'>
-                    <div className=''>
+        <main className="profile-examinee">
+            <div className="profile-examinee-page">
+                <div className="flexbox-profile">
+                    <div className="">
                         <p>Name: {details.name}</p>
                         <p>Username: {details.username}</p>
                         <p>Email: {details.email}</p>
                     </div>
-                    <div className=''>
+                    <div className="">
                         <p>Account Type: {details.accountType}</p>
                         <p>Date Created: {details.dateCreated}</p>
                     </div>
                 </div>
                 <div>
                     <table className="examinee-profile-table">
-                        <thead className='ep-table-header'>
+                        <thead className="ep-table-header">
                             <tr>
                                 <th>Attempt</th>
-                                <th>Test</th>
+                                <th>Test Category</th>
+                                <th>Type</th>
+                                <th>Score</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             {mainTestAttempts.map((MTA, index) => (
-                                <tr className='ep-table-body' key={MTA._id || index}>
-                                    <td>{MTA.attempts || index + 1}</td>
+                                <tr
+                                    className="ep-table-body"
+                                    key={MTA._id || index}
+                                >
+                                    <td>{index + 1}</td>
+                                    <td>{MTA.testCategory}</td>
                                     <td>{MTA.testType}</td>
+                                    <td>
+                                        {MTA.score}/{MTA.totalQuestions}
+                                    </td>
+                                    <td>
+                                        {new Date(
+                                            MTA.testDate,
+                                        ).toLocaleDateString()}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -66,7 +82,7 @@ function Profile() {
                 </div>
             </div>
         </main>
-    )
+    );
 }
 
 export default Profile;
