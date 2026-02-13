@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= user.name %>'s Profile</title>
+    <link rel="stylesheet" href="homeStyle.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="/Home">Home</a></li>
+                    <li><a href="/Leaderboard">Leaderboard</a></li>
+                    <li><a href="/PassageCreation">Create Passage</a></li>
+                    <li><a href="/testUI">Take a Test</a></li>
+                    <li><a href="/UserManagement">User Management</a></li>
+                    <li><a href="/Logout" style="color: red;">Logout</a></li>
+                </ul>
+            </nav>
+            </aside>
+    </div>
+    <main class="content">
+        <div class="profile-card">
+            <h1><%= user.name %> 
+                <% if(user.isAdmin) { %> <span class="badge">Admin</span> <% } %>
+            </h1>
+            <p><strong>Email:</strong> <%= user.email %></p>
+            <p><strong>User ID:</strong> <%= user.userId %></p>
+            <hr>
+            <h3>Achievements (<%= user.achievements.length %>)</h3>
+            <% if (user.achievements.length > 0) { %>
+                <% user.achievements.forEach(ach => { %>
+                    <div class="achievement">
+                        <img src="<%= ach.icon || 'https://via.placeholder.com/50' %>" alt="icon">
+                        <div>
+                            <strong><%= ach.title %></strong><br>
+                            <small><%= ach.description %></small><br>
+                            <small>Earned on: <%= ach.earnedAt.toDateString() %></small>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>No achievements earned yet. Keep going!</p>
+            <% } %>
+            <br>
+        </div>
+    </main>
+</body>
+</html>

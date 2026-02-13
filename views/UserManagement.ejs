@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" href="homeStyle.css">
+    
+                    
+</head>
+<body>
+   <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="/Home">Home</a></li>
+                    <li><a href="/Leaderboard">Leaderboard</a></li>
+                    <li><a href="/PassageCreation">Create Passage</a></li>
+                    <li><a href="/testUI">Take a Test</a></li>
+                    <li><a href="/UserManagement">User Management</a></li>
+                    <li><a href="/Profile">Profile</a></li>
+                    <li><a href="/Logout" style="color: red;">Logout</a></li>
+                </ul>
+            </nav>
+            </aside>
+    </div>
+
+    <main class="content">
+        <center><h2>User Management</h2></center>
+        <div style="margin-bottom: 20px; text-align: right;">
+            <a href="/UserManagement/add" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                + Add New User
+            </a>
+        </div>
+            <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>User ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Achievements</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td><%= user.userId %></td>
+                            <td><%= user.name %></td>
+                            <td><%= user.email %></td>
+                            <td>
+                                <strong><%= user.isAdmin ? 'Admin' : 'User' %></strong>
+                            </td>
+                            <td style="text-align: center;">
+                                <strong><%= user.achievements.length %></strong>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="/UserManagement/edit/<%= user.userId %>" style="color: blue;">Edit</a>
+                                <a href="/UserManagement/delete/<%= user.userId %>" style="color: red;">Delete</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+    </main>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Add User</title>
+    <link rel="stylesheet" href="homeStyle.css">
+                    
+</head>
+<body>
+   <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="/Home">Home</a></li>
+                    <li><a href="/Leaderboard">Leaderboard</a></li>
+                    <li><a href="/PassageCreation">Create Passage</a></li>
+                    <li><a href="/testUI">Take a Test</a></li>
+                    <li><a href="/UserManagement">User Management</a></li>
+                </ul>
+            </nav>
+            </aside>
+    </div>
+
+    <main class="content">
+    <div class="form-container">
+        <h2>Readify: Sign Up</h2>
+        <form action = "/UserManagement/create" method="post">
+            <!-- Username -->
+            <div class="form-group">
+                <label for="name">Username:</label>
+                <input type="text" id = "name" name = "username" placeholder="Enter a Username" required autocomplete="off">
+            </div>
+            <!-- Password -->
+             <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+             </div>
+             <!-- Email -->
+             <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" name="email" id="email" placeholder="placeholder@email.com" required>
+             </div>
+             <!-- Submit Button -->
+             <button type="submit" class="submit-btn">Create User</button>
+             <button class="submit-btn" onclick="history.back()">Go Back</button>
+        </form>
+    </div>
+    </main>
+</body>
+</html>

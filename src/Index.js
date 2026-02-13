@@ -1,4 +1,6 @@
+require("dotenv").config("/.env");
 const express = require("express");
+const session = require('express-session');
 const path = require("path");
 const bcrypt = require("bcrypt");
 const {
@@ -12,9 +14,33 @@ const { Collection } = require("mongoose");
 // Express
 const app = express();
 
+// how tf do i hide this bro the .env isn't working lmao so I just did this to test
+const SESSION_SECRET = "d23b9726ff05ff2b4736107f2a3b2d27e74ddbf28b2316214d133c5e0df00050";
+
+// Session Middleware
+app.use(session({
+    secret: SESSION_SECRET, // Loaded from .env
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 3600000, // 1 hour
+        secure: false,    // Set to true if using HTTPS
+        httpOnly: true  // Helps prevent XSS
+    }
+}));
+
+const isAuthenticated = (req, res, next) => {
+    // Check if the session has our userId variable
+    if (req.session && req.session.userId) {
+        return next(); // User is logged in, proceed to the route
+    }
+    // User is not logged in, redirect to login page
+    res.redirect('/login');
+};
+
 // Middleware to pass query parameters to all views
 app.use((req, res, next) => {
-    res.locals.query = req.query;
+    res.locals.query = req.query; // Make query parameters available in all EJS templates
     next();
 });
 
@@ -56,6 +82,25 @@ app.get("/", (req, res) => {
     res.render("Login");
 });
 
+// Login Screen Render
+app.get("/Login", (req, res) => {
+    res.render("Login");
+});
+
+app.get('/Logout', (req, res) => {
+    // 1. Destroy the session in the server's memory
+    req.session.destroy((err) => {
+        if (err) {
+            console.log("Logout error:", err);
+            return res.redirect('/Home'); // If it fails, keep them on the dashboard
+        }
+        // 2. Clear the cookie from the user's browser
+        res.clearCookie('connect.sid'); // 'connect.sid' is the default cookie name
+        // 3. Send them back to the login page or home
+        res.redirect('/Login');
+    });
+});
+
 // Signup Render
 app.get("/signup", (req, res) => {
     res.render("SignUp");
@@ -87,53 +132,56 @@ app.post("/signup", async (req, res) => {
 
     // Checks if User already exists in the Database
     const existingUser = await readifyUser_Collection.findOne({
-        name: data.name,
+    $or: [
+        { name: data.name },
+        { email: data.email }
+    ]
     });
     if (existingUser) {
-        res.send(
-            "Username already exists. Please choose a different username.",
-        );
+    return res.status(409).send("Username or Email already exists.");
     } else {
         // Password Hash using BCrypt
         const saltRounds = 10; // Number of Salt Rounds for BCrypt
         const hashedPassword = await bcrypt.hash(data.password, saltRounds);
         data.password = hashedPassword;
         // Sends the data to the database
-        const userdata = await readifyUser_Collection.insertMany(data);
+        const userdata = new readifyUser_Collection(data);
+        await userdata.save();
         // Logging
         console.log(userdata);
+        res.render("Login");
     }
-    res.render("Login");
 });
 
 // Function for Logging Users In
-app.post("/login", async (req, res) => {
-    try {
-        const check = await readifyUser_Collection.findOne({
-            name: req.body.username,
-        });
-        if (!check) {
-            res.send("Username or Password Incorrect.");
-        }
+app.post("/Login", async (req, res) => {
+    // We'll call the input 'identifier' since it could be Name OR Email
+    const { identifier, password } = req.body;
 
-        // Compare Hash Password to Database
-        const isPasswordMatch = await bcrypt.compare(
-            req.body.password,
-            check.password,
-        );
-        if (isPasswordMatch) {
-            res.render("Home");
+    try {
+        // Search for a user where name matches OR email matches
+        const user = await readifyUser_Collection.findOne({
+            $or: [
+                { name: identifier },
+                { email: identifier }
+            ]
+        });
+
+        if (user && await bcrypt.compare(password, user.password)) {
+            // Save user details to session
+            req.session.userId = user._id;
+            req.session.userName = user.name;
+            res.redirect('/Home');
         } else {
-            req.send("Username or Password Incorrect");
+            res.render('/Login', { error: 'Invalid credentials. Check your username/email or password.' });
         }
-    } catch {
-        res.send("Wrong Details");
+    } catch (err) {
+        console.error("DEBUG ERROR:", err); // Look at your terminal/command prompt!
+        res.status(500).send(err.message);
     }
 });
 
 // Create Test Passage
-
-// Missing: Test ID
 app.post("/createPassage", async (req, res) => {
     try {
         const formData = req.body;
@@ -216,6 +264,121 @@ app.get("/testUI", (req, res) => {
     res.render("TestView", { item: testData });
 });
 
+app.get("/UserManagement", isAuthenticated, async (req, res) => {
+    try {
+        const users = await readifyUser_Collection.find();
+        res.render('userManagement', { users });
+    } catch (err) {
+        res.status(500).send("Error fetching users");
+    }
+});
+
+app.get('/UserManagement/edit/:userId', isAuthenticated, async (req, res) => {
+    try {
+        // req.params.userId will now be "1"
+        const user = await readifyUser_Collection.findOne({ userId: req.params.userId });
+        
+        if (!user) return res.status(404).send("User not found");
+        
+        res.render('EditUser', { user }); 
+    } catch (err) {
+        res.status(500).send("Server Error");
+    }
+});
+
+// Add User Render
+app.get('/UserManagement/add', isAuthenticated, (req, res) => {
+    res.render('addUser');
+});
+
+// Basically same code as signup xd
+app.post('/UserManagement/create',isAuthenticated, async (req, res) => {
+    // Gets data from Body to send to Database
+    const data = {
+        name: req.body.username,
+        password: req.body.password,
+        email: req.body.email,
+    };
+    // Checks if User already exists in the Database
+    const existingUser = await readifyUser_Collection.findOne({
+    $or: [
+        { name: data.name },
+        { email: data.email }
+    ]
+    });
+    if (existingUser) {
+    return res.status(409).send("Username or Email already exists.");
+    } else {
+        // Password Hash using BCrypt
+        const saltRounds = 10; // Number of Salt Rounds for BCrypt
+        const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+        data.password = hashedPassword;
+        // Sends the data to the database
+        const userdata = new readifyUser_Collection(data);
+        await userdata.save();
+        // Logging
+        console.log(userdata);
+        res.redirect('/UserManagement');
+    }
+});
+
+// Update User 
+app.post('/UserManagement/update/:userId', isAuthenticated, async (req, res) => {
+    try {
+        const { name, email, isAdmin } = req.body;
+
+        const updatedUser = await readifyUser_Collection.findOneAndUpdate(
+            { userId: req.params.userId }, 
+            { 
+                name: name,
+                email: email,
+                // If isAdmin exists in req.body, it's true; otherwise, it's false
+                isAdmin: isAdmin === 'on' ? true : false 
+            },
+            { new: true, runValidators: true } // Helpful for debugging
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send("User not found in database.");
+        }
+
+        res.redirect('/UserManagement');
+    } catch (err) {
+        console.error(err); // LOOK AT YOUR TERMINAL for the real error!
+        res.status(500).send("Update failed: " + err.message);
+    }
+});
+
+// Delete User
+app.get('/UserManagement/delete/:userId', async (req, res) => {
+   try {
+        // Convert the string parameter to a number
+        const targetId = Number(req.params.userId);
+        const deletedUser = await readifyUser_Collection.findOneAndDelete({ userId: targetId });
+        if (!deletedUser) {
+            return res.status(404).send("User not found. Check if the ID is correct.");
+        }
+        res.redirect('/UserManagement');
+    } catch (err) {
+        console.error("Delete Error:", err); // Error Log 
+        res.status(500).send("Could not delete user: " + err.message);
+    }
+});
+
+app.get('/profile', isAuthenticated, async (req, res) => {
+    try {
+        // Find the user by the ID stored in the session
+        const user = await readifyUser_Collection.findById(req.session.userId);
+        if (!user) {
+            return res.redirect('/login');
+        }
+        // Render the profile page and pass the user object
+        res.render('profile', { user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading profile");
+    }
+});
 // Port for Express
 const port = 5000;
 app.listen(port, () => {

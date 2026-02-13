@@ -18,9 +18,11 @@ connect
 // Schema Creation - Edit Here when creating new variables for the database
 
 // Schema for New Users
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
+        unique: true,
         required: true,
     },
     password: {
@@ -29,6 +31,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        unique: true,
         required: true,
     },
     achievements: [
@@ -45,10 +48,10 @@ const userSchema = new mongoose.Schema({
         default: false,
     },
 });
+userSchema.plugin(autoIncrement, { inc_field: "userId" }); // Auto Increment for User ID
 
 // Schema for Tests
-const questionSchema = new mongoose.Schema(
-    {
+const questionSchema = new mongoose.Schema({
         questionNumber: {
             type: Number,
             required: true,
@@ -65,8 +68,7 @@ const questionSchema = new mongoose.Schema(
             required: true,
         },
     },
-    { _id: false },
-); // Stops Object ID Generation
+    { _id: false },); // Stops Object ID Generation
 
 const passageSchema = new mongoose.Schema({
     testDesignation: {
