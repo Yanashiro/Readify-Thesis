@@ -88,16 +88,16 @@ const passageSchema = new mongoose.Schema({
     testType: {
         // Dropdown
         // testType 1 (Multiple Choices)
-        // testType 2 (Matching Features)
-        // testType 3 (Matching Information)
-        // testType 4 (Identifying Information)
-        // testType 5 (Identifying Writers Views)
-        // testType 6 (Matching Sentence Endings)
-        // testType 7 (Matching Headings)
-        // testType 8 (Summary Completion)
-        // testType 9 (Short Answer Questions)
-        // testType 10 (Sentence Completion)
-        // testType 11 (Diagram Label Completion)
+        // testType 2 (True / False / Not Given)
+        // testType 3 (Yes / No / Not Given)
+        // testType 4 (Matching Information)
+        // testType 5 (Matching Headings)
+        // testType 6 (Matching Features)
+        // testType 7 (Matching Sentence Endings)
+        // testType 8 (Sentence Completion)
+        // testType 9 (Summary Completion)
+        // testType 10 (Diagram-Label Completion)
+        // testType 11 (Short-Answer Questions)
         type: Number,
         required: true,
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],

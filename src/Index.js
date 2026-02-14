@@ -177,12 +177,13 @@ app.post("/Login", async (req, res) => {
     }
 });
 
+// Test Passage Creation Render
 app.get("/create-passage", isAuthenticated, (req, res) => {
     res.render("PassageCreation");
 });
 
 // Create Test Passage
-app.post('/create-passage', upload.single('passageImage'), async (req, res) => {
+app.post('/create-passage',isAuthenticated, upload.single('passageImage'), async (req, res) => {
     try {
         const { testDesignation, testType, passageTitle, passage, passageSource, questions } = req.body;
         
@@ -261,7 +262,7 @@ const testData = {
 };
 
 // Exam Test - Prototype for rendering the exam page with dynamic data based on query parameters
-app.get('/take-exam', async (req, res) => {
+app.get('/take-exam',isAuthenticated, async (req, res) => {
     try {
         const isMainTest = req.query.designation !== 'false';
         const selectedType = parseInt(req.query.type) || 1;
@@ -275,10 +276,22 @@ app.get('/take-exam', async (req, res) => {
         if (!testData) return res.send("No test found for this selection.");
 
         const typeLabels = {
-            1: "Multiple Choices", 2: "Matching Features", 3: "Matching Information",
-            4: "Identifying Information", 5: "Identifying Writers Views", 6: "Matching Sentence Endings",
-            7: "Matching Headings", 8: "Summary Completion", 9: "Short Answer Questions",
-            10: "Sentence Completion", 11: "Diagram Label Completion"
+            // Dropdown
+            // testType 1 (Multiple Choices)
+            // testType 2 (True / False / Not Given)
+            // testType 3 (Yes / No / Not Given)
+            // testType 4 (Matching Information)
+            // testType 5 (Matching Headings)
+            // testType 6 (Matching Features)
+            // testType 7 (Matching Sentence Endings)
+            // testType 8 (Sentence Completion)
+            // testType 9 (Summary Completion)
+            // testType 10 (Diagram-Label Completion)
+            // testType 11 (Short-Answer Questions)
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
         };
 
         res.render('ExamMode', { 
@@ -292,7 +305,7 @@ app.get('/take-exam', async (req, res) => {
 
 
 // Exam Results Route - Processes the submitted answers and calculates the score
-app.post('/submit-results', async (req, res) => {
+app.post('/submit-results',isAuthenticated, async (req, res) => {
     try {
         const { passageId, userAnswers } = req.body;
         const test = await passageCollection.findOne({ passageId: passageId });
@@ -337,13 +350,25 @@ app.post('/submit-results', async (req, res) => {
 });
 
 // Step 1: Show the Selection Page
-app.get('/exam-launcher', (req, res) => {
+app.get('/exam-launcher',isAuthenticated, (req, res) => {
     const typeLabels = {
-        1: "Multiple Choices", 2: "Matching Features", 3: "Matching Information",
-        4: "Identifying Information", 5: "Identifying Writers Views", 6: "Matching Sentence Endings",
-        7: "Matching Headings", 8: "Summary Completion", 9: "Short Answer Questions",
-        10: "Sentence Completion", 11: "Diagram Label Completion"
-    };
+            // Dropdown
+            // testType 1 (Multiple Choices)
+            // testType 2 (True / False / Not Given)
+            // testType 3 (Yes / No / Not Given)
+            // testType 4 (Matching Information)
+            // testType 5 (Matching Headings)
+            // testType 6 (Matching Features)
+            // testType 7 (Matching Sentence Endings)
+            // testType 8 (Sentence Completion)
+            // testType 9 (Summary Completion)
+            // testType 10 (Diagram-Label Completion)
+            // testType 11 (Short-Answer Questions)
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
+        };
     res.render('Launcher', { typeLabels });
 });
 
@@ -377,10 +402,10 @@ app.get('/take-exam/:id', async (req, res) => {
 
         // We need to redefine this here so EJS can find the label for the number
         const typeLabels = {
-            1: "Multiple Choices", 2: "Matching Features", 3: "Matching Information",
-            4: "Identifying Information", 5: "Identifying Writers Views", 6: "Matching Sentence Endings",
-            7: "Matching Headings", 8: "Summary Completion", 9: "Short Answer Questions",
-            10: "Sentence Completion", 11: "Diagram Label Completion"
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
         };
 
         // Send BOTH the test data and the specific label to the view
@@ -411,10 +436,10 @@ app.get('/test-selection', async (req, res) => {
         });
 
         const typeLabels = {
-            1: "Multiple Choices", 2: "Matching Features", 3: "Matching Information",
-            4: "Identifying Information", 5: "Identifying Writers Views", 6: "Matching Sentence Endings",
-            7: "Matching Headings", 8: "Summary Completion", 9: "Short Answer Questions",
-            10: "Sentence Completion", 11: "Diagram Label Completion"
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
         };
 
         res.render('TestSelection', { 
