@@ -184,7 +184,7 @@ app.get("/create-passage", isAuthenticated, (req, res) => {
 // Create Test Passage
 app.post('/create-passage', upload.single('passageImage'), async (req, res) => {
     try {
-        const { testDesignation, testType, passageTitle, passage, questions } = req.body;
+        const { testDesignation, testType, passageTitle, passage, passageSource, questions } = req.body;
         
         // Get image path if a file was uploaded
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;

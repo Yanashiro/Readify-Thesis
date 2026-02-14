@@ -112,6 +112,11 @@ const passageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    passageSource: {
+        // Textbox
+        type: String,
+        required: false,
+    },
     passageImage:{
         type: String,
         required: false
