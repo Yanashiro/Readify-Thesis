@@ -13,10 +13,10 @@
                 <center><h3> Readify Navigation</h3></center>
                 <ul>
                     <li><a href="/Home">Home</a></li>
-                    <li><a href="/Leaderboard">Leaderboard</a></li>
-                    <li><a href="/PassageCreation">Create Passage</a></li>
-                    <li><a href="/testUI">Take a Test</a></li>
+                    <li><a href="/create-passage">Create Passage</a></li>
+                    <li><a href="/exam-launcher">Test Selection</a></li>
                     <li><a href="/UserManagement">User Management</a></li>
+                    <li><a href="/Profile">Profile</a></li>
                     <li><a href="/Logout" style="color: red;">Logout</a></li>
                 </ul>
             </nav>
@@ -45,7 +45,44 @@
             <% } else { %>
                 <p>No achievements earned yet. Keep going!</p>
             <% } %>
-            <br>
+            <hr>
+            <section class="test-history">
+                <h2>Your Exam Progress</h2>
+                <% if (user.testHistory && user.testHistory.length > 0) { %>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                        <thead>
+                            <tr style="background: #1e293b; color: white; text-align: left;">
+                                <th style="padding: 12px;">Date</th>
+                                <th style="padding: 12px;">Test Title</th>
+                                <th style="padding: 12px;">Score</th>
+                                <th style="padding: 12px;">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% user.testHistory.forEach(record => { %>
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    <td style="padding: 12px;">
+                                        <%= new Date(record.takenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                    </td>
+                                    <td style="padding: 12px; font-weight: bold;"><%= record.passageTitle %></td>
+                                    <td style="padding: 12px;"><%= record.score %> / <%= record.totalQuestions %></td>
+                                    <td style="padding: 12px;">
+                                        <% let textColor = percent >= 70 ? '#28a745' : '#dc3545'; %>
+                                            <span style="color: <%= textColor %>; font-weight: bold;">
+                                                <%= percent %>%
+                                            </span>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <div style="padding: 40px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 8px; color: #64748b;">
+                        <p>You haven't taken any exams yet.</p>
+                        <a href="/exam-launcher" style="color: #2563eb; text-decoration: underline;">Take your first test now!</a>
+                    </div>
+                <% } %>
+            </section>
         </div>
     </main>
 </body>

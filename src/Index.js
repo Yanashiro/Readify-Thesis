@@ -1,6 +1,7 @@
 require("dotenv").config("/.env");
 const express = require("express");
-const session = require("express-session");
+const session = require('express-session');
+const multer = require('multer');
 const path = require("path");
 const bcrypt = require("bcrypt");
 const {
@@ -14,6 +15,7 @@ const { name } = require("ejs");
 const { Collection } = require("mongoose");
 // Express
 const app = express();
+app.use(express.static('public'))
 
 // how tf do i hide this bro the .env isn't working lmao so I just did this to test
 const SESSION_SECRET =
@@ -42,6 +44,16 @@ const isAuthenticated = (req, res, next) => {
     res.redirect("/login");
 };
 
+// Upload Middleware for Passage Creation 
+const storage = multer.diskStorage({
+    destination: './public/uploads/',
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // Middleware to pass query parameters to all views
 app.use((req, res, next) => {
     res.locals.query = req.query; // Make query parameters available in all EJS templates
@@ -61,24 +73,8 @@ app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, "../dist")));
 
 // Home Render
-app.get("/home", (req, res) => {
-    res.render("Home", { query: req.query });
-});
-
-// Profile Render
-app.get("/Leaderboard", async (req, res) => {
-    try {
-        // Find ALL users, but exclude sensitive fields
-        const users = await readifyUser_Collection
-            .find({})
-            .select("-password -email -isAdmin");
-
-        // Pass the 'users' array to your EJS template
-        res.render("Leaderboard", { allUsers: users });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+app.get("/Home", isAuthenticated, (req, res) => {
+    res.render('Home', { query: req.query });;
 });
 
 // Login Screen Render
@@ -111,7 +107,7 @@ app.get("/signup", (req, res) => {
 });
 
 // Creat Test Render
-app.get("/PassageCreation", (req, res) => {
+app.get("/PassageCreation", isAuthenticated, (req, res) => {
     res.render("PassageCreation");
 });
 
@@ -181,39 +177,44 @@ app.post("/Login", async (req, res) => {
     }
 });
 
+// Test Passage Creation Render
+app.get("/create-passage", isAuthenticated, (req, res) => {
+    res.render("PassageCreation");
+});
+
 // Create Test Passage
-app.post("/createPassage", async (req, res) => {
+app.post('/create-passage',isAuthenticated, upload.single('passageImage'), async (req, res) => {
     try {
-        const formData = req.body;
+        const { testDesignation, testType, passageTitle, passage, passageSource, questions } = req.body;
+        
+        // Get image path if a file was uploaded
+        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-        // Handle Checkbox: If unchecked, it won't exist in req.body.
-        // We force it to a Boolean.
-        formData.testDesignation = formData.testDesignation === "true";
+        const formattedQuestions = Object.values(questions).map(q => ({
+            questionNumber: parseInt(q.number),
+            questionText: q.text,
+            correctAnswer: q.answer,
+            data: q.data ? q.data.split(',').map(item => item.trim()) : null
+        }));
 
-        // Optional: Parse the 'data' field in each question if you sent it as JSON string
-        if (formData.questions) {
-            formData.questions = formData.questions.map((q) => {
-                try {
-                    // If the user entered valid JSON (like {"options": ["A","B"]}), parse it.
-                    // Otherwise, keep it as a string.
-                    return { ...q, data: JSON.parse(q.data) };
-                } catch (e) {
-                    return q;
-                }
-            });
-        }
+        const newPassage = new passageCollection({
+            testDesignation: testDesignation === 'true',
+            testType: parseInt(testType),
+            passageTitle,
+            passage,
+            passageImage: imagePath, // Save the path to DB
+            questions: formattedQuestions
+        });
 
-        const newPassage = new passageCollection(formData);
         await newPassage.save();
-        res.redirect(`/Home?msg=success&id=${newPassage.testId}`);
+        res.redirect('/test-selection');
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Error saving test: " + err.message);
+        res.status(500).send("Error: " + err.message);
     }
 });
 
 // Multiple Choices Route
-app.post("/maintestroute/multiplechoices", async (req, res) => {
+app.post("/maintestroute/multiplechoices", isAuthenticated, async (req, res) => {
     try {
         const passage = await passageCollection.findOne({ testType: 1 });
         if (!passage) {
@@ -260,10 +261,200 @@ const testData = {
     ],
 };
 
-app.get("/testUI", (req, res) => {
-    res.render("TestView", { item: testData });
+// Exam Test - Prototype for rendering the exam page with dynamic data based on query parameters
+app.get('/take-exam',isAuthenticated, async (req, res) => {
+    try {
+        const isMainTest = req.query.designation !== 'false';
+        const selectedType = parseInt(req.query.type) || 1;
+
+        // Find the specific test
+        const testData = await passageCollection.findOne({ 
+            testDesignation: isMainTest,
+            testType: selectedType 
+        });
+
+        if (!testData) return res.send("No test found for this selection.");
+
+        const typeLabels = {
+            // Dropdown
+            // testType 1 (Multiple Choices)
+            // testType 2 (True / False / Not Given)
+            // testType 3 (Yes / No / Not Given)
+            // testType 4 (Matching Information)
+            // testType 5 (Matching Headings)
+            // testType 6 (Matching Features)
+            // testType 7 (Matching Sentence Endings)
+            // testType 8 (Sentence Completion)
+            // testType 9 (Summary Completion)
+            // testType 10 (Diagram-Label Completion)
+            // testType 11 (Short-Answer Questions)
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
+        };
+
+        res.render('ExamMode', { 
+            test: testData, 
+            typeLabel: typeLabels[selectedType] 
+        });
+    } catch (err) {
+        res.status(500).send("Error entering exam mode.");
+    }
 });
 
+
+// Exam Results Route - Processes the submitted answers and calculates the score
+app.post('/submit-results',isAuthenticated, async (req, res) => {
+    try {
+        const { passageId, userAnswers } = req.body;
+        const test = await passageCollection.findOne({ passageId: passageId });
+        if (!test) return res.status(404).send("Test not found.");
+        let score = 0;
+        const results = test.questions.map((q, index) => {
+            const rawAnswer = (userAnswers && userAnswers[index]) ? userAnswers[index] : "";
+            const userAns = Array.isArray(rawAnswer) ? rawAnswer[0].trim() : rawAnswer.trim();
+            const correctAns = q.correctAnswer.toString().trim();
+            const isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
+            if (isCorrect) score++;
+            return {
+                questionNumber: q.questionNumber,
+                userAns,
+                correctAns,
+                isCorrect
+            };
+        });
+
+        // SAVE TO USER HISTORY
+        if (req.session.userId) {
+            await readifyUser_Collection.findOneAndUpdate(
+                { userId: req.session.userId }, 
+                { 
+                    $push: { 
+                        testHistory: {
+                            passageId: test.passageId,
+                            passageTitle: test.passageTitle,
+                            score: score,
+                            totalQuestions: test.questions.length,
+                            takenAt: new Date()
+                        } 
+                    } 
+                }
+            );
+        }
+        res.render('Results', { score, total: test.questions.length, results, passageTitle: test.passageTitle });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error processing results.");
+    }
+});
+
+// Step 1: Show the Selection Page
+app.get('/exam-launcher',isAuthenticated, (req, res) => {
+    const typeLabels = {
+            // Dropdown
+            // testType 1 (Multiple Choices)
+            // testType 2 (True / False / Not Given)
+            // testType 3 (Yes / No / Not Given)
+            // testType 4 (Matching Information)
+            // testType 5 (Matching Headings)
+            // testType 6 (Matching Features)
+            // testType 7 (Matching Sentence Endings)
+            // testType 8 (Sentence Completion)
+            // testType 9 (Summary Completion)
+            // testType 10 (Diagram-Label Completion)
+            // testType 11 (Short-Answer Questions)
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
+        };
+    res.render('Launcher', { typeLabels });
+});
+
+// Step 2: Process selection and find Random Test
+app.get('/start-random-exam', async (req, res) => {
+    try {
+        const isMain = req.query.designation === 'true';
+        const type = parseInt(req.query.type);
+        const randomTest = await passageCollection.aggregate([
+            { $match: { testDesignation: isMain, testType: type } },
+            { $sample: { size: 1 } }
+        ]);
+        if (randomTest.length === 0) {
+            return res.send("No tests found for this criteria. <a href='/exam-launcher'>Go Back</a>");
+        }
+        // Redirect to the Exam Mode with the specific ID found
+        res.redirect(`/take-exam/${randomTest[0].passageId}`);
+    } catch (err) {
+        res.status(500).send("Error selecting test.");
+    }
+});
+
+// Grabs the specific exams that fits the parameters and samples one 
+app.get('/take-exam/:id', async (req, res) => {
+    try {
+        const test = await passageCollection.findOne({ passageId: req.params.id });
+
+        if (!test) {
+            return res.status(404).send("Test not found.");
+        }
+
+        // We need to redefine this here so EJS can find the label for the number
+        const typeLabels = {
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
+        };
+
+        // Send BOTH the test data and the specific label to the view
+        res.render('ExamMode', { 
+            test: test, 
+            typeLabel: typeLabels[test.testType] // This fixes the ReferenceError
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading exam.");
+    }
+});
+
+// Passage Selection Filter Test
+app.get('/test-selection', async (req, res) => {
+    try {
+        // Get Designation (default to true/Main if not specified)
+        // NOTE: Query Parameters come as strings, so we compare to 'true'
+        const isMainTest = req.query.designation !== 'false'; 
+
+        // Get Test Type (default to 1)
+        const selectedType = parseInt(req.query.type) || 1;
+
+        // Queries the collection using BOTH filters
+        const TestSelection = await passageCollection.find({ 
+            testDesignation: isMainTest,
+            testType: selectedType 
+        });
+
+        const typeLabels = {
+            1: "Multiple Choices", 2: "True / False / Not Given", 3: "Yes / No / Not Given",
+            4: "Matching Information", 5: "Matching Headings", 6: "Matching Features",
+            7: "Matching Sentence Endings", 8: "Sentence Completion", 9: "Summary Completion",
+            10: "Diagram Label Completion", 11: "Short Answer Questions"
+        };
+
+        res.render('TestSelection', { 
+            TestSelection, 
+            selectedType, 
+            isMainTest,
+            typeLabels 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading filtered tests");
+    }
+});
+
+// User Management Part of the System
 app.get("/UserManagement", isAuthenticated, async (req, res) => {
     try {
         const users = await readifyUser_Collection.find();
@@ -353,8 +544,8 @@ app.post(
 );
 
 // Delete User
-app.get("/UserManagement/delete/:userId", async (req, res) => {
-    try {
+app.get('/UserManagement/delete/:userId', isAuthenticated, async (req, res) => {
+   try {
         // Convert the string parameter to a number
         const targetId = Number(req.params.userId);
         const deletedUser = await readifyUser_Collection.findOneAndDelete({
@@ -372,12 +563,19 @@ app.get("/UserManagement/delete/:userId", async (req, res) => {
     }
 });
 
-app.get("/profile", isAuthenticated, async (req, res) => {
+// Profile Display
+app.get('/profile', isAuthenticated, async (req, res) => {
     try {
         // Find the user by the ID stored in the session
         const user = await readifyUser_Collection.findById(req.session.userId);
         if (!user) {
             return res.redirect("/login");
+        }
+        if (user.testHistory) {
+            user.testHistory.sort((a, b) => b.takenAt - a.takenAt);
+        }
+        if (user.testHistory) {
+            user.testHistory.sort((a, b) => b.takenAt - a.takenAt);
         }
         // Render the profile page and pass the user object
         res.render("profile", { user });
@@ -617,5 +815,5 @@ app.get("/accountAttempts", async (req, res) => {
 
 const port = 5000;
 app.listen(port, () => {
-    console.log("Server running on Port: ${port}");
+    console.log(`Server running on Port: ${port}`);
 });

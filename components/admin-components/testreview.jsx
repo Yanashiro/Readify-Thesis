@@ -47,56 +47,52 @@ function ViewScoresNavigation({
 function AccountList({ query, setPage, setSelectedAccount }) {
     const [accountList, setAccountList] = useState([]);
 
-    const filteredAndSortedList = accountList
-        .filter((user) => {
-            const searchTerm = query.toLowerCase();
-            return (
-                user.name.toLowerCase().includes(searchTerm) ||
-                user.email.toLowerCase().includes(searchTerm)
-            );
-        })
-        .sort((a, b) => a.name.localeCompare(b.name));
-
     useEffect(() => {
-        axios
-            .post("/accountlist")
+        axios.post('/accountlist')
             .then((res) => {
-                const sortedData = res.data.sort((a, b) =>
-                    a.name.localeCompare(b.name),
-                );
+                // Sorting A-Z by name immediately upon fetch
+                const sortedData = res.data.sort((a, b) => a.name.localeCompare(b.name));
                 setAccountList(sortedData);
             })
-            .catch((err) => console.error(err));
+            .catch((err) => console.error("Error fetching accounts:", err));
     }, []);
 
+    // Filter logic based on the Search Input
+    const filteredList = accountList.filter((user) => {
+        const searchTerm = query.toLowerCase();
+        return (
+            user.name.toLowerCase().includes(searchTerm) ||
+            user.email.toLowerCase().includes(searchTerm) ||
+            user.username.toLowerCase().includes(searchTerm)
+        );
+    });
+
     return (
-        <div>
+        <div className="table-container">
             <table>
                 <thead>
-                    <tr className="manageusers-table-header">
+                    <tr className='manageusers-table-header'>
                         <th>Name</th>
                         <th>Username</th>
                         <th>Account Type</th>
                         <th>Email</th>
                         <th>Date Created</th>
-                        <th></th>
+                        <th></th> {/* For the arrow button */}
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredAndSortedList.map((fsl) => (
-                        <tr key={fsl.id}>
+                    {filteredList.map((fsl) => (
+                        <tr key={fsl.id}> 
                             <td>{fsl.name}</td>
                             <td>{fsl.username}</td>
                             <td>{fsl.accountType}</td>
                             <td>{fsl.email}</td>
                             <td>{fsl.dateCreated}</td>
-                            <td>
-                                <button
-                                    onClick={() => {
-                                        setSelectedAccount(fsl);
-                                        setPage("Account");
-                                    }}
-                                >
+                            <td className="action-cell">
+                                <button onClick={() => {
+                                    setSelectedAccount(fsl); // Save this user in parent state
+                                    setPage('Account');      // Move to Level 2
+                                }}>
                                     〉
                                 </button>
                             </td>
@@ -108,144 +104,170 @@ function AccountList({ query, setPage, setSelectedAccount }) {
     );
 }
 
-function AccountFunction({ setPage, account, setSelectedAttempt }) {
-    const [examAttempts, setExamAttempts] = useState([]);
+function AccountFunction({ account, setPage, setSelectedAttempt }) {
+    
+    if (!account) return <div className='testreview-innerbox'>Loading account details...</div>
+
+    const [attemptExam, setAttemptExam] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!account) return;
-        axios
-            .get("/accountAttempts", { params: { examinee: account.name } })
-            .then((res) => setExamAttempts(res.data))
-            .catch((err) => console.error(err));
-    }, [account]);
+        // We send the account ID so the backend knows whose attempts to fetch
+        axios.post('/viewattempts', { userId: account.id })
+            .then((res) => {
+                setAttemptExam(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching attempts:", err);
+                setLoading(false);
+            });
+    }, [account.id]); // Re-run if a different account is somehow selected
 
     return (
-        <>
-            <div>
-                <button onClick={() => setPage("Account List")}>〈 Back</button>
+        <div className="account-detail-view">
+            {/* Back Button */}
+            <div className="back-nav">
+                <button onClick={() => setPage('Account List')} className="back-button">
+                    〈
+                </button>
             </div>
-            <div className="accountPage-flex">
-                <div>
+
+            {/* Account Info Header */}
+            <div className='accountPage-flex'>
+                <div className="info-column">
                     <div>
-                        <p>Name: {account?.name}</p>
+                        <p className="label">Name:</p>
+                        <h1 className="display-name">{account.name}</h1>
                     </div>
                     <div>
-                        <p>Username: {account?.username}</p>
+                        <p><strong>Username:</strong> {account.username}</p>
                     </div>
                     <div>
-                        <p>Email: {account?.email}</p>
+                        <p><strong>Email:</strong> {account.email}</p>
                     </div>
                 </div>
-                <div>
+                <div className="info-column secondary-info">
                     <div>
-                        <p>Account Type: {account?.accountType}</p>
+                        <p><strong>Account Type:</strong> {account.accountType}</p>
                     </div>
                     <div>
-                        <p>Date Created: {account?.dateCreated}</p>
+                        <p><strong>Date Created:</strong> {account.dateCreated}</p>
                     </div>
                 </div>
             </div>
-            <div>
+
+            {/* Attempts Table */}
+            <div className="attempts-section">
                 <table>
                     <thead>
-                        <tr>
+                        <tr className="table-header-gray">
                             <th>Attempt</th>
-                            <th>Test Category</th>
-                            <th>Type</th>
-                            <th>Score</th>
-                            <th>Date</th>
+                            <th>Test</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {examAttempts.map((EA, index) => (
-                            <tr key={EA._id || index}>
-                                <td>{index + 1}</td>
-                                <td>{EA.testCategory}</td>
-                                <td>{EA.testType}</td>
-                                <td>
-                                    {EA.score}/{EA.totalQuestions}
-                                </td>
-                                <td>
-                                    {new Date(EA.testDate).toLocaleDateString()}
-                                </td>
-                                <td>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedAttempt(EA);
-                                            setPage("Attempt");
-                                        }}
-                                    >
-                                        〉
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {loading ? (
+                            <tr><td colSpan="3">Loading attempts...</td></tr>
+                        ) : (
+                            attemptExam.map((EA) => (
+                                <tr key={EA.id}>
+                                    <td>{EA.attemptNumber || EA.attempt}</td>
+                                    <td>{EA.testName || EA.test}</td>
+                                    <td className="action-cell">
+                                        <button onClick={() => {
+                                            setSelectedAttempt(EA); // Save specific attempt info
+                                            setPage('Attempt');     // Move to Level 3
+                                        }}>
+                                            〉
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
-        </>
+        </div>
     );
 }
 
-function AttemptFunction({ setPage, attempt }) {
+function AttemptFunction({ account, attempt, setPage }) {
+    const [scoreDetails, setScoreDetails] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Fetching the breakdown for this specific attempt ID
+        axios.post('/attemptdetails', { attemptId: attempt.id })
+            .then((res) => {
+                setScoreDetails(res.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching score details:", err);
+                setLoading(false);
+            });
+    }, [attempt.id]);
+
     return (
-        <>
-            <div>
-                <button onClick={() => setPage("Account")}>〈 Back</button>
+        <div className="attempt-detail-view">
+            {/* Back Button - Returns to the Account Profile (Level 2) */}
+            <div className="back-nav">
+                <button onClick={() => setPage('Account')} className="back-button">
+                    〈
+                </button>
             </div>
-            <div>
-                <h3>
-                    {attempt?.testCategory} ({attempt?.testType})
-                </h3>
-                <p>
-                    Score: {attempt?.score}/{attempt?.totalQuestions}
-                </p>
-                <p>
-                    Band:{" "}
-                    {attempt?.totalQuestions > 0
-                        ? Math.ceil(
-                              (attempt.score / attempt.totalQuestions) * 9,
-                          )
-                        : 0}
-                </p>
-                <p>
-                    Date:{" "}
-                    {attempt?.testDate
-                        ? new Date(attempt.testDate).toLocaleString()
-                        : ""}
-                </p>
+
+            {/* Dynamic Header based on the selected attempt */}
+            <div className="attempt-header">
+                <h1 className="display-name">
+                    Attempt {attempt.attemptNumber || attempt.attempt} - {attempt.testName || attempt.test}
+                </h1>
             </div>
-            <div>
-                <h4>Submitted Answers</h4>
+
+            {/* Detailed Scores Table */}
+            <div className="scores-section">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Question</th>
-                            <th>Answer</th>
+                        <tr className="table-header-gray">
+                            <th>Test Section</th>
+                            <th>Score</th>
+                            <th>Band Score</th>
+                            <th>Final Score</th>
+                            <th>Final Band Score</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {attempt?.submittedAnswers &&
-                            Object.entries(attempt.submittedAnswers).map(
-                                ([qNum, answer]) => (
-                                    <tr key={qNum}>
-                                        <td>{qNum}</td>
-                                        <td>{answer}</td>
-                                    </tr>
-                                ),
-                            )}
+                        {loading ? (
+                            <tr><td colSpan="5">Loading results...</td></tr>
+                        ) : (
+                            scoreDetails.map((detail, index) => (
+                                <tr key={index}>
+                                    <td>{detail.sectionName}</td>
+                                    <td>{detail.score}</td>
+                                    <td>{detail.bandScore}</td>
+                                    {/* These columns usually only have data for the first row or summary row */}
+                                    <td>{detail.finalScore || ''}</td>
+                                    <td>{detail.finalBandScore || ''}</td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
-        </>
+        </div>
     );
 }
 
 function TestReview() {
-    const [query, setQuery] = useState("");
-    const [page, setPage] = useState("Account List");
+    const [query, setQuery] = useState('');
+    const [page, setPage] = useState('Account List');
+    
+    // Level 2 Selection: The specific student
     const [selectedAccount, setSelectedAccount] = useState(null);
+    
+    // Level 3 Selection: The specific test attempt
     const [selectedAttempt, setSelectedAttempt] = useState(null);
 
     const searchInputChange = (e) => {
@@ -253,31 +275,49 @@ function TestReview() {
     };
 
     return (
-        <main className="admin-test-review">
+        <main className='admin-test-review'>
+            <div><h1>View Scores</h1></div>
             <div>
-                <h1>View Scores</h1>
-            </div>
-            <div>
-                <form>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <input
-                        type="text"
-                        placeholder="⌕ Search"
+                        type='text'
+                        placeholder='⌕ Search'
                         value={query}
                         onChange={searchInputChange}
-                        className="search-bar"
+                        className='search-bar'
                     />
                 </form>
             </div>
-            <div>
-                <ViewScoresNavigation
-                    queryInput={query}
-                    currentPage={page}
-                    setPage={setPage}
-                    selectedAccount={selectedAccount}
-                    setSelectedAccount={setSelectedAccount}
-                    selectedAttempt={selectedAttempt}
-                    setSelectedAttempt={setSelectedAttempt}
-                />
+            
+            <div className='testreview-box'>
+                <div className='testreview-innerbox'>
+                    {/* Level 1: Account List */}
+                    {page === 'Account List' && (
+                        <AccountList 
+                            query={query} 
+                            setPage={setPage} 
+                            setSelectedAccount={setSelectedAccount} 
+                        />
+                    )}
+
+                    {/* Level 2: Account Details & Attempts */}
+                    {page === 'Account' && (
+                        <AccountFunction 
+                            account={selectedAccount} 
+                            setPage={setPage} 
+                            setSelectedAttempt={setSelectedAttempt}
+                        />
+                    )}
+
+                    {/* Level 3: Specific Attempt Scores */}
+                    {page === 'Attempt' && (
+                        <AttemptFunction 
+                            account={selectedAccount}
+                            attempt={selectedAttempt} 
+                            setPage={setPage} 
+                        />
+                    )}
+                </div>
             </div>
         </main>
     );

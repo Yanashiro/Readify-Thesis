@@ -17,6 +17,7 @@
         "express-session": "^1.19.0",
         "mongoose": "^8.19.1",
         "mongoose-sequence": "^6.0.1",
+        "multer": "^2.0.2",
         "react": "^19.2.4",
         "react-cookie": "^8.0.1",
         "react-dom": "^19.2.4",

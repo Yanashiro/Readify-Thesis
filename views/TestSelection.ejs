@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Selection</title>
+    <link rel="stylesheet" href="homeStyle.css">
+                    
+</head>
+<body>
+   <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <center><h3>INSERT LOGO HERE</h3></center>
+                <center><h3> Readify Navigation</h3></center>
+                <ul>
+                    <li><a href="/Home">Home</a></li>
+                    <li><a href="/create-passage">Create Passage</a></li>
+                    <li><a href="/exam-launcher">Test Selection</a></li>
+                    <li><a href="/UserManagement">User Management</a></li>
+                    <li><a href="/Profile">Profile</a></li>
+                    <li><a href="/Logout" style="color: red;">Logout</a></li>
+                </ul>
+            </nav>
+            </aside>
+    </div>
+
+    <main class="content">
+        <div class="main-layout">
+    
+    <details class="filter-drawer">
+        <summary>
+            <span>🔍 Filter Options (Current: <%= isMainTest ? 'Main' : 'Practice' %> - <%= typeLabels[selectedType] %>)</span>
+        </summary>
+        <div class="filter-content">
+            <div class="btn-group">
+                <a href="/test-selection?designation=true&type=<%= selectedType %>" class="btn <%= isMainTest ? 'active' : '' %>">Main Test</a>
+                <a href="/test-selection?designation=false&type=<%= selectedType %>" class="btn <%= !isMainTest ? 'active' : '' %>">Practice Test</a>
+                <a href="/test-selection?designation=true&type=1" style="color: #dc3545; font-size: 12px; margin-left: 10px; align-self: center;">Reset</a>
+                <a href="/take-exam">Take Exam</a>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;">
+                <% for (let i = 1; i <= 11; i++) { %>
+                    <a href="/test-selection?designation=<%= isMainTest %>&type=<%= i %>" 
+                       class="btn <%= selectedType === i ? 'active' : '' %>" style="font-size: 12px;">
+                        <%= typeLabels[i] %>
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </details>
+
+    <main>
+        <% if (TestSelection.length > 0) { %>
+            <% TestSelection.forEach(item => { %>
+                <article class="passage-card">
+                    <div class="passage-header">
+                        <h1 style="margin:0;"><%= item.passageTitle %></h1>
+                        <small style="color:#999;">Type: <%= typeLabels[item.testType] %></small>
+                    </div>
+
+                    <section class="passage-body">
+                        <%- item.passage %>
+                    </section>
+
+                    <section class="questions-section" style="margin-top: 50px;">
+                        <h3 style="border-top: 1px solid #eee; padding-top: 20px;">Questions</h3>
+                        <% item.questions.forEach(q => { %>
+                            <div class="question-item">
+                                <strong><%= q.questionNumber %>.</strong> <%= q.questionText %>
+                            </div>
+                        <% }) %>
+                    </section>
+                </article>
+            <% }) %>
+        <% } else { %>
+            <div style="text-align: center; padding: 100px 20px; color: #999;">
+                <h2>No tests found.</h2>
+                <p>Try expanding the filter options above to change your criteria.</p>
+            </div>
+        <% } %>
+    </main>
+</div>
+
+        <!-- CSS -->
+        <style>
+            body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; }
+            .main-layout { max-width: 800px; margin: 0 auto; padding: 20px; }
+            
+            /* Collapsible Filter Styling */
+            .filter-drawer {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                margin-bottom: 30px;
+                overflow: hidden;
+            }
+            summary {
+                padding: 15px 20px;
+                background: #007bff;
+                color: white;
+                cursor: pointer;
+                font-weight: bold;
+                list-style: none;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            summary::-webkit-details-marker { display: none; }
+            summary::after { content: ' ▼'; font-size: 0.8em; }
+            details[open] summary::after { content: ' ▲'; }
+
+            .filter-content { padding: 20px; border-top: 1px solid #eee; }
+            
+            /* Button Styles */
+            .btn-group { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+            .btn { padding: 8px 16px; text-decoration: none; border-radius: 6px; border: 1px solid #ddd; color: #555; font-size: 14px; }
+            .btn.active { background: #007bff; color: white; border-color: #007bff; }
+            
+            /* Passage Focus */
+            .passage-card { background: white; padding: 40px; margin-bottom: 10px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); line-height: 1.8; }
+            .passage-header { border-bottom: 2px solid #f0f0f0; margin-bottom: 30px; padding-bottom: 10px; }
+            .question-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #007bff; }
+        </style>
+    </main>
+</body>
+</html>

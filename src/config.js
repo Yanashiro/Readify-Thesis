@@ -34,6 +34,15 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    testHistory: [
+        {
+            passageId: { type: Number, required: true },
+            passageTitle: String,
+            score: { type: Number, required: true },
+            totalQuestions: { type: Number, required: true },
+            takenAt: { type: Date, default: Date.now },
+        }
+    ],
     achievements: [
         {
             title: { type: String, required: true }, // Title
@@ -50,9 +59,8 @@ const userSchema = new mongoose.Schema({
 });
 userSchema.plugin(autoIncrement, { inc_field: "userId" }); // Auto Increment for User ID
 
-// Schema for Tests
-const questionSchema = new mongoose.Schema(
-    {
+// Schema for Passages & Questions
+const questionSchema = new mongoose.Schema({
         questionNumber: {
             type: Number,
             required: true,
@@ -80,6 +88,17 @@ const passageSchema = new mongoose.Schema({
     },
     testType: {
         // Dropdown
+        // testType 1 (Multiple Choices)
+        // testType 2 (True / False / Not Given)
+        // testType 3 (Yes / No / Not Given)
+        // testType 4 (Matching Information)
+        // testType 5 (Matching Headings)
+        // testType 6 (Matching Features)
+        // testType 7 (Matching Sentence Endings)
+        // testType 8 (Sentence Completion)
+        // testType 9 (Summary Completion)
+        // testType 10 (Diagram-Label Completion)
+        // testType 11 (Short-Answer Questions)
         type: Number,
         required: true,
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -94,12 +113,24 @@ const passageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    passageSource: {
+        // Textbox
+        type: String,
+        required: false,
+    },
+    passageImage:{
+        type: String,
+        required: false
+    },
     questions: {
         // Textbox
         type: [questionSchema],
         default: [],
     },
 });
+passageSchema.plugin(autoIncrement, { inc_field: "passageId" }); // Auto Increment for Passage ID
+
+// Database Collection
 
 passageSchema.plugin(autoIncrement, { inc_field: "testId" });
 

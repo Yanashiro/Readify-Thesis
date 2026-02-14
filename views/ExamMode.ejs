@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UI</title>        
+    <link rel="icon" href="data:,">
+</head>
+<body>
+        <main class="content">
+            <header class="exam-header">
+                <span>Exam Mode: <strong><%= typeLabel %></strong></span>
+                <span id="timer">Time Elapsed: 00:00</span>
+                <a href="/exam-launcher" style="color: #ffc107; text-decoration: none;">Exit Exam</a>
+            </header>
+
+            <div class="exam-container">
+                <section class="reading-pane" style="margin-left: 50px;">
+                    <h1 style="color: #0f172a;"><%= test.passageTitle %></h1>
+                    
+                    <% if (test.passageImage) { %>
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <img src="<%= test.passageImage %>" alt="Passage Diagram" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        </div>
+                    <% } %>
+                    <div style="font-size: 1.1em;"><%- test.passage %></div>
+                </section>
+
+                <section class="question-pane">
+                    <form action="/submit-results" method="POST">
+                        <input type="hidden" name="passageId" value="<%= test.passageId %>">
+                        
+                        <h3>Answer the Questions Below:</h3>
+                        <% test.questions.forEach((q, index) => { %>
+                            <div class="q-card" style="margin-bottom: 30px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                <p><strong><%= q.questionNumber %>.</strong> <%= q.questionText %></p>
+                                
+                                <% if (q.data && Array.isArray(q.data)) { %>
+                                    <div class="options-group" style="margin-left: 20px;">
+                                        <% q.data.forEach((option, optIndex) => { %>
+                                            <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                                                <input type="radio" 
+                                                    name="userAnswers[<%= index %>]" 
+                                                    value="<%= option %>" 
+                                                    required> 
+                                                <%= option %>
+                                            </label>
+                                        <% }) %>
+                                    </div>
+
+                                <% } else { %>
+                                    <input type="text" 
+                                        name="userAnswers[<%= index %>]" 
+                                        class="answer-input" 
+                                        placeholder="Type your answer here..." 
+                                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+                                        required>
+                                <% } %>
+                            </div>
+                        <% }) %>
+
+                        <button type="submit" class="submit-btn">Finish & Submit Exam</button>
+                    </form>
+                </section>
+            </div>
+
+            <script>
+                // Simple Timer Logic - Anti Cheat finished but not implemented here yet
+                let seconds = 0;
+                setInterval(() => {
+                    seconds++;
+                    let mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    let secs = (seconds % 60).toString().padStart(2, '0');
+                    document.getElementById('timer').innerText = `Time Elapsed: ${mins}:${secs}`;
+                }, 1000);
+            </script>
+            <!-- CSS -->
+            <style>
+                body { margin: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+                
+                .exam-header { 
+                    height: 50px; 
+                    background: #1a1a1a; 
+                    color: white; 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center; 
+                    padding: 0 20px; 
+                }
+
+                .exam-container { 
+                    display: flex; 
+                    height: calc(100vh - 50px); /* Subtract header height */
+                }
+                
+                /* Left side: The Passage & Image (60%) */
+                .passage-pane {
+                    flex: 0 0 60%; /* Do not grow, do not shrink, stay at 60% */
+                    padding: 40px;
+                    overflow-y: auto;
+                    background: white;
+                    border-right: 1px solid #ddd;
+                    box-sizing: border-box;
+                }
+                
+                .passage-pane img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 4px;
+                    margin: 20px 0;
+                }
+
+                /* Right side: The Questions (40%) */
+                .question-pane {
+                    flex: 0 0 40%; /* Do not grow, do not shrink, stay at 40% */
+                    padding: 30px;
+                    overflow-y: auto;
+                    background: #fdfdfd;
+                    box-sizing: border-box;
+                }
+
+                .q-card {
+                    background: white;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                }
+            </style>
+        </main>
+</body>
+</html>
