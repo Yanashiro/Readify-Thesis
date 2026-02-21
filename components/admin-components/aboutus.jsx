@@ -4,6 +4,7 @@ import picture from '../../images/picture_aboutus.png';
 import micah from '../../images/ROCERO_ID_Picture.JPG';
 import patrick from '../../images/patrick-photo.png'
 import marjorie from '../../images/CINCO_ID_PICTURE.jpg';
+import ange from '../../images/ange.jpg'
 import ryan from '../../images/Ryan.jpg'
 
 function AboutUs() {
@@ -38,7 +39,7 @@ function AboutUs() {
                     </div>
                 </div>
                 <div className="containerAboutUs">
-                    <img className="picture" src={picture} width={"250px"} height={"250px"}></img>
+                    <img className="picture" src={ange} width={"250px"} height={"250px"}></img>
                     <div className='team-name'>
                         <h2>Angela Dacasin</h2>
                         <p>I am a BS Computer Science student specializing in Data Science with a strong interest in transforming data into meaningful insights. I have hands-on experience in statistical analysis and data visualization, supported by solid analytical and problem-solving skills. I actively engage with the data science community through conferences and seminars to stay updated with emerging trends and best practices.</p>
