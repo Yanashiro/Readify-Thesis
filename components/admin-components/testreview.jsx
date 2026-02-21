@@ -1,75 +1,34 @@
-import React from "react";
-import axios from "axios";
-import { useState, useEffect } from "react";
-import "./testreview.css";
-
-function ViewScoresNavigation({
-    queryInput,
-    currentPage,
-    setPage,
-    selectedAccount,
-    setSelectedAccount,
-    selectedAttempt,
-    setSelectedAttempt,
-}) {
-    switch (currentPage) {
-        case "Account List":
-            return (
-                <AccountList
-                    query={queryInput}
-                    setPage={setPage}
-                    setSelectedAccount={setSelectedAccount}
-                />
-            );
-        case "Account":
-            return (
-                <AccountFunction
-                    setPage={setPage}
-                    account={selectedAccount}
-                    setSelectedAttempt={setSelectedAttempt}
-                />
-            );
-        case "Attempt":
-            return (
-                <AttemptFunction setPage={setPage} attempt={selectedAttempt} />
-            );
-        default:
-            return (
-                <AccountList
-                    query={queryInput}
-                    setPage={setPage}
-                    setSelectedAccount={setSelectedAccount}
-                />
-            );
-    }
-}
+import React from 'react'
+import axios from 'axios'
+import { useState, useEffect } from 'react'
+import './testreview.css'
 
 function AccountList({ query, setPage, setSelectedAccount }) {
     const [accountList, setAccountList] = useState([]);
 
     useEffect(() => {
-        axios.post('/accountlist')
+        axios.get('/UserManagement')
             .then((res) => {
-                // Sorting A-Z by name immediately upon fetch
-                const sortedData = res.data.sort((a, b) => a.name.localeCompare(b.name));
+                // Sorting A-Z by name immediately upon axios request
+                const sortedData = [...res.data].sort((a, b) => a.name.localeCompare(b.name));
                 setAccountList(sortedData);
             })
             .catch((err) => console.error("Error fetching accounts:", err));
     }, []);
 
     // Filter logic based on the Search Input
-    const filteredList = accountList.filter((user) => {
+    const filteredList = [...accountList].filter((user) => {
         const searchTerm = query.toLowerCase();
         return (
-            user.name.toLowerCase().includes(searchTerm) ||
-            user.email.toLowerCase().includes(searchTerm) ||
-            user.username.toLowerCase().includes(searchTerm)
+            (user.name || '').toLowerCase().includes(searchTerm) ||
+            (user.email || '').toLowerCase().includes(searchTerm) ||
+            ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(searchTerm)
         );
-    });
+    }).sort((a, b) => (a.name || '').localeCompare(b.name));
 
     return (
         <div className="table-container">
-            <table>
+            <table className='tbody-scroll'>
                 <thead>
                     <tr className='manageusers-table-header'>
                         <th>Name</th>
@@ -82,16 +41,16 @@ function AccountList({ query, setPage, setSelectedAccount }) {
                 </thead>
                 <tbody>
                     {filteredList.map((fsl) => (
-                        <tr key={fsl.id}> 
+                        <tr key={fsl._id}> 
                             <td>{fsl.name}</td>
-                            <td>{fsl.username}</td>
-                            <td>{fsl.accountType}</td>
+                            <td>{fsl.name}</td>
+                            <td>{fsl.isAdmin ? "Admin" : "Student"}</td>
                             <td>{fsl.email}</td>
                             <td>{fsl.dateCreated}</td>
                             <td className="action-cell">
                                 <button onClick={() => {
                                     setSelectedAccount(fsl); // Save this user in parent state
-                                    setPage('Account');      // Move to Level 2
+                                    setPage('Account');      // Move to AccountFunction (Level 2)
                                 }}>
                                     〉
                                 </button>
@@ -100,6 +59,11 @@ function AccountList({ query, setPage, setSelectedAccount }) {
                     ))}
                 </tbody>
             </table>
+            
+            {/* Display message if search results are empty */}
+            {filteredList.length === 0 && (
+                <p style={{ textAlign: 'center', marginTop: '20px' }}>No accounts found.</p>
+            )}
         </div>
     );
 }
@@ -111,11 +75,16 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
     const [attemptExam, setAttemptExam] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const queryParams = {
+        userId: account._id
+    }
+
     useEffect(() => {
         // We send the account ID so the backend knows whose attempts to fetch
-        axios.post('/viewattempts', { userId: account.id })
+        // at the moment, attempts aren't yet shown
+        axios.get('/profile', { params: queryParams})
             .then((res) => {
-                setAttemptExam(res.data);
+                setAttemptExam([res.data]);
                 setLoading(false);
             })
             .catch((err) => {
@@ -133,7 +102,6 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
                 </button>
             </div>
 
-            {/* Account Info Header */}
             <div className='accountPage-flex'>
                 <div className="info-column">
                     <div>
@@ -141,7 +109,7 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
                         <h1 className="display-name">{account.name}</h1>
                     </div>
                     <div>
-                        <p><strong>Username:</strong> {account.username}</p>
+                        <p><strong>Username:</strong> {account.name}</p>
                     </div>
                     <div>
                         <p><strong>Email:</strong> {account.email}</p>
@@ -149,7 +117,7 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
                 </div>
                 <div className="info-column secondary-info">
                     <div>
-                        <p><strong>Account Type:</strong> {account.accountType}</p>
+                        <p><strong>Account Type:</strong> {account.isAdmin ? "Admin" : "Student"}</p>
                     </div>
                     <div>
                         <p><strong>Date Created:</strong> {account.dateCreated}</p>
@@ -168,17 +136,18 @@ function AccountFunction({ account, setPage, setSelectedAttempt }) {
                         </tr>
                     </thead>
                     <tbody>
+                        {/* It displays after axios intercepted the /profile json call */}
                         {loading ? (
                             <tr><td colSpan="3">Loading attempts...</td></tr>
                         ) : (
                             attemptExam.map((EA) => (
-                                <tr key={EA.id}>
+                                <tr key={EA._id}>
                                     <td>{EA.attemptNumber || EA.attempt}</td>
                                     <td>{EA.testName || EA.test}</td>
                                     <td className="action-cell">
                                         <button onClick={() => {
                                             setSelectedAttempt(EA); // Save specific attempt info
-                                            setPage('Attempt');     // Move to Level 3
+                                            setPage('Attempt');     // Move to Attempt Function (level 3)
                                         }}>
                                             〉
                                         </button>
@@ -199,7 +168,10 @@ function AttemptFunction({ account, attempt, setPage }) {
 
     useEffect(() => {
         // Fetching the breakdown for this specific attempt ID
-        axios.post('/attemptdetails', { attemptId: attempt.id })
+
+        // change this path when there is an established path for viewing
+        // exam attempts with a designated userId
+        axios.post('/attemptdetails', { attemptId: attempt._id })
             .then((res) => {
                 setScoreDetails(res.data);
                 setLoading(false);
