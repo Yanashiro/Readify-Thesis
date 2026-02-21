@@ -2,15 +2,14 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
-import { useCookies } from 'react-cookie';
-import volcanoTemp from '../../images/partsofavolcano.png'
+import { useNavigate } from 'react-router-dom';
 import './practicetestpage.css'
 
 function DiagramLabelCompletion() {
 
     // remember, function uses parameters
     // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
-    const [cookies] = useCookies(['examinee-cookie'])
+    const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
@@ -28,34 +27,44 @@ function DiagramLabelCompletion() {
         return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900})
+        return saved ? JSON.parse(saved) : 540})
+    const [passageId, setPassageId] = useState(() => {
+        const saved = sessionStorage.getItem("Passage ID");
+        return saved ? JSON.parse(saved) : null;
+    })
     
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
     // used to index an array of questions putting the maximum capacity to 3 questions per page
-    const questionsPerPage = 5;
+    const questionsPerPage = 3;
     // used as a 'cutter' to 'indexOfFirstQuestion' 
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
     // used to index the very first question after a "Next Page" removing the last question from the equation 
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
     // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
-    const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
     // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
+
+        const queryParams = {
+            designation: 'false',
+            type: 11
+        }
+
         axios
-            .post('/practicetestroute/diagramlabelcompletion', {randomize: true})
+            .get('/start-random-exam', {params: queryParams})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
                 // taking all questions from the randomizer (JSON)
                 setAllQuestions(res.data.questions);
-                setPassageHistory(res.data.image);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setPassageId(res.data.passageId);
             })
             .catch((err) => console.error(err));
         }
@@ -68,7 +77,8 @@ function DiagramLabelCompletion() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, passageId]);
 
     useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
@@ -103,7 +113,7 @@ function DiagramLabelCompletion() {
 
     const handleNextPage = () => {
         // hard limit for questions
-        const totalLimit = 10;
+        const totalLimit = 6;
 
         if (passageHistory.length > currentPage + 1) {
             // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
@@ -116,6 +126,7 @@ function DiagramLabelCompletion() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
+        /*
         // requesting data from the backend every "Next Page" click
         axios
             .post('/practicetestroute/diagramlabelcompletion', {randomize: true})
@@ -137,25 +148,40 @@ function DiagramLabelCompletion() {
                 setPassageHistory(prev => [...prev, res.data.image]);
             })
             .catch((err) => console.error(err))
+            */
     }
 
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
+    const typeLabels = {
+        1: "Multiple Choice",
+        2: "Matching Features",
+        3: "Matching Information",
+        4: "Identifying Information",
+        5: "Identifying Writer's Views",
+        6: "Matching Sentence Endings",
+        7: "Matching Headings",
+        8: "Summary Completion",
+        9: "Short Answer Questions",
+        10: "Sentence Completion",
+        11: "Diagram Label Completion",
+    };
+
+    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
         const submissionData = {
-            examinee: cookies['examinee-cookie'],
             testType: "Practice",
             testCategory: "Diagram Label Completion",
             submittedAnswers: userAnswers,
+            passageId: passageId,
             testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/examSubmission', submissionData)
+            .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
                 if (res.status == 200) {
-                    window.location.replace('/maintest/examsubmitted');
+                    setShowPopup(true);
                     sessionStorage.removeItem("Answer")
                     sessionStorage.removeItem("Font Size")
                     sessionStorage.removeItem("Passage History")
@@ -172,8 +198,23 @@ function DiagramLabelCompletion() {
                 console.error(err)});
     }
 
+    const navigate = useNavigate();
+    const handleGoBack = () => {
+        navigate("/home")
+    }
+
     return (
         <main className='main-maintest'>
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Test Finished</h2>
+                        <button className="popup-btn" onClick={handleGoBack}>
+                            Go back to Main Test
+                        </button>
+                    </div>
+                </div>
+            )}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
@@ -189,7 +230,7 @@ function DiagramLabelCompletion() {
             <div className='section-flex'>
                 <section className='testing-flex'>
                     <div className='title-div'>
-                        <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
+                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                     </div>
                     <div className='view-size-buttons'>
                         <button className='font-size-btn' onClick={decreaseFontSize}>
@@ -208,14 +249,13 @@ function DiagramLabelCompletion() {
                         <div className='test-title'>
                             {/* the print out version of the exam passages, "?." is an optional chaining that access the previous history/pages of passages.
                                 It also prevents white screen errors because it is accessing an array of previous stored passages. */}
-                            <>{currentPassage?.title}</>
+                            <>{currentPassage?.passageTitle}</>
                         </div>
                         <div className='test-reference'>
-                            <>{currentPassage?.linkReference}</>
+                            <>{currentPassage?.passageSource}</>
                         </div>
                         <div className='test-image'>
-                            {/*<img src={currentPassage?.image}></img> -- Enable this once the exam coding is finished*/}
-                            <img className='temporary-image' src={volcanoTemp}></img>
+                            <img src={currentPassage?.passageImage}></img>
                         </div>
                         <div className='test-passage'>
                             <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
@@ -224,7 +264,7 @@ function DiagramLabelCompletion() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 6 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>Label the diagram below.</p>
                                 <p className='p-description'>{currentPassage?.description}</p>      
                                 <div className='question-container'>
@@ -236,8 +276,8 @@ function DiagramLabelCompletion() {
                                                 type='text'
                                                 className='answer-input-summary'
                                                 placeholder=''
-                                                value={userAnswers[q.id || q.questionNumber] || ''}
-                                                onChange={(e) => userWriteDown(q.id || q.questionNumber, e.target.value)}
+                                                value={userAnswers[q.questionNumber] || ''}
+                                                onChange={(e) => userWriteDown(q.questionNumber, e.target.value)}
                                             />
                                         </div>
                                     ))}
