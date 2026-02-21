@@ -1,7 +1,6 @@
 // still under construction
 import React from 'react'
 import axios from 'axios'
-import { useCookies } from 'react-cookie'
 
 import manageUser from '../../images/manageusers.jpg'
 import viewScores from '../../images/viewscores.jpg'
@@ -9,8 +8,7 @@ import addPassages from '../../images/addpassages.jpg'
  
 import './adminhome.css'
 
-function AdminHome({setPage}) {
-    const [cookie] = useCookies(['admin-cookie'])
+function AdminHome({setPage, name}) {
 
     const dashboardLinks = [
         {id: 1, title: "Manage Users", img: manageUser, imgAlt: "Manage Users", clickMe: () => setPage('Manage Users')},
@@ -23,7 +21,7 @@ function AdminHome({setPage}) {
         <>
             <main className='adminhome'>
                 <div>
-                    <h2>Welcome, {cookie['admin-cookie'] || User}!</h2>
+                    <h2>Welcome, {name || "User"}!</h2>
                 </div>
                 <div className='admin-board-flex'>
                     {dashboardLinks.map((dlink) => (
@@ -47,3 +45,4 @@ function AdminHome({setPage}) {
 }
 
 export default AdminHome;
+
