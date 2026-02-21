@@ -14,10 +14,8 @@ import marathon from '../../images/marathon_reader.png'
 import comprehensionStart from '../../images/comprehension_starter.png'
 import PageNavigation from './navbar';
 import MTPage from './maintest'
-import { Cookies, useCookies } from 'react-cookie';
 
-function Dashboard({setPage}) {
-    const [cookies] = useCookies(['examinee-cookie'])
+function Dashboard({setPage, name}) {
     const [firstName, setFirstName] = useState("");
     const [unlocked, setUnlocked] = useState([]);
 
@@ -43,7 +41,7 @@ function Dashboard({setPage}) {
     return (
         <main className='dashboard-main'>
             <div className='head-name'>
-                <h1 className='name-dashboard'>Welcome, {cookies['examinee-cookie'] || 'User'}!</h1>
+                <h1 className='name-dashboard'>Welcome, {name || 'User'}!</h1>
             </div>
             <div className='top-three'>
                 <div className='main-board'>
@@ -115,3 +113,4 @@ function Dashboard({setPage}) {
 }
 
 export default Dashboard;
+
