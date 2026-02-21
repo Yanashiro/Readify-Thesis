@@ -43,7 +43,7 @@ section.sidebar {
 div.section-flex {
     width: 100vw;
     height: 280vh;
-}
+} /**/
 
 section.testing-flex {
     display: flex;
@@ -309,4 +309,53 @@ button.submit-btn-test {
     border-width: 1px;
     width: 100px;
     height: 35px;
+}
+
+/* The semi-transparent background */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of everything */
+}
+
+/* The white box in the center */
+.popup-content {
+    background: white;
+    padding: 40px 60px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.popup-btn {
+    background-color: #fff4a3; /* Light yellow */
+    border: none;
+    padding: 12px 24px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.popup-btn:hover {
+    background-color: #fce862;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
