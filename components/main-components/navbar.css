@@ -196,9 +196,12 @@ span {
 
 .readify-footer{
   width:100%;
-  background:#0c1a2b;
+  background:#083565;
   color:#e0ecfc;
-  border-top:1px solid #263c54;
+  border-top:1px solid #30659d;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 
@@ -348,4 +351,5 @@ span {
   .right-nav-group{ flex-direction:column; gap:1.1rem; }
   .nav-col{ min-width:unset; }
 }
+
 
