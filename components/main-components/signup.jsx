@@ -30,10 +30,10 @@ function Signup() {
         axios.post('/signup', formData)
         .then(res => {
             console.log("Server received", res.data)
+            navigate('/login')
         })
         .catch(err => console.error(err));
 
-        navigate('/login')
     }
 
     return (
@@ -71,7 +71,7 @@ function Signup() {
                             </div>
                         </div>
                     <p className='have-account'>Already have an account? <Link to="/" className='login-href'>Login</Link></p>
-                    <button type="submit" className='submit-btn' onSubmit={submitData}><p className='signup-btn'>Sign Up</p></button>
+                    <button type="submit" className='submit-btn'><p className='signup-btn'>Sign Up</p></button>
                     </div>
                 </form>
             </div>
@@ -81,3 +81,4 @@ function Signup() {
 };
 
 export default Signup;
+
