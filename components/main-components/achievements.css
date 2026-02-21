@@ -1,5 +1,10 @@
 /* needs to add import fonts */
 
+main.achievements-main { 
+    padding: 30px;
+}
+
+
 h1 {
     margin-left: 12px;
 }
