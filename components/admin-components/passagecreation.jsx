@@ -28,7 +28,7 @@ function PassageCreation() {
                     <h1 className='h1-passagecreation'>Add Passages</h1>
                 </div>
                 {viewPassages.map((passage) => (
-                <div class='buttons'>
+                <div className='buttons' key={passage.id}>
                     <Link to={passage.link} style={{textDecoration:'none'}}>
                     <button className="passage-buttons">
                         <p className="title">{passage.title}</p>
