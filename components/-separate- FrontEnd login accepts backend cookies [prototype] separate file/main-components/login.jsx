@@ -2,24 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "./login.css";
-<<<<<<< Updated upstream
-
-// ================================================= 
-/*
-
-    Message: User session status is managed on Navbar.jsx
-    which is the primary page for navigating by both student
-    and admin, it is where it also have the logic to change
-    viewing components based on the account status as 
-    
-            isAdmin ? true : false
-
-*/
-// ================================================= 
-
-
-=======
->>>>>>> Stashed changes
 
 function Login() {
     const [message, setMessage] = useState("");
@@ -28,7 +10,6 @@ function Login() {
     const navigate = useNavigate();
     // react state variable for remembering username and password
     const [formData, setFormData] = useState({
-        email: "",
         username: "",
         password: "",
     });
@@ -51,15 +32,9 @@ function Login() {
 
         try {
             const res = await axios.post("/Login", {
-<<<<<<< Updated upstream
-                identifier: formData.email,
-                password: formData.password,
-            }, {withCredentials: true});
-=======
                 identifier: formData.username,
                 password: formData.password,
-            });
->>>>>>> Stashed changes
+            }, {withCredentials: true});
 
             if (res.data.success) {
                 navigate('/home');
@@ -87,13 +62,8 @@ function Login() {
                         <div className="form-align">
                             <div className="form-group">
                                 <div className="label-align">
-<<<<<<< Updated upstream
-                                    <label htmlFor="name">
-                                        <p className="label-design">Email:</p>
-=======
                                     <label for="name">
                                         <p className="label-design">Username:</p>
->>>>>>> Stashed changes
                                     </label>
                                 </div>
                                 <div className="input-align">
@@ -101,8 +71,8 @@ function Login() {
                                         className="login-input"
                                         type="text"
                                         id="name"
-                                        name="email"
-                                        placeholder="Enter your Email"
+                                        name="username"
+                                        placeholder="Enter your Username"
                                         onChange={handleChange}
                                         required
                                         autoComplete="off"
@@ -123,7 +93,7 @@ function Login() {
                                         type="password"
                                         name="password"
                                         id="password"
-                                        placeholder=""
+                                        placeholder="Password"
                                         onChange={handleChange}
                                         required
                                     />
@@ -150,4 +120,3 @@ function Login() {
 }
 
 export default Login;
-

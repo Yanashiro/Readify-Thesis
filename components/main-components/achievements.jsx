@@ -29,7 +29,11 @@ function Achievements() {
 
     useEffect(() => {
         axios
+<<<<<<< Updated upstream
             .get('/achievements', { withCredentials: true })
+=======
+            .get('/achievements')
+>>>>>>> Stashed changes
             .then((res) => {
                 setUnlocked(res.data)
             })

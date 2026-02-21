@@ -77,8 +77,7 @@ const questionSchema = new mongoose.Schema({
             required: true,
         },
     },
-    { _id: false },
-); // Stops Object ID Generation
+    { _id: false },); // Stops Object ID Generation
 
 const passageSchema = new mongoose.Schema({
     testDesignation: {
@@ -89,16 +88,16 @@ const passageSchema = new mongoose.Schema({
     testType: {
         // Dropdown
         // testType 1 (Multiple Choices)
-        // testType 2 (True / False / Not Given)
-        // testType 3 (Yes / No / Not Given)
-        // testType 4 (Matching Information)
-        // testType 5 (Matching Headings)
-        // testType 6 (Matching Features)
-        // testType 7 (Matching Sentence Endings)
-        // testType 8 (Sentence Completion)
-        // testType 9 (Summary Completion)
-        // testType 10 (Diagram-Label Completion)
-        // testType 11 (Short-Answer Questions)
+        // testType 2 (Matching Features)
+        // testType 3 (Matching Information)
+        // testType 4 (Identifying Information)
+        // testType 5 (Identifying Writers Views)
+        // testType 6 (Matching Sentence Endings)
+        // testType 7 (Matching Headings)
+        // testType 8 (Summary Completion)
+        // testType 9 (Short Answer Questions)
+        // testType 10 (Sentence Completion)
+        // testType 11 (Diagram Label Completion)
         type: Number,
         required: true,
         enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -113,11 +112,6 @@ const passageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    passageSource: {
-        // Textbox
-        type: String,
-        required: false,
-    },
     passageImage:{
         type: String,
         required: false
@@ -131,51 +125,13 @@ const passageSchema = new mongoose.Schema({
 passageSchema.plugin(autoIncrement, { inc_field: "passageId" }); // Auto Increment for Passage ID
 
 // Database Collection
-
-passageSchema.plugin(autoIncrement, { inc_field: "testId" });
-
-const testAttemptSchema = new mongoose.Schema({
-    examinee: {
-        type: String,
-        required: true,
-    },
-    testType: {
-        type: String,
-        required: true,
-    },
-    testCategory: {
-        type: String,
-        required: true,
-    },
-    submittedAnswers: {
-        type: mongoose.Schema.Types.Mixed,
-        required: true,
-    },
-    score: {
-        type: Number,
-        required: true,
-    },
-    totalQuestions: {
-        type: Number,
-        required: true,
-    },
-    testDate: {
-        type: Date,
-        default: Date.now,
-    },
-});
-
 const readifyUser_Collection = new mongoose.model("users", userSchema);
 const questionCollection = new mongoose.model("questions", questionSchema);
 const passageCollection = new mongoose.model("passages", passageSchema);
-const testAttemptCollection = new mongoose.model(
-    "testattempts",
-    testAttemptSchema,
-);
 
+// Exporting Model
 module.exports = {
     readifyUser_Collection,
     questionCollection,
     passageCollection,
-    testAttemptCollection,
 };

@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+main.vocabulary-test {
+    padding: 30px;
+    height: 100vh;
+}
+
+div.vocab-container {
+  background-color: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin: 20px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  position: relative;
+  min-height: 160px;
+}
+
+div.vocab-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+div.vocab-blue-bar {
+  width: 8px;
+  height: 30px;
+  background-color: rgb(52, 52, 138);
+  border-radius: 4px;
+  margin-right: 15px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+h2.vocab-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+  margin: 0;
+  font-weight: bold;
+  color: black;
+  line-height: 1.2;
+  display: inline-block;
+}
+
+p.vocab-text {
+  font-family: sans-serif;
+  color: #333;
+  font-size: 16px;
+  margin-left: 23px;
+  margin-top: 8px;
+  margin-bottom: 40px;
+}
+
+button.vocab-short-button {
+  background-color: rgb(52, 52, 138);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: sans-serif;
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+  white-space: nowrap;
+  height: 24px;
+  line-height: 16px;
+  width: auto;
+}
+
+button.vocab-short-button:hover {
+  background-color: rgb(26, 26, 126);
+}

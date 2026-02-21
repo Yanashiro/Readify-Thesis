@@ -1,1 +1,125 @@
+/* Layout Containers */
+.admin-test-review {
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
 
+.testreview-box {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.testreview-innerbox {
+    padding: 20px;
+}
+
+/* Search Bar Styling */
+.search-bar {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+/* Account Detail Header (Level 2) */
+.accountPage-flex {
+    display: flex;
+    justify-content: flex-start;
+    gap: 100px; /* Large gap between the two columns */
+    margin: 30px 0;
+    padding-bottom: 20px;
+}
+
+.display-name {
+    font-size: 2.5rem;
+    margin: 5px 0;
+    font-weight: 700;
+}
+
+.label {
+    color: #666;
+    margin-bottom: 0;
+}
+
+.info-column p {
+    margin: 8px 0;
+    font-size: 1.1rem;
+}
+
+/* Table Styling (Matching your Screenshots) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table-header-gray, .manageusers-table-header {
+    background-color: #e0e0e0; /* The light grey header from your UI */
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.table-container {
+    height: 500px;
+    overflow-y: scroll;
+}
+
+/* Zebra Striping (Optional, but looks like your Screenshot) */
+tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Action Buttons (The Arrow) */
+.back-button, .action-cell button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #333;
+    transition: transform 0.2s;
+}
+
+.back-button {
+    font-size: 1.5rem;
+    padding: 10px 0;
+}
+
+.action-cell {
+    text-align: right;
+    width: 50px;
+}
+
+.action-cell button:hover {
+    transform: translateX(3px);
+    font-weight: bold;
+}
+
+/* Back navigation area */
+.back-nav {
+    margin-bottom: 10px;
+}
+
+/* Level 3 Specific Header */
+.attempt-header {
+    margin-bottom: 25px;
+}

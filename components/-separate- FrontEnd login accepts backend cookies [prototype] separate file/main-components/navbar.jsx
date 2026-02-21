@@ -23,17 +23,13 @@ import VocPage from './vocabtest';
 import AdminHome from '../admin-components/adminhome';
 import PassageCreation from '../admin-components/passagecreation';
 import ManageUsers from '../admin-components/manageusers';
-import TestReview from '../admin-components/testreview';
-import AdminProfile from '../admin-components/adminprofile';
-import Adminprofile from '../admin-components/adminprofile';
+import TestReview from '../admin-components/testreviewtest';
 //import dropdownIcon from '../images/icons/dropdown.png';
 
 function PageNavigation({input, setInput, role, name}) {
-  // accepting props role={auth.isAdmin}
   const isAdmin = role === true;
   const isExaminee = role === false;
-  
-  // Examinee web pages
+    
   if (isExaminee) {
     switch(input) {
       case 'Dashboard':
@@ -55,18 +51,16 @@ function PageNavigation({input, setInput, role, name}) {
       default:
           return <Dashboard/>
     }
-  } else if (isAdmin) { // admin web pages
+  } else if (isAdmin) {
     switch(input) {
       case 'Dashboard':
-        return <AdminHome setPage={setInput} name={name}/>
+        return <AdminHome setPage={setInput}/>
       case 'Passage Creation':
         return <PassageCreation/>
       case 'Manage Users':
         return <ManageUsers setPage={setInput}/>
       case 'Test Review':
         return <TestReview/>
-      case 'Profile':
-        return <AdminProfile/>
       case 'About Us':
         return <AboutUs/>
       default:
@@ -78,7 +72,6 @@ function PageNavigation({input, setInput, role, name}) {
 }
 
 function Navbar() {
-  // accepting backend "variables?" into the useState via Axios call /auth/me
   const [auth, setAuth] = useState({
     loading: true,
     checked: false,
@@ -86,17 +79,14 @@ function Navbar() {
     isAdmin: null,
     name: null
   });
-  // using auth variable from setAuth state to determine if user account is examinee(admin:false) or admin(admin:true)
   const isAdmin = auth.isAdmin === true;
   const isExaminee = auth.isAdmin === false;
   const [activeMenu, setActiveMenu] = useState('Dashboard');
 
   useEffect(() => {
-    // axios call receiving "res.json" from app.get(/auth/me) path 
     axios.get("/auth/me", { withCredentials: true})
       .then(res => {
         console.log("AUTH RESPONSE:", res.data)
-        // updates useState variable "auth"
         setAuth({
           loading: false,
           loggedIn: res.data.loggedIn,
@@ -104,7 +94,6 @@ function Navbar() {
           name: res.data.name ?? null
         })
       })
-      // if error from axios call
       .catch(() => {
         setAuth({loading: false, checked: true, loggedIn: false, isAdmin: null})
       })
@@ -121,11 +110,7 @@ function Navbar() {
   }, [auth.loading, auth.loggedIn])
 
   useEffect(() => {
-<<<<<<< Updated upstream
-    if(auth.checked === true && auth.loggedIn === false) {
-=======
     if(auth.checked && auth.loggedIn === false) {
->>>>>>> Stashed changes
       window.location.replace('/');
     }
   }, [auth.checked, auth.loggedIn]);

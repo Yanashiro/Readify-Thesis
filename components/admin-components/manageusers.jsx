@@ -235,6 +235,7 @@ function ManageUsers() {
     }
 
     const filteredAndSortedList = [...accountList].filter((user) => {
+<<<<<<< Updated upstream
         const nameSearch = query.toLowerCase(user.name);
         const emailSearch = query.toLowerCase(user.email);
         const roleSearch = query.toLowerCase(user.isAdmin);
@@ -244,6 +245,14 @@ function ManageUsers() {
             ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(roleSearch)
         );
     }).sort((a, b) => (a.name || '').localeCompare(b.name));
+=======
+        const searchTerm = query.toLowerCase();
+        return (
+            (user.name || '').toLowerCase().includes(searchTerm) ||
+            (user.email || '').toLowerCase().includes(searchTerm)
+        );
+    }).sort((b, a) => (a.name || '').localeCompare(b.name));
+>>>>>>> Stashed changes
 
     useEffect(() => {
         axios

@@ -27,7 +27,8 @@ app.use(session({
     cookie: { 
         maxAge: 3600000, // 1 hour
         secure: false,    // Set to true if using HTTPS
-        httpOnly: true  // Helps prevent XSS
+        httpOnly: true,  // Helps prevent XSS
+        sameSite: 'lax'
     }
 }));
 
@@ -167,16 +168,16 @@ app.post("/Login", async (req, res) => {
             // Save user details to session
             req.session.userId = user._id;
             req.session.userName = user.name;
-            /* req.sessioin.role = user.role; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
-            // it can also be like this: req.session.role = user.usAdmin ? "admin" : "examinee*; /
-            /* 
+            req.session.isAdmin = user.isAdmin; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
+            // it can also be like this: req.session.role = user.usAdmin ? "admin" : "examinee*;
             res.json({ // This is what the frontend needs, express can only send 1 response, so we have to be careful
                 success: true,
                 message: "Login successful",
-                role: user.role,
+                isAdmin: user.isAdmin,
                 name: user.name})
-                */
+            /*
             res.redirect('/Home');
+            */
         } else {
             res.render('Login', { error: 'Invalid credentials. Check your username/email or password.' });
         }
@@ -186,19 +187,20 @@ app.post("/Login", async (req, res) => {
     }
 });
 
-/*
+// testing feature - patrick
 app.get("/auth/me", (req, res) => { // This can be used when the frontend is looking for the role of the account as well as handling user account details 
-  if (!req.session.userId) {
+    console.log("SESSION:", req.session)
+    if (!req.session.userId) {
     return res.json({ loggedIn: false });
   }
 
   res.json({
     loggedIn: true,
     name: req.session.userName,
-    role: req.session.role
+    isAdmin: req.session.isAdmin
   });
 });
-*/
+
 
 app.get("/create-passage", isAuthenticated, (req, res) => {
     res.render("PassageCreation");
@@ -304,15 +306,10 @@ app.get('/take-exam', async (req, res) => {
             10: "Sentence Completion", 11: "Diagram Label Completion"
         };
 
-        /*res.render('ExamMode', { 
+        res.render('ExamMode', { 
             test: testData, 
             typeLabel: typeLabels[selectedType] 
-        });*/
-        res.json({
-            questions: testData.questions,
-            test: testData,
-            typeLabel: typeLabels[selectedType]
-        })
+        });
     } catch (err) {
         res.status(500).send("Error entering exam mode.");
     }
@@ -416,6 +413,8 @@ app.get('/take-exam/:id', async (req, res) => {
             test: test, 
             typeLabel: typeLabels[test.testType] // This fixes the ReferenceError
         });
+
+        // Frontend needs JSON response
     } catch (err) {
         console.error(err);
         res.status(500).send("Error loading exam.");
@@ -461,7 +460,11 @@ app.get('/test-selection', async (req, res) => {
 app.get("/UserManagement", isAuthenticated, async (req, res) => {
     try {
         const users = await readifyUser_Collection.find();
+        /*
         res.render('userManagement', { users });
+        */
+        // Frontend is looking for JSON response to be absorbed by axios,get("/UserManagement")
+        res.json(users);
     } catch (err) {
         res.status(500).send("Error fetching users");
     }
@@ -571,7 +574,11 @@ app.get('/profile', isAuthenticated, async (req, res) => {
             user.testHistory.sort((a, b) => b.takenAt - a.takenAt);
         }
         // Render the profile page and pass the user object
+        /*
         res.render('profile', { user });
+        */
+        // frontend needs json response
+        res.json(user);
     } catch (err) {
         console.error(err);
         res.status(500).send("Error loading profile");
