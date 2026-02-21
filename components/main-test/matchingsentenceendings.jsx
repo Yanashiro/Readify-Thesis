@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCookies } from 'react-cookie';
 import './maintestpage.css'
 
 function MatchingSentenceEndings() {
 
-    const [cookies] = useCookies(['examinee-cookie'])
+    const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
@@ -22,27 +22,37 @@ function MatchingSentenceEndings() {
         return saved ? JSON.parse(saved) : []});
     const [endingsHistory, setEndingsHistory] = useState(() => {
         const saved = sessionStorage.getItem("Endings History")
-        return saved ? JSON.parse(saved) : {}});
+        return saved ? JSON.parse(saved) : []});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});;
+        return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900})
+        return saved ? JSON.parse(saved) : 1080});
+    const [passageId, setPassageId] = useState(() => {
+        const saved = sessionStorage.getItem("Passage ID");
+        return saved ? JSON.parse(saved) : null;
+    })
 
     const questionsPerPage = 4;
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage; 
-    const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
     const currentPassage = passageHistory[currentPage];
-    const currentEndings = endingsHistory[currentPage];
+    const currentEndings = endingsHistory[currentPage] || [];
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
     useEffect(() => {
         if (passageHistory.length === 0) {
+
+        const queryParams = {
+            designation: 'true',
+            type: 6
+        }
+
         axios
-            .post('/maintestroute/matchingsentenceendings', {randomize: true})
+            .post('/start-random-exam', { params: queryParams })
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -51,6 +61,7 @@ function MatchingSentenceEndings() {
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
                 setEndingsHistory([res.data.endings]);
+                setPassageId(res.data.passageId)
             })
             .catch((err) => console.error(err))
         }
@@ -64,7 +75,8 @@ function MatchingSentenceEndings() {
         sessionStorage.setItem("Endings History", JSON.stringify(endingsHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, endingsHistory]);
+        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, endingsHistory, passageId]);
 
     useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
@@ -98,7 +110,7 @@ function MatchingSentenceEndings() {
 
     const handleNextPage = () => {
 
-        const totalLimit = 10;
+        const totalLimit = 12;
 
         if(passageHistory.length > currentPage +  1) {
             setCurrentPage(prev => prev + 1)
@@ -107,6 +119,7 @@ function MatchingSentenceEndings() {
         if(allQuestions.length >= totalLimit) {
             return;
         }
+        /*
         axios
             .post('/maintestroute/matchingsentenceendings', {randomize: true})
             .then((res) => {
@@ -127,23 +140,38 @@ function MatchingSentenceEndings() {
                 setEndingsHistory(prev => [...prev, res.data.endings]);
             })
             .catch((err) => console.error(err));
+            */
     }
+
+    const typeLabels = {
+        1: "Multiple Choice",
+        2: "Matching Features",
+        3: "Matching Information",
+        4: "Identifying Information",
+        5: "Identifying Writer's Views",
+        6: "Matching Sentence Endings",
+        7: "Matching Headings",
+        8: "Summary Completion",
+        9: "Short Answer Questions",
+        10: "Sentence Completion",
+        11: "Diagram Label Completion",
+    };
 
     const sendUserAnswers = () => {
         
         const submissionData = {
-            examinee: cookies['examinee-cookie'],
             testType: "Main",
             testCategory: "Matching Sentence Endings",
-            submittedAnswers: userAnswers,
+            userAnswers: userAnswers,
+            passageId: passageId,
             testDate: new Date()
         };
         
         axios
-            .post('/maintestroute/examSubmission', submissionData)
+            .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
                 if (res.status == 200) {
-                    window.location.replace('/maintest/examsubmitted');
+                    setShowPopup(true);
                     sessionStorage.removeItem("Answer")
                     sessionStorage.removeItem("Font Size")
                     sessionStorage.removeItem("Passage History")
@@ -157,9 +185,24 @@ function MatchingSentenceEndings() {
                 console.error(err)});
     }
 
+    const navigate = useNavigate();
+    const handleGoBack = () => {
+        navigate("/home")
+    }
+
     return (
         <>
         <main className='main-maintest'>
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Test Finished</h2>
+                        <button className="popup-btn" onClick={handleGoBack}>
+                            Go back to Main Test
+                        </button>
+                    </div>
+                </div>
+            )}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
@@ -175,7 +218,7 @@ function MatchingSentenceEndings() {
             <div className='section-flex'>
                 <section className='testing-flex'>
                     <div className='title-div'>
-                        <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
+                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                     </div>
                     <div className='view-size-buttons'>
                         <button className='font-size-btn' onClick={decreaseFontSize}>
@@ -192,10 +235,10 @@ function MatchingSentenceEndings() {
                 <div className='two-sections'>
                     <div className='passage-view'>
                         <div className='test-title'>
-                            <>{currentPassage?.title}</>
+                            <>{currentPassage?.passageTitle}</>
                         </div>
                         <div className='test-reference'>
-                            <>{currentPassage?.linkReference}</>
+                            <>{currentPassage?.passageSource}</>
                         </div>
                         <div className='test-passage'>
                             <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
@@ -204,7 +247,7 @@ function MatchingSentenceEndings() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 12 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
                                 <div className='feature-block'>
                                     <p className='features-font'>Endings</p>
@@ -217,13 +260,13 @@ function MatchingSentenceEndings() {
                                 <div className='question-container'>
                                     {currentQuestions.map((q, index) => (
                                         <div className='question-block' key={q.questionNumber || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
                                             <div className='options-list display-flex'>
                                                 {(q.options || q.data).map((opt, index2) => (
                                                     <React.Fragment key={opt}>
                                                         <button
-                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
-                                                            onClick={() => userChoiceClick(q.id || q.questionNumber, opt)}
+                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
+                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
                                                         >
                                                             {opt}
                                                         </button>
