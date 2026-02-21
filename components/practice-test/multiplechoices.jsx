@@ -2,19 +2,19 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import SideTimer from '../main-components/timer'
-import { useCookies } from 'react-cookie'
+import { useNavigate } from 'react-router-dom'
 import './practicetestpage.css'
 
 function MultipleChoices() {
 
     // used to store and take questions and passages from the backend using Axios HTTP client
-    const [cookies] = useCookies(['examinee-cookie'])
+    const [showPopup, setShowPopup] = useState(false)
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
     const [allQuestions, setAllQuestions] = useState(() => {
         const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : {}});
     const [currentPage, setCurrentPage] = useState(() => {
         const saved = sessionStorage.getItem("Page History");
         return saved ? JSON.parse(saved) : 0});
@@ -26,26 +26,36 @@ function MultipleChoices() {
         return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900})
+        return saved ? JSON.parse(saved) : 540})
+    const [passageId, setPassageId] = useState(() => {
+        const saved = sessionStorage.getItem("Passage ID");
+        return saved ? JSON.parse(saved) : null;
+    })
 
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page
     const currentPassage = passageHistory[currentPage];
     // used to index an array of questions putting the maximum capacity to 4 questions per page
-    const questionsPerPage = 4;
+    const questionsPerPage = 3;
     // used as a 'cutter' to 'indexOfFirstQuestion' 
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
     // used to index the very first question after a "Next Page" removing the last question from the equation 
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
     // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
-    const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
     // immediate test collecting
     useEffect(() => {
         if (passageHistory.length === 0) {
+
+        const queryParams = {
+            designation: 'false',
+            type: 1
+        }
+
         axios
             // to intercept calls from '/hello' path
-            .post('/practicetestroute/multiplechoices', {randomize: true})
+            .get('/start-random-exam', {params: queryParams})
             .then((res) => {
                 // console.log for debugging what questions has been received
                 console.log("Number of question received", res.data.questions.length);
@@ -54,6 +64,7 @@ function MultipleChoices() {
                 // to take and store questions received from the backend/database
                 setAllQuestions(res.data.questions);
                 setPassageHistory([res.data]);
+                setPassageId(res.data.passageId);
             })
             .catch((err) => {console.error(err)})
         }
@@ -66,7 +77,8 @@ function MultipleChoices() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, passageId]);
 
     useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
@@ -101,7 +113,7 @@ function MultipleChoices() {
 
     const handleNextPage = () => {
 
-        const totalLimit = 10;
+        const totalLimit = 6;
 
         if (passageHistory.length > currentPage + 1) {
             // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
@@ -114,6 +126,7 @@ function MultipleChoices() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
+        /*
             axios.post('/practicetestroute/multiplechoices', {randomize: true})
                 .then((res) => {
                     setAllQuestions(prevQuestions => {
@@ -125,25 +138,40 @@ function MultipleChoices() {
                     setCurrentPage(prevPage => prevPage + 1);
                 })
                 .catch((err) => console.error(err));
+                */
     }
 
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
+    const typeLabels = {
+        1: "Multiple Choice",
+        2: "Matching Features",
+        3: "Matching Information",
+        4: "Identifying Information",
+        5: "Identifying Writer's Views",
+        6: "Matching Sentence Endings",
+        7: "Matching Headings",
+        8: "Summary Completion",
+        9: "Short Answer Questions",
+        10: "Sentence Completion",
+        11: "Diagram Label Completion",
+    };
+
+    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
         const submissionData = {
-            examinee: cookies['examinee-cookie'],
             testType: "Practice",
             testCategory: "Multiple Choices",
             submittedAnswers: userAnswers,
+            passageId: passageId,
             testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/examSubmission', submissionData)
+            .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
                 if (res.status == 200) {
-                    window.location.replace('/maintest/examsubmitted');
+                    setShowPopup(true);
                     sessionStorage.removeItem("Answer")
                     sessionStorage.removeItem("Font Size")
                     sessionStorage.removeItem("Passage History")
@@ -157,9 +185,24 @@ function MultipleChoices() {
                 console.error(err)});
     }
 
+    const navigate = useNavigate();
+    const handleGoBack = () => {
+        navigate("/home")
+    }
+
     return (
         <main className='main-maintest'>
             {/* This is the sidebar, where the timer resides */}
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Test Finished</h2>
+                        <button className="popup-btn" onClick={handleGoBack}>
+                            Go back to Main Test
+                        </button>
+                    </div>
+                </div>
+            )}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
@@ -175,7 +218,7 @@ function MultipleChoices() {
                 <section className='testing-flex'>
                     <div className='title-div'>
                         {/* This is the exam category*/}
-                        <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
+                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                     </div>
                     <div className='view-size-buttons'>
                         <button className='font-size-btn' onClick={decreaseFontSize}>
@@ -193,11 +236,11 @@ function MultipleChoices() {
                     <div className='passage-view'>
                         {/* This is the passage title */}
                         <div className='test-title'>
-                            <>{currentPassage?.title}</>
+                            <>{currentPassage?.passageTitle}</>
                         </div>
                         {/* This is the passage link */}
                         <div className='test-reference'>
-                            <>{currentPassage?.linkReference}</>
+                            <>{currentPassage?.passageSource}</>
                         </div>
                         {/* This is the passage text/content */}
                         <div className='test-passage'>
@@ -207,7 +250,7 @@ function MultipleChoices() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 6 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
                                 <div className='question-container'>
                                     {/* map loops over the array of question to determine how many questions does the current page have */}
@@ -215,13 +258,13 @@ function MultipleChoices() {
                                         // the question container - keys make the array of questions individually unique based on the "id" from the backend
                                         <div className='question-block' key={q.questionNumber || index}>
                                             {/*  */} 
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
                                             <div className='options-list'>
                                                 {(q.options || q.data).map((opt, index2) => (
                                                     <React.Fragment key={opt}>
                                                         <button
-                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
-                                                            onClick={() => userChoiceClick(q.id || q.questionNumber, opt)}
+                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
+                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
                                                         >
                                                             {String.fromCharCode(65 + index2)}. {opt}
                                                         </button>
