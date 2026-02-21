@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
-import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 import './practicetestpage.css'
 
 function ShortAnswerQuestions() {
@@ -10,7 +10,7 @@ function ShortAnswerQuestions() {
     // remember, function uses parameters
     // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
     // sessionStorage.getItem are placed here for the useState to collect saved data from a page refresh
-    const [cookies] = useCookies(['examinee-cookie'])
+    const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
@@ -22,13 +22,17 @@ function ShortAnswerQuestions() {
         return saved ? JSON.parse(saved) : 0});
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});;
+        return saved ? JSON.parse(saved) : []});
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});;
+        return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900})
+        return saved ? JSON.parse(saved) : 540});
+    const [passageId, setPassageId] = useState(() => {
+        const saved = sessionStorage.getItem("Passage ID");
+        return saved ? JSON.parse(saved) : null;
+    })
     
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
@@ -46,8 +50,14 @@ function ShortAnswerQuestions() {
     // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
+
+        const queryParams = {
+            designation: 'false',
+            type: 9
+        }
+
         axios
-            .post('/practicetestroute/shortanswerquestions', {randomize: true})
+            .get('/start-random-exam', {params: queryParams})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -55,6 +65,7 @@ function ShortAnswerQuestions() {
                 setAllQuestions(res.data.questions);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setPassageId(res.data.passageId)
             })
             .catch((err) => console.error(err));
         }
@@ -67,7 +78,8 @@ function ShortAnswerQuestions() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, passageId]);
 
     useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
@@ -102,7 +114,7 @@ function ShortAnswerQuestions() {
 
     const handleNextPage = () => {
         // hard limit for questions
-        const totalLimit = 10;
+        const totalLimit = 6;
 
         if (passageHistory.length > currentPage + 1) {
             // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
@@ -115,6 +127,7 @@ function ShortAnswerQuestions() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
+        /*
         // requesting data from the backend every "Next Page" click
         axios
             .post('/practicetestroute/shortanswerquestions', {randomize: true})
@@ -135,25 +148,40 @@ function ShortAnswerQuestions() {
                 setPassageHistory(prev => [...prev, res.data]); 
             })
             .catch((err) => console.error(err))
+            */
     }
 
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
+    const typeLabels = {
+        1: "Multiple Choice",
+        2: "Matching Features",
+        3: "Matching Information",
+        4: "Identifying Information",
+        5: "Identifying Writer's Views",
+        6: "Matching Sentence Endings",
+        7: "Matching Headings",
+        8: "Summary Completion",
+        9: "Short Answer Questions",
+        10: "Sentence Completion",
+        11: "Diagram Label Completion",
+    };
+
+    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
         const submissionData = {
-            examinee: cookies['examinee-cookie'],
             testType: "Practice",
             testCategory: "Short Answer Questions",
             submittedAnswers: userAnswers,
+            passageId: passageId,
             testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/examSubmission', submissionData)
+            .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
                 if (res.status == 200) {
-                    window.location.replace('/maintest/examsubmitted');
+                    setShowPopup(true);
                     sessionStorage.removeItem("Answer")
                     sessionStorage.removeItem("Font Size")
                     sessionStorage.removeItem("Passage History")
@@ -167,8 +195,23 @@ function ShortAnswerQuestions() {
                 console.error(err)});
     }
 
+    const navigate = useNavigate();
+    const handleGoBack = () => {
+        navigate("/home")
+    }
+
     return (
         <main className='main-maintest'>
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Test Finished</h2>
+                        <button className="popup-btn" onClick={handleGoBack}>
+                            Go back to Main Test
+                        </button>
+                    </div>
+                </div>
+            )}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
@@ -184,7 +227,7 @@ function ShortAnswerQuestions() {
             <div className='section-flex'>
                 <section className='testing-flex'>
                     <div className='title-div'>
-                        <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
+                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                     </div>
                     <div className='view-size-buttons'>
                         <button className='font-size-btn' onClick={decreaseFontSize}>
@@ -203,10 +246,10 @@ function ShortAnswerQuestions() {
                         <div className='test-title'>
                             {/* the print out version of the exam passages, "?." is an optional chaining that access the previous history/pages of passages.
                                 It also prevents white screen errors because it is accessing an array of previous stored passages. */}
-                            <>{currentPassage?.title}</>
+                            <>{currentPassage?.passageTitle}</>
                         </div>
                         <div className='test-reference'>
-                            <>{currentPassage?.linkReference}</>
+                            <>{currentPassage?.passageSource}</>
                         </div>
                         <div className='test-passage'>
                             <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
@@ -215,19 +258,19 @@ function ShortAnswerQuestions() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 6 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
                                         <div className='question-block' key={q.questionNumber || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.text || q.questionText}</p>
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong>{q.questionText}</p>
                                             <input 
                                                 type='text'
                                                 className='answer-input'
                                                 placeholder=''
-                                                value={userAnswers[q.id || q.questionNumber] || ''}
-                                                onChange={(e) => userWriteDown(q.id || q.questionNumber, e.target.value)}
+                                                value={userAnswers[q.questionNumber] || ''}
+                                                onChange={(e) => userWriteDown(q.questionNumber, e.target.value)}
                                             />
                                         </div>
                                     ))}
