@@ -9,15 +9,18 @@ function PopupMessage({type, onClose, userData}) {
     const [selectedType, setSelectedType] = useState('');
     const [addMessage, setAddMessage] = useState('');
     const [editMessage, setEditMessage] = useState('');
+    const [deleteMessage, setDeleteMessage] = useState('');
     const [addData, setAddData] = useState({
         name: '',
-        username: '',
-        email: ''   
+        password: '',
+        email: '',
+        isAdmin: null  
     });
     const [editData, setEditData] = useState({
         name: '',
-        username: '',
-        email: ''
+        password: '',
+        email: '',
+        isAdmin: null
     });
 
     const addChange = (e) => {
@@ -31,7 +34,7 @@ function PopupMessage({type, onClose, userData}) {
         e.preventDefault();
 
         axios
-            .post('/addSubmit', addData)
+            .post('/UserManagement/create', addData)
             .then((res) => {
                 const serverMessage = res.data
                 setAddMessage(serverMessage)
@@ -49,10 +52,10 @@ function PopupMessage({type, onClose, userData}) {
     const editSubmit = (e) => {
         e.preventDefault();
 
-        if (!userData?.id) return; 
+        if (!userData?._id) return; 
 
         axios
-            .put(`/editSubmit/${userData.id}`, editData)
+            .post(`/UserManagement/update/${userData._id}`, editData)
             .then((res) => {
                 const serverMessage = res.data
                 setEditMessage(serverMessage)
@@ -60,8 +63,25 @@ function PopupMessage({type, onClose, userData}) {
             .catch((err) => console.error(err))
     }
 
-    const deleteUser = (e) => {
+    useEffect(() => {
+        if (type === 'edit' && userData) {
+            setEditData({
+                name: userData.name,
+                username: userData.username,
+                email: userData.email
+            });
+            setSelectedType(userData.isAdmin);
+        }
+    }, [type, userData])
 
+    const deleteUser = (e) => {
+        axios
+            .get(`/UserManagement/delete/${userData._id}`)
+            .then((res) => {
+                const serverMessage = res.data
+                setDeleteMessage(serverMessage)
+            })
+            .catch((err) => console.error(err));
     }
 
     if (!type) return null;
@@ -78,15 +98,15 @@ function PopupMessage({type, onClose, userData}) {
                         <div className='addUser-form'>
                             <form className='addUser-form-class' onSubmit={addSubmit}>
                                 <div>
-                                    <label>Name</label>
-                                    <div>
-                                        <input className='addUser-input-design' name="name" type='text' onChange={addChange}></input>
-                                    </div>
-                                </div>
-                                <div>
                                     <label>Username</label>
                                     <div>
                                         <input className='addUser-input-design' name="username" type='text' onChange={addChange}></input>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Password</label>
+                                    <div>
+                                        <input className='addUser-input-design' name="password" type='text' onChange={addChange}></input>
                                     </div>
                                 </div>
                                 <div>
@@ -98,8 +118,8 @@ function PopupMessage({type, onClose, userData}) {
                                             value={selectedType}
                                             onChange={(e) => setSelectedType(e.target.value)}
                                         >
-                                            <option value="student">Student</option>
-                                            <option value="admin">Admin</option>
+                                            <option value="false">Student</option>
+                                            <option value="true">Admin</option>
                                         </select>
                                     </div>
                                 </div>
@@ -126,20 +146,20 @@ function PopupMessage({type, onClose, userData}) {
                 {type === 'edit' && (
                     <div>
                         <div className='editUser-title'>
-                            <h2>Edit User</h2>
+                            <h2>Edit User {editData.name}</h2>
                         </div>
                         <div className='editUser-form'>
                             <form className='editUser-form-class' onSubmit={editSubmit}>
                                 <div>
-                                    <label>Name</label>
+                                    <label>Username</label>
                                     <div>
-                                        <input className='editUser-input-design' type='text' onChange={editChange}></input>
+                                        <input className='editUser-input-design' type='text' name='name' value={editData.name} onChange={editChange}></input>
                                     </div>
                                 </div>
                                 <div>
-                                    <label>Username</label>
+                                    <label>Password</label>
                                     <div>
-                                        <input className='editUser-input-design' type='text' onChange={editChange}></input>
+                                        <input className='editUser-input-design' type='text' name='password' value={editData.password} onChange={editChange}></input>
                                     </div>
                                 </div>
                                 <div>
@@ -148,18 +168,18 @@ function PopupMessage({type, onClose, userData}) {
                                         <select
                                             className='editUser-select-design'
                                             id="accountType"
-                                            value={editData.name}
+                                            value={editData.isAdmin}
                                             onChange={(e) => setSelectedType(e.target.value)}
                                         >
-                                            <option value="student">Student</option>
-                                            <option value="admin">Admin</option>
+                                            <option value="false">Student</option>
+                                            <option value="true">Admin</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div>
                                     <label>Email</label>
                                     <div>
-                                        <input className='editUser-input-design' type='text' onChange={editChange}></input>
+                                        <input className='editUser-input-design' type='text' name='email' value={editData.email} onChange={editChange}></input>
                                     </div>
                                 </div>
                             </form>
@@ -179,19 +199,20 @@ function PopupMessage({type, onClose, userData}) {
                     <>
                         <div>
                             <div className='deleteUser-title'>
-                                <h2>Delete User</h2>
+                                <h2>Delete User {userData?.name}?</h2>
                             </div>
                             <div className='deleteUser-message'>
-                                <p>Are you sure you want to delete user {userData}</p>
+                                <p>Are you sure you want to delete user {userData?.name}?</p>
                             </div>
                             <div className='deleteUser-buttons'>
                                 <div>
-                                    <button>Cancel</button>
+                                    <button className='deleteuser-cancel' onClick={onClose}>Cancel</button>
                                 </div>
                                 <div>
-                                    <button onClick={deleteUser}>Delete User</button>
+                                    <button className='deleteuser-button' onClick={deleteUser}>Delete User</button>
                                 </div>
                             </div>
+                            {deleteMessage}
                         </div>
                     </>
                 )}
@@ -213,19 +234,22 @@ function ManageUsers() {
         setQuery(e.target.value);
     }
 
-    const filteredAndSortedList = accountList.filter((user) => {
-        const searchTerm = query.toLowerCase();
+    const filteredAndSortedList = [...accountList].filter((user) => {
+        const nameSearch = query.toLowerCase(user.name);
+        const emailSearch = query.toLowerCase(user.email);
+        const roleSearch = query.toLowerCase(user.isAdmin);
         return (
-            user.name.toLowerCase().includes(searchTerm) ||
-            user.email.toLowerCase().includes(searchTerm)
+            (user.name || '').toLowerCase().includes(nameSearch) ||
+            (user.email || '').toLowerCase().includes(emailSearch) ||
+            ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(roleSearch)
         );
-    }).sort((a, b) => a.name.localeCompare(b.name));
+    }).sort((a, b) => (a.name || '').localeCompare(b.name));
 
     useEffect(() => {
         axios
-            .post('/accountlist')
+            .get('/UserManagement')
             .then((res) => {
-                const sortedData = res.data.sort((a, b) => a.name.localeCompare(b.name));
+                const sortedData = [...res.data].sort((b, a) => a.name.localeCompare(b.name));
                 setAccountList(sortedData) ;
             })
             .catch((err) => console.error(err))
@@ -248,7 +272,7 @@ function ManageUsers() {
                     <form onSubmit={(e) => e.preventDefault()}>
                         <input 
                             type='text'
-                            placeholder='⌕ Search'
+                            placeholder='⌕ Search by name, username, or email'
                             value={query}
                             onChange={handleInputChange}
                             className='search-bar'
@@ -256,22 +280,24 @@ function ManageUsers() {
                     </form>
                 </div>
                 <div className='div-centralize'>
+                    <div className='manageusers-table-setter'>
                     <table>
-                        <thead>
+                        <thead className='mu-table-head'>
                         <tr className='manageusers-table-header'>
                             <th>Name</th>
                             <th>Username</th>
                             <th>Account Type</th>
                             <th>Email</th>
                             <th>Date Created</th>
+                            <th></th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='mu-table-body'>
                         {filteredAndSortedList.map((fsl) => (
-                        <tr key={fsl.id}> 
+                        <tr key={fsl._id}> 
                             <td>{fsl.name}</td>
-                            <td>{fsl.username}</td>
-                            <td>{fsl.accountType}</td>
+                            <td>{fsl.name}</td>
+                            <td>{fsl.isAdmin ? "Admin" : "Student"}</td>
                             <td>{fsl.email}</td>
                             <td>{fsl.dateCreated}</td>
                             <td><button onClick={() => {setSelectedUser(fsl); setPopupType('edit')}}>Edit</button><button onClick={() => {setSelectedUser(fsl); setPopupType('delete')}}>Delete</button></td>
@@ -279,6 +305,7 @@ function ManageUsers() {
                         ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
                 <PopupMessage type={popupType} onClose={() => {setSelectedUser(null); setPopupType(null)}} userData={selectedUser}/>
             </main>
@@ -287,3 +314,4 @@ function ManageUsers() {
 }
 
 export default ManageUsers
+
