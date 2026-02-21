@@ -30,7 +30,11 @@ function Achievements() {
     useEffect(() => {
         axios
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             .get('/achievements', { withCredentials: true })
+=======
+            .get('/achievements')
+>>>>>>> Stashed changes
 =======
             .get('/achievements')
 >>>>>>> Stashed changes

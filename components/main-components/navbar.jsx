@@ -122,7 +122,11 @@ function Navbar() {
 
   useEffect(() => {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if(auth.checked === true && auth.loggedIn === false) {
+=======
+    if(auth.checked && auth.loggedIn === false) {
+>>>>>>> Stashed changes
 =======
     if(auth.checked && auth.loggedIn === false) {
 >>>>>>> Stashed changes

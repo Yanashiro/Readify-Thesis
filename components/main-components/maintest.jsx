@@ -8,6 +8,9 @@ import { Link } from 'react-router-dom';
 function TestDetails({show, isVisible, link, alreadyAnswered, score, totalQuestions, band /*mainResults*/}) {
 =======
 function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, mainResults}) {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     
     if (!isVisible || !show) return null;
@@ -93,6 +96,7 @@ function MTPage() {
         if (selectedTitle === title && isVisible) {
             setIsVisible(false);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             setSelectedTitle("");
         } else {
             setSelectedTitle(title);
@@ -113,6 +117,11 @@ function MTPage() {
             return;
         }
 
+=======
+            return;
+        }
+
+>>>>>>> Stashed changes
         setSelectedTitle(title);
         setIsVisible(true);
         setFrontEndLink(link);
@@ -121,6 +130,9 @@ function MTPage() {
         axios
             // change this post route if needed
             .get('/maintestScoring', { params: { title }, withCredentials: true})
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             .then((res) => {
                 // Update all states with the response from the backend
@@ -141,7 +153,11 @@ function MTPage() {
         axios
             // change t his get route if needed
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             .get('/maintestselection/status', { withCredentials: true })
+=======
+            .get('/maintestScoring', { withCredentials: true })
+>>>>>>> Stashed changes
 =======
             .get('/maintestScoring', { withCredentials: true })
 >>>>>>> Stashed changes
