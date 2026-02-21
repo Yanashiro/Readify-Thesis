@@ -3,7 +3,7 @@ import './maintest.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, mainResults}) {
+function TestDetails({show, isVisible, link, alreadyAnswered, score, totalQuestions, band /*mainResults*/}) {
     
     if (!isVisible) return null;
     
@@ -41,7 +41,7 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
                 </div>
                 <div id="items-Completed">
                     <ul id="correct-Answers">
-                        <li>{answer}/10 Correct Answer</li>
+                        <li>{score}/{totalQuestions} Correct Answer</li>
                         <li>Band Score: {band}</li>
                     </ul>
                 </div>
@@ -51,14 +51,16 @@ function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, main
                     </div>
                 </div>
             </div>
+            {/*
             <div className="main-Test-Container">
                 <div>
                     <p className="p-test-results">Current Main Test Results:</p>
                 </div>
                 <div>
-                    {mainResults}
+                    {mainResults?.totalCorrectAnswers ?? 0} / {mainResults?.totalQuestions ?? 0}
                 </div>
             </div>
+            */}
         </div>
         </>
     );
@@ -70,42 +72,63 @@ function PTPage() {
     const [isVisible, setIsVisible] = useState(false);
     const [selectedTitle, setSelectedTitle] = useState("");
     const [frontEndLink, setFrontEndLink] = useState("");
-    const [isCorrectAnswers, setCorrectAnswers] = useState(0);
+    const [isTestDetails, setTestDetails] = useState(0);
     const [isBandScore, setBandScore] = useState(0);
-    let [isCompleted, setCompleted] = useState("");
-    const [isMainResults, setMainResults] = useState(0);
+    //let [isCompleted, setCompleted] = useState("");
+    //const [isMainResults, setMainResults] = useState({});
     const [isAnswered, setItemAnswered] = useState(false);
 
-    const handleButtonClick = (title, link, isAlreadyAnswered) =>
-    {      
+    // This function now handles everything when a button is clicked
+    const handleButtonClick = (title, link) => {
+
+        // If same title, close it. If new title, open it.
+        if (selectedTitle === title && isVisible) {
+            setIsVisible(false);
+            return;
+        }
+
         setSelectedTitle(title);
-        setIsVisible(!isVisible);
+        setIsVisible(true);
         setFrontEndLink(link);
-        active(isAlreadyAnswered)
-    }
 
-    const active = (isCompleted, answer, band, mainResults) => {
-        
-        setCompleted(isCompleted);
-        setCorrectAnswers(answer);
-        setBandScore(band);
-        setMainResults(mainResults);
-        return (
-            setItemAnswered(false) //set isCompleted;
-        )    
-    }
+        const queryParams = {
+            title: title,
+            designation: 'true'
+        }
 
-    useEffect(() => {
+        // Fetch the data for this specific test
         axios
-            .get('/status') //get reading comprehension test score here
+            // change this post route if needed
+            .get('/test-scoring', {params: queryParams, withCredentials: true})
             .then((res) => {
-                const {isCompleted, answer, band, mainResults} = res.data;
-                active(isCompleted, answer, band, mainResults);
+                // Update all states with the response from the backend
+                //setCompleted(res.data.status);
+                setTestDetails(res.data);
+                setBandScore(res.data.band);
+                //setMainResults(res.data.calculations);
+                
+                // update the status that TestDetails uses to switch views (IF/Else statement)
+                setItemAnswered(res.data.status); 
             })
-            .catch((err) => {
-                console.error(err)
-            });
-    }, []);
+            .catch((err) => console.error("Error retrieving data:", err));
+    };
+
+    // Keep the initial load status check
+    useEffect(() => {
+
+        axios
+            // change t his get route if needed
+            .get('/test-scoring', { withCredentials: true })
+            .then((res) => {
+                //setCompleted(res.data.status);
+                setTestDetails(res.data);
+                //setBandScore(res.data.band);
+                //setMainResults(res.data);
+                setItemAnswered(res.data.status);
+            })
+            .catch((err) => console.error(err));
+    }, [])
+
 
     return (
         <main className='maintest-main'>
@@ -114,68 +137,68 @@ function PTPage() {
                     <h1 className='main-test-h1'>Practice Test</h1>
                 </div>
                 <div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices", active("Multiple Choice"))} >
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices")} >
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation", active("Identifying Information"))} >
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation")} >
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews", active("Identifying Writer's Views"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews")}>
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation", active("Matching Information"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation")}>
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings", active("Matching Headings"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings")}>
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures", active("Matching Features"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures")}>
                             <p className="title matchingFeat">Matching Features</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings", active("Matching Sentence Endings"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings")}>
                             <p className="title matchingSent">Matching Sentence Endings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion", active("Sentence Completion"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion")}>
                             <p className="title sentenceComp">Sentence Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion", active("Summary/Note/table/Flow-chart Comparison"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion")}>
                             <p className="title summary">Summary Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion", active("Diagram Label Completion"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion")}>
                             <p className="title diagramLabel">Diagram Label Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
-                    <div class='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions", active("Short-Answer Questions"))}>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions")}>
                             <p className="title shortAnswer">Short-Answer Questions</p>
                             <p className='main-arrow'>〉</p>
                         </button>
@@ -184,7 +207,7 @@ function PTPage() {
             </section>
             <section id="section2">
                 <div>
-                    <TestDetails show={selectedTitle} isVisible={isVisible} alreadyAnswered={isAnswered} link={frontEndLink} answer={isCorrectAnswers} band={isBandScore} mainResults={isMainResults}/>
+                    <TestDetails show={selectedTitle} isVisible={isVisible} alreadyAnswered={isAnswered} link={frontEndLink} score={isTestDetails.score} totalQuestions={isTestDetails.totalQuestions} band={isBandScore} /*mainResults={isMainResults}*//>
                 </div>
             </section>
         </main>
