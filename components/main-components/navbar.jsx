@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
 import './navbar.css';
+import axios from 'axios';
 
 import userIcon from '../../images/icons/user.png';
 import dashboardIcon from '../../images/icons/dashboard.png';
@@ -9,7 +9,6 @@ import practiceTestIcon from '../../images/icons/practice-test.png';
 import vocabularyIcon from '../../images/icons/vocabulary.png';
 import achievementIcon from '../../images/icons/achievement.png';
 import tipsIcon from '../../images/icons/tips.png';
-import settingsIcon from '../../images/icons/settings.png';
 import profileIcon from '../../images/icons/profile.png';
 import logoutIcon from '../../images/icons/logout.png';
 import aboutUsIcon from '../../images/icons/aboutus.png';
@@ -24,18 +23,21 @@ import VocPage from './vocabtest';
 import AdminHome from '../admin-components/adminhome';
 import PassageCreation from '../admin-components/passagecreation';
 import ManageUsers from '../admin-components/manageusers';
-import TestReview from '../admin-components/testreviewtest';
+import TestReview from '../admin-components/testreview';
+import AdminProfile from '../admin-components/adminprofile';
+import Adminprofile from '../admin-components/adminprofile';
 //import dropdownIcon from '../images/icons/dropdown.png';
 
-function PageNavigation({input, setInput}) {
-  const [cookies, setCookie, removeCookie] = useCookies(['examinee-cookie', 'admin-cookie'])
-  const isAdmin = !!cookies['admin-cookie']
-  const isExaminee = !!cookies['examinee-cookie']
-    
+function PageNavigation({input, setInput, role, name}) {
+  // accepting props role={auth.isAdmin}
+  const isAdmin = role === true;
+  const isExaminee = role === false;
+  
+  // Examinee web pages
   if (isExaminee) {
     switch(input) {
       case 'Dashboard':
-          return <Dashboard setPage={setInput}/>
+          return <Dashboard setPage={setInput} name={name}/>
       case 'Main Test':
           return <MTPage/>
       case 'Practice Test':
@@ -53,16 +55,18 @@ function PageNavigation({input, setInput}) {
       default:
           return <Dashboard/>
     }
-  } else if (isAdmin) {
+  } else if (isAdmin) { // admin web pages
     switch(input) {
       case 'Dashboard':
-        return <AdminHome setPage={setInput}/>
+        return <AdminHome setPage={setInput} name={name}/>
       case 'Passage Creation':
         return <PassageCreation/>
       case 'Manage Users':
         return <ManageUsers setPage={setInput}/>
       case 'Test Review':
         return <TestReview/>
+      case 'Profile':
+        return <AdminProfile/>
       case 'About Us':
         return <AboutUs/>
       default:
@@ -74,68 +78,60 @@ function PageNavigation({input, setInput}) {
 }
 
 function Navbar() {
-  const [cookies, setCookie, removeCookie] = useCookies(['examinee-cookie', 'admin-cookie'])
-  const isAdmin = !!cookies['admin-cookie']
-  const isExaminee = !!cookies['examinee-cookie']
-  const [activeMenu, setActiveMenu] = useState(() => { 
-    if(isExaminee) {
-      const currentPath = window.location.pathname;
-      if(currentPath === '/home') {
-        return 'Dashboard';
-      }
-      return ''
-    } else if (isAdmin) {
-      const currentPath = window.location.pathname;
-      if(currentPath === '/home') {
-        return 'Dashboard';
-      }
-      return ''
-    }
+  // accepting backend "variables?" into the useState via Axios call /auth/me
+  const [auth, setAuth] = useState({
+    loading: true,
+    checked: false,
+    loggedIn: false,
+    isAdmin: null,
+    name: null
   });
+  // using auth variable from setAuth state to determine if user account is examinee(admin:false) or admin(admin:true)
+  const isAdmin = auth.isAdmin === true;
+  const isExaminee = auth.isAdmin === false;
+  const [activeMenu, setActiveMenu] = useState('Dashboard');
+
+  useEffect(() => {
+    // axios call receiving "res.json" from app.get(/auth/me) path 
+    axios.get("/auth/me", { withCredentials: true})
+      .then(res => {
+        console.log("AUTH RESPONSE:", res.data)
+        // updates useState variable "auth"
+        setAuth({
+          loading: false,
+          loggedIn: res.data.loggedIn,
+          isAdmin: res.data.isAdmin ?? null,
+          name: res.data.name ?? null
+        })
+      })
+      // if error from axios call
+      .catch(() => {
+        setAuth({loading: false, checked: true, loggedIn: false, isAdmin: null})
+      })
+  }, [])
 
   const handleMenuClick = (menuName) => {
     setActiveMenu(menuName);
   }
-  {/*}
+
   useEffect(() => {
-      const currentExamData = [
-        "Answer", 
-        "Font Size", 
-        "Passage History", 
-        "Questions History", 
-        "Features History",
-        "Endings History",
-        "Page History", 
-        "Timer remain",
-        "Headings History",
-        "Summary History"
-      ];
+    if (!auth.loading && auth.loggedIn) {
+      setActiveMenu('Dashboard')
+    }
+  }, [auth.loading, auth.loggedIn])
 
-      if (sessionStorage.getItem("Timer remain")) {
-        currentExamData.forEach(key => sessionStorage.removeItem(key));
-        console.warn("Anti-Cheat: Progress wiped.");
-        window.location.reload();
-      }
-  }, []) */}
   useEffect(() => {
-
-    const isExaminee = !!cookies['examinee-cookie'];
-    const isAdmin = !!cookies['admin-cookie']
-
-    if(!isExaminee && !isAdmin) {
-      alert("User Identity lost, logging out");
-      sessionStorage.clear();
+    if(auth.checked === true && auth.loggedIn === false) {
       window.location.replace('/');
     }
-  }, [cookies['examinee-cookie'] || cookies['admin-cookie']]);
+  }, [auth.checked, auth.loggedIn]);
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to log out?")) {
-      removeCookie('examinee-cookie', {path: '/'});
-      removeCookie('admin-cookie', {path:"/"});
-      sessionStorage.clear();
-      window.location.replace('/');
-    }
+  const handleLogout = async () => {
+    if (!window.confirm("Are you sure you want to log out?")) return;
+
+    await axios.get("/Logout", { withCredentials: true });
+    sessionStorage.clear();
+    window.location.replace("/");
   };
 
   return (
@@ -149,7 +145,7 @@ function Navbar() {
 
         <div className="user-dropdown">
           <img src={userIcon} className="user-nav-icon" alt="User" />
-          <span>{isExaminee ? cookies['examinee-cookie'] : isAdmin ? cookies['admin-cookie'] : 'User'}</span>
+          <span>{auth.name || 'User'}</span>
           {/*<img src={dropdownIcon} className="dropdown-icon" alt="Dropdown" /> */}
 
         </div>
@@ -311,7 +307,7 @@ function Navbar() {
       }
         {/* MAIN CONTENT */}
         <div className="main-content">
-            <PageNavigation input={activeMenu} setInput={setActiveMenu} />
+            <PageNavigation input={activeMenu} setInput={setActiveMenu} role={auth.isAdmin} name={auth.name}/>
         </div>
       </div>
       <div>
