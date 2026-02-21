@@ -4,6 +4,7 @@ import axios from 'axios';
 import "./login.css";
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 // ================================================= 
 /*
@@ -19,6 +20,8 @@ import "./login.css";
 // ================================================= 
 
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -56,9 +59,15 @@ function Login() {
             const res = await axios.post("/Login", {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 identifier: formData.email,
                 password: formData.password,
             }, {withCredentials: true});
+=======
+                identifier: formData.username,
+                password: formData.password,
+            });
+>>>>>>> Stashed changes
 =======
                 identifier: formData.username,
                 password: formData.password,
@@ -103,6 +112,9 @@ function Login() {
                                     <label for="name">
                                         <p className="label-design">Username:</p>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

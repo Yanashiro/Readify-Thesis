@@ -21,16 +21,7 @@ function AccountList({ query, setPage, setSelectedAccount }) {
         const searchTerm = query.toLowerCase();
         return (
             (user.name || '').toLowerCase().includes(searchTerm) ||
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            (user.email || '').toLowerCase().includes(searchTerm) ||
-            ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(searchTerm)
-=======
             (user.email || '').toLowerCase().includes(searchTerm)
->>>>>>> Stashed changes
-=======
-            (user.email || '').toLowerCase().includes(searchTerm)
->>>>>>> Stashed changes
         );
     }).sort((a, b) => (a.name || '').localeCompare(b.name));
 

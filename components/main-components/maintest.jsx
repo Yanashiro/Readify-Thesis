@@ -9,6 +9,9 @@ function TestDetails({show, isVisible, link, alreadyAnswered, score, totalQuesti
 =======
 function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, mainResults}) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -97,6 +100,7 @@ function MTPage() {
             setIsVisible(false);
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             setSelectedTitle("");
         } else {
             setSelectedTitle(title);
@@ -122,6 +126,11 @@ function MTPage() {
         }
 
 >>>>>>> Stashed changes
+=======
+            return;
+        }
+
+>>>>>>> Stashed changes
         setSelectedTitle(title);
         setIsVisible(true);
         setFrontEndLink(link);
@@ -131,6 +140,9 @@ function MTPage() {
             // change this post route if needed
             .get('/maintestScoring', { params: { title }, withCredentials: true})
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -154,7 +166,11 @@ function MTPage() {
             // change t his get route if needed
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             .get('/maintestselection/status', { withCredentials: true })
+=======
+            .get('/maintestScoring', { withCredentials: true })
+>>>>>>> Stashed changes
 =======
             .get('/maintestScoring', { withCredentials: true })
 >>>>>>> Stashed changes
