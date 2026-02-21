@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import SideTimer from '../main-components/timer';
-import { useCookies } from 'react-cookie';
 import './practicetestpage.css'
 
 function IdentifyingWritersViews() {
 
-    const [cookies] = useCookies(['examinee-cookie'])
+    const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
         return saved ? JSON.parse(saved) : {}});
@@ -25,7 +25,11 @@ function IdentifyingWritersViews() {
         return saved ? JSON.parse(saved) : 20});
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900});
+        return saved ? JSON.parse(saved) : 540});
+    const [passageId, setPassageId] = useState(() => {
+        const saved = sessionStorage.getItem("Passage ID");
+        return saved ? JSON.parse(saved) : null;
+    })
 
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
@@ -36,15 +40,21 @@ function IdentifyingWritersViews() {
     // used to index the very first question after a "Next Page" removing the last question from the equation 
     const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
     // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
-    const currentQuestions = allQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
     // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
+
+        const queryParams = {
+            designation: 'false',
+            type: 5
+        }
+
         axios
-            .post('/practicetestroute/identifyingwritersviews', {randomize: true})
+            .get('/start-random-exam', {params: queryParams})
             .then((res) => {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
@@ -52,6 +62,7 @@ function IdentifyingWritersViews() {
                 setAllQuestions(res.data.questions);
                 // taking important details (JSON), set to passageHistory
                 setPassageHistory([res.data]);
+                setPassageId(res.data.passageId);
             })
             .catch((err) => console.error(err));
         }
@@ -64,7 +75,8 @@ function IdentifyingWritersViews() {
         sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
         sessionStorage.setItem("Page History", JSON.stringify(currentPage));
         sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory]);
+        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
+    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, passageId]);
 
     useEffect(() => {
         sessionStorage.setItem("Timer remain", time)
@@ -99,7 +111,7 @@ function IdentifyingWritersViews() {
 
     const handleNextPage = () => {
 
-        const totalLimit = 10;
+        const totalLimit = 6;
 
         if (passageHistory.length > currentPage + 1) {
             // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
@@ -112,6 +124,7 @@ function IdentifyingWritersViews() {
             // if length of allQuestions array is greater than variable totalLimit, function returns nothing
             return; // stops the function
         }
+        /*
             axios.post('/practicetestroute/identifyingwritersviews', {randomize: true})
                 .then((res) => {
                     setAllQuestions(prevQuestions => {
@@ -123,25 +136,40 @@ function IdentifyingWritersViews() {
                     setCurrentPage(prevPage => prevPage + 1);
                 })
                 .catch((err) => console.error(err));
+        */
     }
 
-    if (allQuestions.length === 0) return <h1>Loading...</h1>
+    const typeLabels = {
+        1: "Multiple Choice",
+        2: "Matching Features",
+        3: "Matching Information",
+        4: "Identifying Information",
+        5: "Identifying Writer's Views",
+        6: "Matching Sentence Endings",
+        7: "Matching Headings",
+        8: "Summary Completion",
+        9: "Short Answer Questions",
+        10: "Sentence Completion",
+        11: "Diagram Label Completion",
+    };
+
+    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
         const submissionData = {
-            examinee: cookies['examinee-cookie'],
             testType: "Practice",
             testCategory: "Identifying Writers Views",
-            submittedAnswers: userAnswers,
+            userAnswers: userAnswers,
+            passageId: passageId,
             testDate: new Date()
         };
         
         axios
-            .post('/practicetestroute/examSubmission', submissionData)
+            .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
                 if (res.status == 200) {
-                    window.location.replace('/maintest/examsubmitted');
+                    setShowPopup(true);
                     sessionStorage.removeItem("Answer")
                     sessionStorage.removeItem("Font Size")
                     sessionStorage.removeItem("Passage History")
@@ -155,10 +183,25 @@ function IdentifyingWritersViews() {
                 console.error(err)});
     }
 
+    const navigate = useNavigate();
+    const handleGoBack = () => {
+        navigate("/home")
+    }
+
     return (
         <>
         <main className='main-maintest'>
             {/* This is the sidebar, where the timer resides */}
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h2>Test Finished</h2>
+                        <button className="popup-btn" onClick={handleGoBack}>
+                            Go back to Main Test
+                        </button>
+                    </div>
+                </div>
+            )}
             <section className='sidebar'>
                 <div>
                     <h1 className='name'>Readify</h1>
@@ -174,7 +217,7 @@ function IdentifyingWritersViews() {
                 <section className='testing-flex'>
                     <div className='title-div'>
                         {/* This is the exam category*/}
-                        <h1 className='h1-title-div'>{currentPassage?.testTitle}</h1>
+                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                     </div>
                     <div className='view-size-buttons'>
                         <button className='font-size-btn' onClick={decreaseFontSize}>
@@ -192,11 +235,11 @@ function IdentifyingWritersViews() {
                     <div className='passage-view'>
                         {/* This is the passage title */}
                         <div className='test-title'>
-                            <>{currentPassage?.title}</>
+                            <>{currentPassage?.passageTitle}</>
                         </div>
                         {/* This is the passage link */}
                         <div className='test-reference'>
-                            <>{currentPassage?.linkReference}</>
+                            <>{currentPassage?.passageSource}</>
                         </div>
                         {/* This is the passage text/content */}
                         <div className='test-passage'>
@@ -206,7 +249,7 @@ function IdentifyingWritersViews() {
                     <section className='questions-side'>
                         <div>
                             <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 10 ? `-${questionNumberEnd}` : ''}</p></b>
+                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 6 ? `-${questionNumberEnd}` : ''}</p></b>
                                 <p className='p-description'>{currentPassage?.description}</p>
                                 <div className='question-container'>
                                     {/* map loops over the array of question to determine how many questions does the current page have */}
@@ -214,13 +257,13 @@ function IdentifyingWritersViews() {
                                         // the question container - keys make the array of questions individually unique based on the "id" from the backend
                                         <div className='question-block' key={q.questionNumber || index}>
                                             {/*  */} 
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.text || q.questionText}</p>
+                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
                                             <div className='options-list'>
                                                 {(q.options || q.data).map((opt) => (
                                                     <React.Fragment key={opt}>
                                                         <button
-                                                            className={`${userAnswers[q.id || q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
-                                                            onClick={() => userChoiceClick(q.id || q.questionNumber, opt)}
+                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
+                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
                                                         >
                                                             {opt}
                                                         </button>
