@@ -504,8 +504,7 @@ app.post('/UserManagement/create',isAuthenticated, async (req, res) => {
     return res.status(409).send("Username or Email already exists.");
     } else {
         // Password Hash using BCrypt
-        const saltRounds = 10; // Number of Salt Rounds for BCrypt
-        const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+        const hashedPassword = await bcrypt.hash(data.password, 10);
         data.password = hashedPassword;
         // Sends the data to the database
         const userdata = new readifyUser_Collection(data);
@@ -519,7 +518,7 @@ app.post('/UserManagement/create',isAuthenticated, async (req, res) => {
 // Update User 
 app.post('/UserManagement/update/:userId', isAuthenticated, async (req, res) => {
     try {
-        const { name, email, isAdmin } = req.body;
+        const { name, email, password, isAdmin } = req.body;
 
         const updatedUser = await readifyUser_Collection.findOneAndUpdate(
             { userId: req.params.userId }, 
@@ -532,9 +531,20 @@ app.post('/UserManagement/update/:userId', isAuthenticated, async (req, res) => 
             { new: true, runValidators: true } // Helpful for debugging
         );
 
+        if (password && password.trim() !== "") {
+            // updateData.password = await bcrypt.hash(password, 10);
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
         if (!updatedUser) {
             return res.status(404).send("User not found in database.");
         }
+
+        updatedUser = await readifyUser_Collection.findOneAndUpdate(
+            { userId: req.params.userId },
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
 
         res.redirect('/UserManagement');
     } catch (err) {

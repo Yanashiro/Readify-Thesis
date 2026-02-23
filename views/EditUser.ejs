@@ -4,49 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Edit User</title>
-    <link rel="stylesheet" href="homeStyle.css">
+    <link rel="stylesheet" href="/homeStyle.css"> 
 </head>
 <body>
     <div class="container">
         <aside class="sidebar">
             <nav>
-                <center><h3>INSERT LOGO HERE</h3></center>
-                <center><h3> Readify Navigation</h3></center>
+                <div class="sidebar-header" style="text-align: center; padding: 20px 0;">
+                    <h3>READIFY</h3>
+                    <small>Navigation</small>
+                </div>
                 <ul>
                     <li><a href="/Home">Home</a></li>
                     <li><a href="/create-passage">Create Passage</a></li>
                     <li><a href="/exam-launcher">Test Selection</a></li>
-                    <li><a href="/UserManagement">User Management</a></li>
+                    <li><a href="/UserManagement" class="active">User Management</a></li>
                     <li><a href="/Profile">Profile</a></li>
-                    <li><a href="/Logout" style="color: red;">Logout</a></li>
+                    <li class="logout-item"><a href="/Logout" style="color: #ff4d4d;">Logout</a></li>
                 </ul>
             </nav>
         </aside>
+
+        <main class="content">
+            <header>
+                <h2>Edit User Profile: <%= user.name %></h2>
+                <p>System ID: <strong><%= user.userId %></strong></p>
+            </header>
+
+            <hr>
+
+            <form action="/UserManagement/update/<%= user.userId %>" method="POST" class="edit-form">
+                <fieldset>
+                    <legend>Account Information</legend>
+                    <div class="form-group">
+                        <label>Username (Unique):</label>
+                        <input type="text" name="name" value="<%= user.name %>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email (Unique):</label>
+                        <input type="email" name="email" value="<%= user.email %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Password:</label>
+                        <input type="password" name="password" placeholder="Leave blank to keep current password">
+                        <small style="color: #666;">Only fill this out if you want to change the user's password.</small>
+                    </div>
+
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="isAdmin" name="isAdmin" <%= user.isAdmin ? 'checked' : '' %>>
+                        <label for="isAdmin">Grant Admin Privileges</label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="summary-box">
+                    <legend>Activity Summary</legend>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <strong>Achievements:</strong> <%= user.achievements.length %>
+                        </div>
+                        <div class="stat-item">
+                            <strong>Tests Taken:</strong> <%= user.testHistory.length %>
+                        </div>
+                    </div>
+                    
+                    <% if (user.testHistory.length > 0) { %>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Passage</th>
+                                        <th>Score</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% user.testHistory.forEach(test => { %>
+                                        <tr>
+                                            <td><%= test.passageTitle %></td>
+                                            <td><%= test.score %> / <%= test.totalQuestions %></td>
+                                            <td><%= test.takenAt.toLocaleDateString() %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="no-data"><em>No test history available for this user.</em></p>
+                    <% } %>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Changes</button>
+                    <a href="/UserManagement" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </main>
     </div>
-
-    <!-- Content -->
-    <main class="content">
-        <h2>Edit User: <%= user.name %></h2>
-            <form action="/UserManagement/update/<%= user.userId %>" method="POST">
-                <div>
-                    <label>Name:</label>
-                    <input type="text" name="name" value="<%= user.name %>" required>
-                </div>
-                
-                <div>
-                    <label>Email:</label>
-                    <input type="email" name="email" value="<%= user.email %>" required>
-                </div>
-
-                <div>
-                    <label>Admin Status:</label>
-                    <input type="checkbox" name="isAdmin" <%= user.isAdmin ? 'checked' : '' %>>
-                </div>
-
-                <br>
-                <button type="submit" class="submit-btn">Save Changes</button>
-                <a href="/UserManagement">Cancel</a>
-            </form> 
-    </main>
 </body>
+
+<style>
+    /* Layout Fixes */
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
+    padding: 40px;
+    background-color: #f4f7f6;
+}
+
+/* Form Styling */
+.edit-form {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Crucial for width: 100% */
+}
+
+/* Button Styling */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-save:hover {
+    background-color: #0056b3;
+}
+
+.btn-cancel {
+    color: #666;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-cancel:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+/* Stats Table */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+</style>
 </html>
