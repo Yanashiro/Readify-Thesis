@@ -1,0 +1,121 @@
+[
+  {
+    "userId": 1,
+    "name": "AliceSmith",
+    "password": "$2b$10$76f8a9b0c1d2e3f4g5h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2y",
+    "email": "alice@example.com",
+    "isAdmin": true,
+    "testHistory": [
+      { "passageId": 101, "passageTitle": "The Great Gatsby Overview", "score": 8, "totalQuestions": 10, "takenAt": "2024-01-15T10:30:00Z" }
+    ],
+    "achievements": [
+      { "title": "Early Bird", "description": "Joined during beta", "earnedAt": "2024-01-01T12:00:00Z", "icon": "/icons/beta.png" }
+    ]
+  },
+  {
+    "userId": 2,
+    "name": "BobRunner",
+    "password": "$2b$10$h6i7j8k9l0m1n2o3p4q5r6s7t8u9v0w1x2y3z4a5b6c7d8e9f0g1h",
+    "email": "bob@testmail.org",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 202, "passageTitle": "Quantum Mechanics 101", "score": 5, "totalQuestions": 10, "takenAt": "2024-02-10T14:20:00Z" },
+      { "passageId": 105, "passageTitle": "Modern Architecture", "score": 9, "totalQuestions": 10, "takenAt": "2024-02-12T09:15:00Z" }
+    ],
+    "achievements": []
+  },
+  {
+    "userId": 3,
+    "name": "CharlieDev",
+    "password": "hashed_password_placeholder_3",
+    "email": "charlie@dev.io",
+    "isAdmin": false,
+    "testHistory": [],
+    "achievements": [
+      { "title": "First Steps", "description": "Completed your first test", "earnedAt": "2024-03-01T16:45:00Z", "icon": "/icons/first.png" }
+    ]
+  },
+  {
+    "userId": 4,
+    "name": "DianaPrince",
+    "password": "hashed_password_placeholder_4",
+    "email": "diana@themyscira.com",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 303, "passageTitle": "Ancient History", "score": 10, "totalQuestions": 10, "takenAt": "2024-03-05T11:00:00Z" }
+    ],
+    "achievements": [
+      { "title": "Perfect Score", "description": "Got 100% on a test", "earnedAt": "2024-03-05T11:05:00Z", "icon": "/icons/gold.png" }
+    ]
+  },
+  {
+    "userId": 5,
+    "name": "EvanWright",
+    "password": "hashed_password_placeholder_5",
+    "email": "evan.w@provider.net",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 101, "passageTitle": "The Great Gatsby Overview", "score": 7, "totalQuestions": 10, "takenAt": "2024-03-10T08:00:00Z" }
+    ],
+    "achievements": []
+  },
+  {
+    "userId": 6,
+    "name": "FionaG",
+    "password": "hashed_password_placeholder_6",
+    "email": "fiona.g@service.com",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 404, "passageTitle": "Biology Basics", "score": 6, "totalQuestions": 10, "takenAt": "2024-03-12T19:30:00Z" }
+    ],
+    "achievements": []
+  },
+  {
+    "userId": 7,
+    "name": "GeorgeTech",
+    "password": "hashed_password_placeholder_7",
+    "email": "george@techworld.com",
+    "isAdmin": true,
+    "testHistory": [
+      { "passageId": 505, "passageTitle": "Cybersecurity Trends", "score": 10, "totalQuestions": 10, "takenAt": "2024-03-15T13:00:00Z" }
+    ],
+    "achievements": [
+      { "title": "Security Pro", "description": "Mastered the security module", "earnedAt": "2024-03-15T13:05:00Z", "icon": "/icons/shield.png" }
+    ]
+  },
+  {
+    "userId": 8,
+    "name": "HannahRead",
+    "password": "hashed_password_placeholder_8",
+    "email": "hannah.reads@library.org",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 102, "passageTitle": "Classic Literature", "score": 9, "totalQuestions": 10, "takenAt": "2024-03-18T15:20:00Z" }
+    ],
+    "achievements": [
+      { "title": "Bookworm", "description": "Read 5 passages", "earnedAt": "2024-03-18T15:30:00Z", "icon": "/icons/book.png" }
+    ]
+  },
+  {
+    "userId": 9,
+    "name": "IanZ",
+    "password": "hashed_password_placeholder_9",
+    "email": "ian.z@workspace.com",
+    "isAdmin": false,
+    "testHistory": [],
+    "achievements": []
+  },
+  {
+    "userId": 10,
+    "name": "JuliaQuest",
+    "password": "hashed_password_placeholder_10",
+    "email": "julia.q@adventure.com",
+    "isAdmin": false,
+    "testHistory": [
+      { "passageId": 606, "passageTitle": "World Geography", "score": 8, "totalQuestions": 10, "takenAt": "2024-03-20T10:00:00Z" }
+    ],
+    "achievements": [
+      { "title": "Explorer", "description": "Completed a geography test", "earnedAt": "2024-03-20T10:05:00Z", "icon": "/icons/map.png" }
+    ]
+  }
+]
