@@ -62,10 +62,10 @@ function SentenceCompletion() {
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
                 // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.questions);
+                setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data]);
-                setPassageId(res.data.passageId);
+                setPassageHistory(res.data.test);
+                setPassageId(res.data.test.passageId);
             })
             .catch((err) => console.error(err));
         }
