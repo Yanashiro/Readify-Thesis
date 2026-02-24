@@ -1,8 +1,15 @@
 import react from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './vocabtest.css';
 
 function VocPage () {
+
+    const navigate = useNavigate();
+
+    const toVocTest = () => {
+        navigate('/vocabularytest')
+    }
+
     return (
         <main className='vocabulary-test'>
             <div>
@@ -16,13 +23,9 @@ function VocPage () {
                         
                 <p className="vocab-text">Here are a few</p>
                 
-                <Link to={"hello"}>
-                <button className="vocab-short-button" onClick={(e) => { 
-                e.preventDefault(); 
-                }}>
+                <button className="vocab-short-button" onClick={toVocTest}>
                 Start Vocab Test
                 </button>
-                </Link>
             </div>
         </main>
     )
