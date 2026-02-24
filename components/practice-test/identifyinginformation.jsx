@@ -56,11 +56,12 @@ function IdentifyingInformation() {
         axios
             .get('/start-random-exam', {params: queryParams})
             .then((res) => {
+                console.log("Backend response:", res.data)
                 // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.questions);
+                setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data]);
-                setPassageId(res.data.passageId);
+                setPassageHistory([res.data.test]);
+                setPassageId(res.data.test.passageId);
             })
             .catch((err) => console.error(err));
         }
@@ -151,7 +152,7 @@ function IdentifyingInformation() {
         11: "Diagram Label Completion",
     };
 
-    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
+    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         

@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "./login.css";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
 // ================================================= 
 /*
@@ -20,12 +17,6 @@ import "./login.css";
 // ================================================= 
 
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 function Login() {
     const [message, setMessage] = useState("");
@@ -57,27 +48,9 @@ function Login() {
 
         try {
             const res = await axios.post("/Login", {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                 identifier: formData.email,
                 password: formData.password,
             }, {withCredentials: true});
-=======
-                identifier: formData.username,
-                password: formData.password,
-            });
->>>>>>> Stashed changes
-=======
-                identifier: formData.username,
-                password: formData.password,
-            });
->>>>>>> Stashed changes
-=======
-                identifier: formData.username,
-                password: formData.password,
-            });
->>>>>>> Stashed changes
 
             if (res.data.success) {
                 navigate('/home');
@@ -105,19 +78,8 @@ function Login() {
                         <div className="form-align">
                             <div className="form-group">
                                 <div className="label-align">
-<<<<<<< Updated upstream
                                     <label htmlFor="name">
                                         <p className="label-design">Email:</p>
-=======
-                                    <label for="name">
-                                        <p className="label-design">Username:</p>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                                     </label>
                                 </div>
                                 <div className="input-align">
@@ -147,7 +109,7 @@ function Login() {
                                         type="password"
                                         name="password"
                                         id="password"
-                                        placeholder=""
+                                        placeholder="Password"
                                         onChange={handleChange}
                                         required
                                     />
@@ -174,4 +136,3 @@ function Login() {
 }
 
 export default Login;
-

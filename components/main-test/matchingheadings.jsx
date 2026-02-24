@@ -56,13 +56,14 @@ function MatchingHeadings() {
         axios
             .get('/start-random-exam', {params: queryParams})
             .then((res) => {
+                console.log("Backend response:", res.data)
                 console.log("Number of question received", res.data.questions.length);
                 console.log("Questions Array:", res.data.questions);
                 // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.questions);
+                setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data]);
-                setHeadingsHistory([res.data.headings]);
+                setPassageHistory([res.data.test]);
+                setHeadingsHistory([res.data.test.headings]);
                 setPassageId(res.data.passageId);
             })
             .catch((err) => console.error(err))
@@ -304,3 +305,4 @@ function MatchingHeadings() {
 }
 
 export default MatchingHeadings;
+

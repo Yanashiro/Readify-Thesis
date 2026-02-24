@@ -21,7 +21,8 @@ function AccountList({ query, setPage, setSelectedAccount }) {
         const searchTerm = query.toLowerCase();
         return (
             (user.name || '').toLowerCase().includes(searchTerm) ||
-            (user.email || '').toLowerCase().includes(searchTerm)
+            (user.email || '').toLowerCase().includes(searchTerm) ||
+            ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(searchTerm)
         );
     }).sort((a, b) => (a.name || '').localeCompare(b.name));
 

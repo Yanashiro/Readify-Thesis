@@ -167,15 +167,14 @@ app.post("/Login", async (req, res) => {
             // Save user details to session
             req.session.userId = user._id;
             req.session.userName = user.name;
-            /* req.sessioin.role = user.role; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
+            req.sessioin.isAdmin = user.isAdmin; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
             // it can also be like this: req.session.role = user.usAdmin ? "admin" : "examinee*; /
-            /* 
+            
             res.json({ // This is what the frontend needs, express can only send 1 response, so we have to be careful
                 success: true,
                 message: "Login successful",
-                role: user.role,
+                isAdmin: user.isAdmin,
                 name: user.name})
-                */
             res.redirect('/Home');
         } else {
             res.render('Login', { error: 'Invalid credentials. Check your username/email or password.' });
@@ -186,7 +185,7 @@ app.post("/Login", async (req, res) => {
     }
 });
 
-/*
+
 app.get("/auth/me", (req, res) => { // This can be used when the frontend is looking for the role of the account as well as handling user account details 
   if (!req.session.userId) {
     return res.json({ loggedIn: false });
@@ -195,10 +194,10 @@ app.get("/auth/me", (req, res) => { // This can be used when the frontend is loo
   res.json({
     loggedIn: true,
     name: req.session.userName,
-    role: req.session.role
+    isAdmin: req.session.isAdmin
   });
 });
-*/
+
 
 app.get("/create-passage", isAuthenticated, (req, res) => {
     res.render("PassageCreation");

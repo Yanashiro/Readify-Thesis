@@ -165,7 +165,7 @@ function ShortAnswerQuestions() {
         11: "Diagram Label Completion",
     };
 
-    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
+    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         

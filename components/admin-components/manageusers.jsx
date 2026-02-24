@@ -235,12 +235,15 @@ function ManageUsers() {
     }
 
     const filteredAndSortedList = [...accountList].filter((user) => {
-        const searchTerm = query.toLowerCase();
+        const nameSearch = query.toLowerCase(user.name);
+        const emailSearch = query.toLowerCase(user.email);
+        const roleSearch = query.toLowerCase(user.isAdmin);
         return (
-            (user.name || '').toLowerCase().includes(searchTerm) ||
-            (user.email || '').toLowerCase().includes(searchTerm)
+            (user.name || '').toLowerCase().includes(nameSearch) ||
+            (user.email || '').toLowerCase().includes(emailSearch) ||
+            ((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(roleSearch)
         );
-    }).sort((b, a) => (a.name || '').localeCompare(b.name));
+    }).sort((a, b) => (a.name || '').localeCompare(b.name));
 
     useEffect(() => {
         axios

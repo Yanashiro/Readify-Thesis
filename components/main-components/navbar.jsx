@@ -6,7 +6,6 @@ import userIcon from '../../images/icons/user.png';
 import dashboardIcon from '../../images/icons/dashboard.png';
 import mainTestIcon from '../../images/icons/main-test.png';
 import practiceTestIcon from '../../images/icons/practice-test.png';
-import vocabularyIcon from '../../images/icons/vocabulary.png';
 import achievementIcon from '../../images/icons/achievement.png';
 import tipsIcon from '../../images/icons/tips.png';
 import profileIcon from '../../images/icons/profile.png';
@@ -21,11 +20,10 @@ import Achievements from './achievements';
 import Profile from './profile';
 import VocPage from './vocabtest';
 import AdminHome from '../admin-components/adminhome';
-import PassageCreation from '../admin-components/passagecreation';
 import ManageUsers from '../admin-components/manageusers';
 import TestReview from '../admin-components/testreview';
 import AdminProfile from '../admin-components/adminprofile';
-import Adminprofile from '../admin-components/adminprofile';
+import CreatePassage from '../admin-components/addingpassage' 
 //import dropdownIcon from '../images/icons/dropdown.png';
 
 function PageNavigation({input, setInput, role, name}) {
@@ -60,7 +58,7 @@ function PageNavigation({input, setInput, role, name}) {
       case 'Dashboard':
         return <AdminHome setPage={setInput} name={name}/>
       case 'Passage Creation':
-        return <PassageCreation/>
+        return <CreatePassage/>
       case 'Manage Users':
         return <ManageUsers setPage={setInput}/>
       case 'Test Review':
@@ -121,19 +119,7 @@ function Navbar() {
   }, [auth.loading, auth.loggedIn])
 
   useEffect(() => {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     if(auth.checked === true && auth.loggedIn === false) {
-=======
-    if(auth.checked && auth.loggedIn === false) {
->>>>>>> Stashed changes
-=======
-    if(auth.checked && auth.loggedIn === false) {
->>>>>>> Stashed changes
-=======
-    if(auth.checked && auth.loggedIn === false) {
->>>>>>> Stashed changes
       window.location.replace('/');
     }
   }, [auth.checked, auth.loggedIn]);
