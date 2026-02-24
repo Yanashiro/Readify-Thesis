@@ -45,3 +45,4 @@ function SideTimer({time, setTime}) {
 }
 
 export default SideTimer;
+
