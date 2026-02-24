@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+html {
+    margin: 0%;
+    padding: 0%;
+}
+
+body {
+    margin: 0%;
+    padding: 0%;
+    width: 100%;
+    height: 100%;
+}
+
+main.main-maintest {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: sticky;
+}
+
+h1.name {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+
+}
+
+section.sidebar {
+    width: 200px;
+    height: 280vh;
+    background: linear-gradient(to bottom, #22356D 20%, #FFF394 100%);
+    color: white;
+    text-align: center;
+
+    h1.name {
+        font-family: "DM Serif Display", serif;
+        font-style: normal;
+        margin-top: 20px;
+    }
+}
+
+div.section-flex {
+    width: 100vw;
+    height: 280vh;
+} /**/
+
+section.testing-flex {
+    display: flex;
+    border-bottom: solid;
+    border-color: black;
+    border-width: 1.5px;
+}
+
+div.timer-flex {
+   align-items: center;
+}
+
+div.timer-name {
+    width: 50%;
+    padding-left: 17%;
+}
+
+div.timer-component {
+    width: 100%;
+    margin-top: 100px;
+    align-items: center;
+}
+
+div.warning-tab {
+    margin-top: 50px;
+
+    p.warning-text {
+        font-family: "Poppins", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+}
+
+div.two-sections {
+    display: flex;
+}
+
+div.passage-view {
+    border-right: solid;
+    border-color: black;
+    width: 50%;
+    border-width: 1.5px;
+    height: 267vh;
+    padding: 30px;
+}
+
+div.title-div {
+    margin: 20px;
+    h1.h1-title-div {
+        font-family: "Poppins", sans-serif;
+        font-weight: 600;
+        font-style: normal;
+    }
+}
+
+div.view-size-buttons {
+    margin: 25px;
+}
+
+button.font-size-btn {
+    background-color: rgb(207, 207, 207);
+    border: none;
+    width: 70px;
+    height: 35px;
+}
+
+div.test-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+div.test-reference {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+div.test-image {
+    margin: 50px;
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+}
+
+img.temporary-image {
+    width: 300px;
+    height: 300px;
+    margin-left: 50px;
+}
+
+div.test-passage {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    margin-bottom: 15px;
+}
+
+section.questions-side {
+    padding: 20px;
+    width: 50%;
+    position: sticky;
+}
+
+p.questionRange {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 20px;
+}
+
+div.question-container {
+    margin-top: 20px;
+}
+
+div.question-block-summary {
+    display: flex;
+}
+
+p.questions {
+    margin-top: 20px;
+}
+
+div.feature-block {
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    padding: 10px;
+    margin-top: 30px;
+    margin-right: 70px;
+}
+
+div.summary-block {
+    margin-top: 30px;
+    margin-right: 70px;
+}
+
+p.features-font {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+p.summary-font {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal; 
+}
+
+p.currentFeatures-font {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+p.questions {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+}
+
+p.questions-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px
+}
+
+div.display-flex {
+    display: flex;
+
+}
+
+input.answer-input {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin-left: 25px;
+}
+
+input.answer-input-summary {
+    font-family: "Poppins", sans-serif;
+    font-family: 400;
+    font-style: normal;
+    margin: 10px;    
+    background-color: rgb(227, 227, 227);
+    width: 300px;
+}
+
+div.next-back-buttons {
+    margin-top: 30px;
+    display: flex;
+}
+
+button.opt-btn {
+    background-color: rgb(207, 207, 207);
+    border: none;
+    width: 400px;
+    height: 35px;
+    text-align: left;
+    padding: 10px;
+    margin: 1px;
+}
+
+button.opt-btn-letters {
+    background-color: rgb(207, 207, 207);
+    border: none;
+    width: 40px;
+    text-align: center;
+    padding: 10px;
+    margin: 5px;
+}
+
+button.active-opt {
+    background-color: rgb(160, 190, 255);
+    border: none;
+    width: 400px;
+    height: 35px;
+    text-align: left;
+    padding: 10px;
+    margin: 1px;
+}
+
+button.active-opt-letters {
+    background-color: rgb(160, 190, 255);
+    border: none;
+    width: 40px;
+    text-align: center;
+    padding: 10px;
+    margin: 5px;
+}
+
+button.back-btn-test {
+    background-color: white;
+    border-color: black;
+    margin-right: 10px;
+    border-radius: 20px;
+    border: solid;
+    border-width: 1px;
+    width: 100px;
+    height: 35px;
+}
+
+button.next-page-btn-test {
+    background-color: white;
+    border-color: black;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 1px;
+    width: 100px;
+    height: 35px;
+}
+
+button.submit-btn-test {
+    background-color: rgb(251, 255, 166);
+    border-color: black;
+    border-radius: 20px;
+    border: solid;
+    border-width: 1px;
+    width: 100px;
+    height: 35px;
+}
+
+/* The semi-transparent background */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dimmed background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of everything */
+}
+
+/* The white box in the center */
+.popup-content {
+    background: white;
+    padding: 40px 60px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.popup-btn {
+    background-color: #fff4a3; /* Light yellow */
+    border: none;
+    padding: 12px 24px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.popup-btn:hover {
+    background-color: #fce862;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
