@@ -25,6 +25,7 @@ export default defineConfig({
             "/practicetestroute": "http://127.0.0.1:5000",
             "/achievements": "http://127.0.0.1:5000",
             "/test-scoring": "http://127.0.0.1:5000",
+            '/exam-launcher': "http://127.0.0.1:5000",
             "/auth": {
                 target: "http://127.0.0.1:5000",
                 changeOrigin: true,
@@ -32,8 +33,11 @@ export default defineConfig({
             },
             "/UserManagement": "http://127.0.0.1:5000",
             "/start-random-exam": "http://127.0.0.1:5000",
+            "/take-exam": "http://127.0.0.1:5000",
             "/profile": "http://127.0.0.1:5000",
-            "/start-vocabulary-exam": "http://127.0.0.1:5000"
+            "/start-vocabulary-exam": "http://127.0.0.1:5000",
+            '/create-passage': "http://127.0.0.1:5000",
+            '/test-selection': "http://127.0.0.1:5000",
         },
     },
     // vite config - allow any origin
