@@ -79,19 +79,7 @@ function PTPage() {
     const [isAnswered, setItemAnswered] = useState(false);
 
     // This function now handles everything when a button is clicked
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     const handleButtonClick = (title, link) => {
-=======
-    const handleButtonClick = (title, link) => { 
->>>>>>> Stashed changes
-=======
-    const handleButtonClick = (title, link) => { 
->>>>>>> Stashed changes
-=======
-    const handleButtonClick = (title, link) => { 
->>>>>>> Stashed changes
 
         // If same title, close it. If new title, open it.
         if (selectedTitle === title && isVisible) {
@@ -103,9 +91,6 @@ function PTPage() {
         setIsVisible(true);
         setFrontEndLink(link);
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         const queryParams = {
             title: title,
             designation: 'true'
@@ -121,40 +106,6 @@ function PTPage() {
                 setTestDetails(res.data);
                 setBandScore(res.data.band);
                 //setMainResults(res.data.calculations);
-=======
-        // Fetch the data for this specific test
-        axios
-            // change this post route if needed
-            .get('/maintestScoring', {params: {title}, withCredentials: true})
-            .then((res) => {
-                // Update all states with the response from the backend
-=======
-        // Fetch the data for this specific test
-        axios
-            // change this post route if needed
-            .get('/maintestScoring', {params: {title}, withCredentials: true})
-            .then((res) => {
-                // Update all states with the response from the backend
->>>>>>> Stashed changes
-=======
-        // Fetch the data for this specific test
-        axios
-            // change this post route if needed
-            .get('/maintestScoring', {params: {title}, withCredentials: true})
-            .then((res) => {
-                // Update all states with the response from the backend
->>>>>>> Stashed changes
-                setCompleted(res.data.status);
-                setCorrectAnswers(res.data.answers);
-                setBandScore(res.data.band);
-                setMainResults(res.data.calculations);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                 
                 // update the status that TestDetails uses to switch views (IF/Else statement)
                 setItemAnswered(res.data.status); 
@@ -166,9 +117,6 @@ function PTPage() {
     useEffect(() => {
 
         axios
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
             // change t his get route if needed
             .get('/test-scoring', { withCredentials: true })
             .then((res) => {
@@ -176,25 +124,6 @@ function PTPage() {
                 setTestDetails(res.data);
                 //setBandScore(res.data.band);
                 //setMainResults(res.data);
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-            // change this get route if needed
-            .get('/maintestScoring', {withCredentials: true})
-            .then((res) => {
-                setCompleted(res.data.status);
-                setCorrectAnswers(res.data.answers);
-                setBandScore(res.data.band);
-                setMainResults(res.data);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                 setItemAnswered(res.data.status);
             })
             .catch((err) => console.error(err));
@@ -209,177 +138,67 @@ function PTPage() {
                 </div>
                 <div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices")} >
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices", active("Multiple Choice"))} >
->>>>>>> Stashed changes
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation")} >
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation", active("Identifying Information"))} >
->>>>>>> Stashed changes
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews", active("Identifying Writer's Views"))}>
->>>>>>> Stashed changes
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation", active("Matching Information"))}>
->>>>>>> Stashed changes
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings", active("Matching Headings"))}>
->>>>>>> Stashed changes
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures", active("Matching Features"))}>
->>>>>>> Stashed changes
                             <p className="title matchingFeat">Matching Features</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings", active("Matching Sentence Endings"))}>
->>>>>>> Stashed changes
                             <p className="title matchingSent">Matching Sentence Endings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion", active("Sentence Completion"))}>
->>>>>>> Stashed changes
                             <p className="title sentenceComp">Sentence Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion", active("Summary/Note/table/Flow-chart Comparison"))}>
->>>>>>> Stashed changes
                             <p className="title summary">Summary Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion", active("Diagram Label Completion"))}>
->>>>>>> Stashed changes
                             <p className="title diagramLabel">Diagram Label Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                         <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions")}>
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions", active("Short-Answer Questions"))}>
->>>>>>> Stashed changes
                             <p className="title shortAnswer">Short-Answer Questions</p>
                             <p className='main-arrow'>〉</p>
                         </button>
