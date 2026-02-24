@@ -167,7 +167,7 @@ app.post("/Login", async (req, res) => {
             // Save user details to session
             req.session.userId = user._id;
             req.session.userName = user.name;
-            req.sessioin.isAdmin = user.isAdmin; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
+            req.session.isAdmin = user.isAdmin; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
             // it can also be like this: req.session.role = user.usAdmin ? "admin" : "examinee*; /
             
             res.json({ // This is what the frontend needs, express can only send 1 response, so we have to be careful
