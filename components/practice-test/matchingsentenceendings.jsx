@@ -57,14 +57,13 @@ function MatchingSentenceEndings() {
         axios
             .get('/start-random-exam', {params: queryParams})
             .then((res) => {
-                console.log("Number of question received", res.data.questions.length);
-                console.log("Questions Array:", res.data.questions);
+                console.log("Backend response:", res.data)
                 // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.questions);
+                setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data]);
-                setEndingsHistory([res.data.endings]);
-                setPassageId(res.data.passageId);
+                setPassageHistory([res.data.test]);
+                setEndingsHistory([res.data.test.endings]);
+                setPassageId(res.data.test.passageId);
             })
             .catch((err) => console.error(err))
         }
@@ -159,6 +158,8 @@ function MatchingSentenceEndings() {
         10: "Sentence Completion",
         11: "Diagram Label Completion",
     };
+
+    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
@@ -304,3 +305,4 @@ function MatchingSentenceEndings() {
 }
 
 export default MatchingSentenceEndings;
+
