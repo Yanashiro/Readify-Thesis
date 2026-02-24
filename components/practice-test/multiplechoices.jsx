@@ -62,7 +62,7 @@ function MultipleChoices() {
                 // also to intercept data (the passages)
                 // to take and store questions received from the backend/database
                 setAllQuestions(res.data.test.questions);
-                setPassageHistory([res.data.test]);
+                setPassageHistory(res.data.test);
                 setPassageId(res.data.test.passageId);
             })
             .catch((err) => {console.error(err)})
