@@ -5,7 +5,6 @@ import Signup from './main-components/signup'
 import './main-components/maintestboard.css'
 import MainTestRoute from './maintestrouter'
 import PracticeTestRoute from './practicetestrouter'
-import PassageCreationRoute from './passagecreationrouter'
 import VocabularyTest from './vocabulary-test/vocabulary-test'
 import { Routes, Route } from 'react-router-dom'
 
@@ -20,8 +19,6 @@ function App() {
 
             <Route path='/maintest/*' element={<MainTestRoute/>}/>
             <Route path='/practicetest/*' element={<PracticeTestRoute/>}/>
-
-            <Route path='/passageroute/*' element={<PassageCreationRoute/>}/>
         </Routes>
     )
 }
