@@ -55,7 +55,7 @@ function SummaryCompletion() {
         if (passageHistory.length === 0) {
 
         const queryParams = {
-            designation: false,
+            designation: "false",
             type: 8
         }
 
