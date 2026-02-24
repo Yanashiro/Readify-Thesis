@@ -60,8 +60,8 @@ function MatchingSentenceEndings() {
                 // taking all questions from the randomizer (JSON)
                 setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data.test]);
-                setEndingsHistory([res.data.test.endings]);
+                setPassageHistory(res.data.test);
+                setEndingsHistory(res.data.test.endings);
                 setPassageId(res.data.test.passageId)
             })
             .catch((err) => console.error(err))
