@@ -60,8 +60,8 @@ function MatchingFeatures() {
                 // taking all questions from the randomizer (JSON)
                 setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data.test]);
-                setFeaturesHistory([res.data.test.features]);
+                setPassageHistory(res.data.test);
+                setFeaturesHistory(res.data.test.features);
                 setPassageId(res.data.test.passageId);
             })
             .catch((err) => console.error(err))
