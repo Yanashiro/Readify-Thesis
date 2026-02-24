@@ -175,7 +175,7 @@ app.post("/Login", async (req, res) => {
                 message: "Login successful",
                 isAdmin: user.isAdmin,
                 name: user.name})
-            res.redirect('/Home');
+            //res.redirect('/Home'); // reactivate when on SSR mode
         } else {
             res.render('Login', { error: 'Invalid credentials. Check your username/email or password.' });
         }
