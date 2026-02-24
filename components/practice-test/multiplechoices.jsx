@@ -14,7 +14,7 @@ function MultipleChoices() {
         return saved ? JSON.parse(saved) : {}});
     const [allQuestions, setAllQuestions] = useState(() => {
         const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : {}});
+        return saved ? JSON.parse(saved) : []});
     const [currentPage, setCurrentPage] = useState(() => {
         const saved = sessionStorage.getItem("Page History");
         return saved ? JSON.parse(saved) : 0});
@@ -58,13 +58,12 @@ function MultipleChoices() {
             .get('/start-random-exam', {params: queryParams})
             .then((res) => {
                 // console.log for debugging what questions has been received
-                console.log("Number of question received", res.data.questions.length);
-                console.log("Questions Array:", res.data.questions);
+                console.log("Backend Response:", res.data);
                 // also to intercept data (the passages)
                 // to take and store questions received from the backend/database
-                setAllQuestions(res.data.questions);
-                setPassageHistory([res.data]);
-                setPassageId(res.data.passageId);
+                setAllQuestions(res.data.test.questions);
+                setPassageHistory([res.data.test]);
+                setPassageId(res.data.test.passageId);
             })
             .catch((err) => {console.error(err)})
         }
@@ -155,7 +154,7 @@ function MultipleChoices() {
         11: "Diagram Label Completion",
     };
 
-    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
+    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
@@ -298,3 +297,4 @@ function MultipleChoices() {
 }
 
 export default MultipleChoices;
+
