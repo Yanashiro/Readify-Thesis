@@ -57,12 +57,13 @@ function MultipleChoices() {
             // to intercept calls from '/hello' path
             .get('/start-random-exam', { params: queryParams })
             .then((res) => {
+                console.log("Backend response:", res.data)
                 // console.log for debugging what questions has been received
                 // also to intercept data (the passages)
                 // to take and store questions received from the backend/database
-                setAllQuestions(res.data.questions);
-                setPassageHistory([res.data]);
-                setPassageId(res.data.passageId);
+                setAllQuestions(res.data.test.questions);
+                setPassageHistory(res.data.test);
+                setPassageId(res.data.test.passageId);
             })
             .catch((err) => {console.error(err)})
         }
@@ -152,7 +153,7 @@ function MultipleChoices() {
         11: "Diagram Label Completion",
     };
  
-    if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
+    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
         
