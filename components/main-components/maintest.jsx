@@ -4,17 +4,7 @@ import axios from 'axios';
 import lockTest from '../../images/locktest.png'
 import { Link } from 'react-router-dom';
 
-<<<<<<< Updated upstream
 function TestDetails({show, isVisible, link, alreadyAnswered, score, totalQuestions, band /*mainResults*/}) {
-=======
-function TestDetails({show, isVisible, link, alreadyAnswered, answer, band, mainResults}) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     
     if (!isVisible || !show) return null;
     
@@ -87,7 +77,7 @@ function MTPage() {
     const [selectedTitle, setSelectedTitle] = useState("");
     const [frontEndLink, setFrontEndLink] = useState("");
     const [isTestDetails, setTestDetails] = useState(0);
-    //const [isBandScore, setBandScore] = useState(0);
+    const [isBandScore, setBandScore] = useState(0);
     //let [isCompleted, setCompleted] = useState("");
     //const [isMainResults, setMainResults] = useState({});
     const [isAnswered, setItemAnswered] = useState(false);
@@ -98,9 +88,6 @@ function MTPage() {
         // If same title, close it. If new title, open it.
         if (selectedTitle === title && isVisible) {
             setIsVisible(false);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
             setSelectedTitle("");
         } else {
             setSelectedTitle(title);
@@ -117,35 +104,6 @@ function MTPage() {
         axios
             // change this post route if needed
             .get('/maintestselection/retrieveData', {params: queryParams, withCredentials: true})
-=======
-            return;
-        }
-
-=======
-            return;
-        }
-
->>>>>>> Stashed changes
-=======
-            return;
-        }
-
->>>>>>> Stashed changes
-        setSelectedTitle(title);
-        setIsVisible(true);
-        setFrontEndLink(link);
-
-        // Fetch the data for this specific test
-        axios
-            // change this post route if needed
-            .get('/maintestScoring', { params: { title }, withCredentials: true})
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
             .then((res) => {
                 // Update all states with the response from the backend
                 //setCompleted(res.data.status);
@@ -164,19 +122,7 @@ function MTPage() {
 
         axios
             // change t his get route if needed
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
             .get('/maintestselection/status', { withCredentials: true })
-=======
-            .get('/maintestScoring', { withCredentials: true })
->>>>>>> Stashed changes
-=======
-            .get('/maintestScoring', { withCredentials: true })
->>>>>>> Stashed changes
-=======
-            .get('/maintestScoring', { withCredentials: true })
->>>>>>> Stashed changes
             .then((res) => {
                 //setCompleted(res.data.status);
                 setTestDetails(res.data);
@@ -273,4 +219,3 @@ function MTPage() {
 }
 
 export default MTPage
-
