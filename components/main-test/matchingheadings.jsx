@@ -62,8 +62,8 @@ function MatchingHeadings() {
                 // taking all questions from the randomizer (JSON)
                 setAllQuestions(res.data.test.questions);
                 // taking important details (JSON), set to passageHistory
-                setPassageHistory([res.data.test]);
-                setHeadingsHistory([res.data.test.headings]);
+                setPassageHistory(res.data.test);
+                setHeadingsHistory(res.data.test.headings);
                 setPassageId(res.data.passageId);
             })
             .catch((err) => console.error(err))
