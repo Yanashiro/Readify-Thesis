@@ -12,8 +12,6 @@ import firstSteps from '../../images/first_steps.png'
 import getAHang from '../../images/getting_the_hang_of_it.png'
 import marathon from '../../images/marathon_reader.png'
 import comprehensionStart from '../../images/comprehension_starter.png'
-import PageNavigation from './navbar';
-import MTPage from './maintest'
 
 function Dashboard({setPage, name}) {
     const [firstName, setFirstName] = useState("");
