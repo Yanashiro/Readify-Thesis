@@ -1,12 +1,12 @@
-import React from 'react'
-import Navbar from './main-components/navbar'
-import Login from './main-components/login'
-import Signup from './main-components/signup'
-import './main-components/maintestboard.css'
-import MainTestRoute from './maintestrouter'
-import PracticeTestRoute from './practicetestrouter'
-import VocabularyTest from './vocabulary-test/vocabulary-test'
-import { Routes, Route } from 'react-router-dom'
+import React from 'react';
+import Navbar from './main-components/navbar';
+import Login from './main-components/login';
+import Signup from './main-components/signup';
+import './main-components/maintestboard.css';
+import MainTestRoute from './maintestrouter';
+import PracticeTestRoute from './practicetestrouter';
+import VocabularyTest from './vocabulary-test/vocabulary-test';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
     return (

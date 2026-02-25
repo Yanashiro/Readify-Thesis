@@ -14,6 +14,7 @@ const { name } = require("ejs");
 const { Collection } = require("mongoose");
 // Express
 const app = express();
+
 app.use(express.static('public'))
 
 // how tf do i hide this bro the .env isn't working lmao so I just did this to test
@@ -70,7 +71,7 @@ app.use(express.static(path.join(__dirname, "../dist")));
 
 // Home Render
 app.get("/Home", isAuthenticated, (req, res) => {
-    res.render('Home', { query: req.query });;
+    res.render('Home');;
 });
 
 // Login Screen Render
@@ -167,15 +168,16 @@ app.post("/Login", async (req, res) => {
             // Save user details to session
             req.session.userId = user._id;
             req.session.userName = user.name;
-            req.session.isAdmin = user.isAdmin; // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
+            req.session.isAdmin = user.isAdmin; 
+            // This is what the frontend needs for determining if the user is an admin or an examinee/student, depends on what you want to put 
             // it can also be like this: req.session.role = user.usAdmin ? "admin" : "examinee*; /
             
-            res.json({ // This is what the frontend needs, express can only send 1 response, so we have to be careful
-                success: true,
-                message: "Login successful",
-                isAdmin: user.isAdmin,
-                name: user.name})
-            //res.redirect('/Home'); // reactivate when on SSR mode
+            // res.json({ // This is what the frontend needs, express can only send 1 response, so we have to be careful
+            //     success: true,
+            //     message: "Login successful",
+            //     isAdmin: user.isAdmin,
+            //     name: user.name})
+            res.redirect('/Home'); // reactivate when on SSR mode
         } else {
             res.render('Login', { error: 'Invalid credentials. Check your username/email or password.' });
         }

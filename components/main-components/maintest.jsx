@@ -218,4 +218,4 @@ function MTPage() {
     )
 }
 
-export default MTPage
+export default MTPage;
