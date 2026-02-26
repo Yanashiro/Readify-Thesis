@@ -103,7 +103,7 @@ function MTPage() {
         // Fetch the data for this specific test
         axios
             // change this post route if needed
-            .get('/test-selection', {params: queryParams, withCredentials: true})
+            .get('/test-selection', {params: queryParams}, {withCredentials: true})
             .then((res) => {
                 // Update all states with the response from the backend
                 //setCompleted(res.data.status);
