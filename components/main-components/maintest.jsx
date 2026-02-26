@@ -83,7 +83,7 @@ function MTPage() {
     const [isAnswered, setItemAnswered] = useState(false);
 
     // This function now handles everything when a button is clicked
-    const handleButtonClick = (title, link) => {
+    const handleButtonClick = (title, link, type) => {
 
         // If same title, close it. If new title, open it.
         if (selectedTitle === title && isVisible) {
@@ -96,7 +96,7 @@ function MTPage() {
         }
 
         const queryParams = {
-            title: title,
+            type: type,
             designation: 'true'
         }
     
@@ -142,67 +142,67 @@ function MTPage() {
                 </div>
                 <div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices")} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices", 1)} >
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation")} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation", 4)} >
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews", 5)}>
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation", 3)}>
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings", 7)}>
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/maintest/matchingfeatures")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/maintest/matchingfeatures", 2)}>
                             <p className="title matchingFeat">Matching Features</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/maintest/matchingsentenceendings")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/maintest/matchingsentenceendings", 6)}>
                             <p className="title matchingSent">Matching Sentence Endings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/maintest/sentencecompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/maintest/sentencecompletion", 10)}>
                             <p className="title sentenceComp">Sentence Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/maintest/summarycompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/maintest/summarycompletion", 8)}>
                             <p className="title summary">Summary Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/maintest/diagramlabelcompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/maintest/diagramlabelcompletion", 11)}>
                             <p className="title diagramLabel">Diagram Label Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/maintest/shortanswerquestions")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/maintest/shortanswerquestions", 9)}>
                             <p className="title shortAnswer">Short-Answer Questions</p>
                             <p className='main-arrow'>〉</p>
                         </button>
@@ -219,3 +219,4 @@ function MTPage() {
 }
 
 export default MTPage
+
