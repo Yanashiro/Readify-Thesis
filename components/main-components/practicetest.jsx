@@ -79,7 +79,7 @@ function PTPage() {
     const [isAnswered, setItemAnswered] = useState(false);
 
     // This function now handles everything when a button is clicked
-    const handleButtonClick = (title, link) => {
+    const handleButtonClick = (title, link, type) => {
 
         // If same title, close it. If new title, open it.
         if (selectedTitle === title && isVisible) {
@@ -92,14 +92,14 @@ function PTPage() {
         setFrontEndLink(link);
 
         const queryParams = {
-            title: title,
-            designation: 'true'
+            type: type,
+            designation: 'false'
         }
 
         // Fetch the data for this specific test
         axios
             // change this post route if needed
-            .get('/test-selection', {params: queryParams, withCredentials: true})
+            .get('/test-selection', {params: queryParams}, {withCredentials: true})
             .then((res) => {
                 // Update all states with the response from the backend
                 //setCompleted(res.data.status);
@@ -138,67 +138,67 @@ function PTPage() {
                 </div>
                 <div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices")} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/practicetest/multiplechoices", 1)} >
                             <p className="title multipleChoice">Multiple Choice</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation")} >
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/practicetest/identifyinginformation", 4)} >
                             <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/practicetest/identifyingwritersviews", 5)}>
                             <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/practicetest/matchinginformation", 3)}>
                             <p className="title matchingInfo">Matching Information</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/practicetest/matchingheadings", 7)}>
                             <p className="title matchingHead">Matching Headings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/practicetest/matchingfeatures", 2)}>
                             <p className="title matchingFeat">Matching Features</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/practicetest/matchingsentenceendings", 6)}>
                             <p className="title matchingSent">Matching Sentence Endings</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/practicetest/sentencecompletion", 10)}>
                             <p className="title sentenceComp">Sentence Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/practicetest/summarycompletion", 8)}>
                             <p className="title summary">Summary Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/practicetest/diagramlabelcompletion", 11)}>
                             <p className="title diagramLabel">Diagram Label Completion</p>
                             <p className='main-arrow'>〉</p>
                         </button>
                     </div>
                     <div className='buttons'>
-                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions")}>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/practicetest/shortanswerquestions", 9)}>
                             <p className="title shortAnswer">Short-Answer Questions</p>
                             <p className='main-arrow'>〉</p>
                         </button>
