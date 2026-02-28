@@ -77,7 +77,7 @@
                                         <th>Passage</th>
                                         <th>Score</th>
                                         <th>Date</th>
-                                    </tr>
+                                        <th>Action</th> </tr>
                                 </thead>
                                 <tbody>
                                     <% user.testHistory.forEach(test => { %>
@@ -85,13 +85,18 @@
                                             <td><%= test.passageTitle %></td>
                                             <td><%= test.score %> / <%= test.totalQuestions %></td>
                                             <td><%= test.takenAt.toLocaleDateString() %></td>
+                                            <td>
+                                                <a href="/UserManagement/delete-test/<%= user.userId %>/<%= test.passageId %>" 
+                                                style="color: #ff4d4d; text-decoration: none; font-weight: bold;"
+                                                onclick="return confirm('Delete this test record?')">
+                                                &times; Delete
+                                                </a>
+                                            </td>
                                         </tr>
                                     <% }) %>
                                 </tbody>
                             </table>
                         </div>
-                    <% } else { %>
-                        <p class="no-data"><em>No test history available for this user.</em></p>
                     <% } %>
                 </fieldset>
 

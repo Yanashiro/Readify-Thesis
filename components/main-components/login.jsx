@@ -54,7 +54,8 @@ function Login() {
 
             if (res.data.success) {
                 navigate('/home');
-            } else {
+            } 
+            else {
                 setMessage(res.data.message || "Invalid credentials");
             }
         } catch (err) {

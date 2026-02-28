@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SideTimer from '../main-components/timer';
 import { useNavigate } from 'react-router-dom';
@@ -12,30 +12,37 @@ function SummaryCompletion() {
     const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}});
+        return saved ? JSON.parse(saved) : {}
+    });
     const [allQuestions, setAllQuestions] = useState(() => {
         const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [currentPage, setCurrentPage] = useState(() => {
         const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0});
+        return saved ? JSON.parse(saved) : 0
+    });
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [summaryHistory, setSummaryHistory] = useState(() => {
         const saved = sessionStorage.getItem("Summary History")
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});
+        return saved ? JSON.parse(saved) : 20
+    });
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 1080})
+        return saved ? JSON.parse(saved) : 1080
+    })
     const [passageId, setPassageId] = useState(() => {
         const saved = sessionStorage.getItem("Passage ID");
         return saved ? JSON.parse(saved) : null;
     })
-    
+
     // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
     const currentPassage = passageHistory[currentPage];
     const currentSummary = summaryHistory[currentPage] || [];
@@ -50,31 +57,51 @@ function SummaryCompletion() {
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
+
+    const hasFetched = useRef(false);
+
     // initial request of data from the backend
     useEffect(() => {
         if (passageHistory.length === 0) {
+            if (hasFetched.current) return; // prevent second run
+            hasFetched.current = true;
 
-        const queryParams = {
-            designation: 'true',
-            type: 8
-        }
-        
-        axios
-            .get('/start-random-exam', {params: queryParams})
-            .then((res) => {
-                console.log("Number of question received", res.data.questions.length);
-                console.log("Questions Array:", res.data.questions);
-                // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.test.questions);
-                // taking important details (JSON), set to passageHistory
-                setPassageHistory(res.data.test);
-                setSummaryHistory(res.data.test.summary);
-                setPassageId(res.data.test.passageId);
-            })
-            .catch((err) => console.error(err));
+
+            const queryParams = {
+                designation: 'true',
+                type: 8
+            }
+
+            const queryString = new URLSearchParams(queryParams).toString();
+
+            fetch(`/start-random-exam?${queryString}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            alert("No passages detected");
+                            window.location.href = "/home"; // returns to home
+                            return;
+                        }
+                        throw new Error("Server error");
+                    }
+
+                    return response.json();
+                })
+                .then((data) => {
+                    if (!data) return;
+
+                    setAllQuestions(data.test.questions);
+                    // taking important details (JSON), set to passageHistory
+                    setPassageHistory(data.test);
+                    setSummaryHistory(data.test.summary);
+                    setPassageId(data.test.passageId);
+                })
+                .catch((err) => {
+                    console.error("Fetch error:", err);
+                });
         }
     }, [])
-
+    
     // immediat3e sessionStorage collecting
     useEffect(() => {
         sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
@@ -174,7 +201,7 @@ function SummaryCompletion() {
     if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
 
     const sendUserAnswers = () => {
-        
+
         const submissionData = {
             testType: "Main",
             testCategory: "Summary Completion",
@@ -182,7 +209,7 @@ function SummaryCompletion() {
             passageId: passageId,
             testDate: new Date()
         };
-        
+
         axios
             .post('/submit-results', submissionData, { withCredentials: true })
             .then((res) => {
@@ -199,7 +226,8 @@ function SummaryCompletion() {
             })
             .catch((err) => {
                 alert("Submission failed. Please check your internet and try again.")
-                console.error(err)});
+                console.error(err)
+            });
     }
 
     const navigate = useNavigate();
@@ -225,7 +253,7 @@ function SummaryCompletion() {
                 </div>
                 <div className='timer-component'>
                     {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
+                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
                 </div>
                 <div className='warning-tab'>
                     <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination.</p>
@@ -259,7 +287,7 @@ function SummaryCompletion() {
                             <>{currentPassage?.passageSource}</>
                         </div>
                         <div className='test-passage'>
-                            <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
+                            <p style={{ fontSize: `${fontSize}px` }}>{currentPassage?.passage}</p>
                         </div>
                     </div>
                     <section className='questions-side'>
@@ -270,13 +298,13 @@ function SummaryCompletion() {
                                 <div className='summary-block'>
                                     <p className='features-font'>{currentSummary?.summaryTitle}</p>
                                     <p className='summary-font'>{currentSummary?.question}</p>
-                                </div>        
+                                </div>
                                 <div className='question-container'>
                                     {/*  */}
                                     {currentQuestions.map((q, index) => (
                                         <div className='question-block-summary' key={q.questionNumber || index}>
                                             <p className='questions-summary'><strong>{indexOfFirstQuestion + index + 1}.</strong></p>
-                                            <input 
+                                            <input
                                                 type='text'
                                                 className='answer-input-summary'
                                                 placeholder=''
@@ -288,10 +316,10 @@ function SummaryCompletion() {
                                 </div>
                                 <div className='next-back-buttons'>
                                     {currentPage > 0 && (
-                                    <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
-                                        <br/>
-                                    </React.Fragment>
+                                        <React.Fragment>
+                                            <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
+                                            <br />
+                                        </React.Fragment>
                                     )}
                                     {indexOfLastQuestion >= 10 ? (
                                         <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>

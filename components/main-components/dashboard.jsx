@@ -28,6 +28,7 @@ function Dashboard({setPage, name}) {
         axios 
             .get('/achievements')
             .then((res) => {
+                // console.log(res.data)
                 setUnlocked(res.data);
             })
             .catch((err) => {

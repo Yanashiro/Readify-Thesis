@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SideTimer from '../main-components/timer';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,25 +10,32 @@ function MatchingFeatures() {
     const [showPopup, setShowPopup] = useState(false);
     const [userAnswers, setUserAnswers] = useState(() => {
         const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}});
+        return saved ? JSON.parse(saved) : {}
+    });
     const [currentPage, setCurrentPage] = useState(() => {
         const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0});
+        return saved ? JSON.parse(saved) : 0
+    });
     const [allQuestions, setAllQuestions] = useState(() => {
         const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [passageHistory, setPassageHistory] = useState(() => {
         const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [featuresHistory, setFeaturesHistory] = useState(() => {
         const saved = sessionStorage.getItem("Features History")
-        return saved ? JSON.parse(saved) : []});
+        return saved ? JSON.parse(saved) : []
+    });
     const [fontSize, setFontSize] = useState(() => {
         const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});
+        return saved ? JSON.parse(saved) : 20
+    });
     const [time, setTime] = useState(() => {
         const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 1080});
+        return saved ? JSON.parse(saved) : 1080
+    });
     const [passageId, setPassageId] = useState(() => {
         const saved = sessionStorage.getItem("Passage ID");
         return saved ? JSON.parse(saved) : null;
@@ -36,39 +43,54 @@ function MatchingFeatures() {
 
     const questionsPerPage = 4;
     const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage; 
+    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
     const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
     const currentPassage = passageHistory[currentPage];
     const currentFeatures = featuresHistory[currentPage] || [];
     const questionNumberStart = indexOfFirstQuestion;
     const questionNumberEnd = indexOfLastQuestion;
 
+    const hasFetched = useRef(false);
+
     useEffect(() => {
         if (passageHistory.length === 0) {
+            if (hasFetched.current) return; // prevent second run
+            hasFetched.current = true;
+            const queryParams = {
+                designation: 'true',
+                type: 2
+            }
 
-        const queryParams = {
-            designation: 'true',
-            type: 2
-        }
+            const queryString = new URLSearchParams(queryParams).toString();
 
-        axios
-            .get('/start-random-exam', { params: queryParams })
-            .then((res) => {
-                console.log("Backend response:", res.data)
-                console.log("Number of question received", res.data.questions.length);
-                console.log("Questions Array:", res.data.questions);
-                // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.test.questions);
-                // taking important details (JSON), set to passageHistory
-                setPassageHistory(res.data.test);
-                setFeaturesHistory(res.data.test.features);
-                setPassageId(res.data.test.passageId);
-            })
-            .catch((err) => console.error(err))
+            fetch(`/start-random-exam?${queryString}`)
+                .then((response) => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            alert("No passages detected");
+                            window.location.href = "/home"; // returns to home
+                            return;
+                        }
+                        throw new Error("Server error");
+                    }
+
+                    return response.json();
+                })
+                .then((data) => {
+                    if (!data) return;
+                    setAllQuestions(data.test.questions);
+                    // taking important details (JSON), set to passageHistory
+                    setPassageHistory(data.test);
+                    setFeaturesHistory(data.test.features);
+                    setPassageId(data.test.passageId);
+                    // immediat3e sessionStorage collecting
+                })
+                .catch((err) => {
+                    console.error("Fetch error:", err);
+                });
         }
     }, [])
 
-    // immediat3e sessionStorage collecting
     useEffect(() => {
         sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
         sessionStorage.setItem("Font Size", fontSize);
@@ -113,11 +135,11 @@ function MatchingFeatures() {
 
         const totalLimit = 12;
 
-        if(passageHistory.length > currentPage +  1) {
+        if (passageHistory.length > currentPage + 1) {
             setCurrentPage(prev => prev + 1)
             return;
         }
-        if(allQuestions.length >= totalLimit) {
+        if (allQuestions.length >= totalLimit) {
             return;
         }
         /*
@@ -159,7 +181,7 @@ function MatchingFeatures() {
     };
 
     const sendUserAnswers = () => {
-        
+
         const submissionData = {
             testType: "Main",
             testCategory: "Matching Features",
@@ -167,7 +189,7 @@ function MatchingFeatures() {
             passageId: passageId,
             testDate: new Date()
         };
-        
+
         axios
             .post('/submit-result', submissionData, { withCredentials: true })
             .then((res) => {
@@ -184,7 +206,8 @@ function MatchingFeatures() {
             })
             .catch((err) => {
                 alert("Submission failed. Please check your internet and try again.")
-                console.error(err)});
+                console.error(err)
+            });
     }
 
     const navigate = useNavigate();
@@ -194,110 +217,110 @@ function MatchingFeatures() {
 
     return (
         <>
-        <main className='main-maintest'>
-            {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
-                        <h2>Test Finished</h2>
-                        <button className="popup-btn" onClick={handleGoBack}>
-                            Go back to Main Test
-                        </button>
+            <main className='main-maintest'>
+                {showPopup && (
+                    <div className="popup-overlay">
+                        <div className="popup-content">
+                            <h2>Test Finished</h2>
+                            <button className="popup-btn" onClick={handleGoBack}>
+                                Go back to Main Test
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-            <section className='sidebar'>
-                <div>
-                    <h1 className='name'>Readify</h1>
-                </div>
-                <div className='timer-component'>
-                    {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
-                </div>
-                <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
-                </div>
-            </section>
-            <div className='section-flex'>
-                <section className='testing-flex'>
-                    <div className='title-div'>
-                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
+                )}
+                <section className='sidebar'>
+                    <div>
+                        <h1 className='name'>Readify</h1>
                     </div>
-                    <div className='view-size-buttons'>
-                        <button className='font-size-btn' onClick={decreaseFontSize}>
-                            Decr
-                        </button>
-                        <button className='font-size-btn' onClick={defaultFontSize}>
-                            Default
-                        </button>
-                        <button className='font-size-btn' onClick={increaseFontSize}>
-                            Incr
-                        </button>
+                    <div className='timer-component'>
+                        {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
+                        <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
+                    </div>
+                    <div className='warning-tab'>
+                        <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
                     </div>
                 </section>
-                <div className='two-sections'>
-                    <div className='passage-view'>
-                        <div className='test-title'>
-                            <>{currentPassage?.passageTitle}</>
+                <div className='section-flex'>
+                    <section className='testing-flex'>
+                        <div className='title-div'>
+                            <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
                         </div>
-                        <div className='test-reference'>
-                            <>{currentPassage?.passageSource}</>
-                        </div>
-                        <div className='test-passage'>
-                            <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
-                        </div>
-                    </div>
-                    <section className='questions-side'>
-                        <div>
-                            <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 12 ? `-${questionNumberEnd}` : ''}</p></b>
-                                <p className='p-description'>{currentPassage?.description}</p>
-                                <div className='feature-block'>
-                                    <p className='features-font'>Features</p>
-                                    {currentFeatures?.map((feature, index) => (
-                                        <div className='features-item' key={index}>
-                                            <p className='currentFeatures-font'>{feature.label}. {feature.name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='question-container'>
-                                    {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.questionNumber || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
-                                            <div className='options-list display-flex'>
-                                                {(q.options || q.data).map((opt, index2) => (
-                                                    <React.Fragment key={opt}>
-                                                        <button
-                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
-                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
-                                                        >
-                                                            {opt}
-                                                        </button>
-                                                        <br/>
-                                                    </React.Fragment>
-                                                ))}
-                                            </div>   
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='next-back-buttons'>
-                                    {currentPage > 0 && (
-                                    <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
-                                        <br/>
-                                    </React.Fragment>
-                                    )}
-                                    {indexOfLastQuestion >= 10 ? (
-                                        <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
-                                    ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
-                                    )}
-                                </div>
-                            </div>
+                        <div className='view-size-buttons'>
+                            <button className='font-size-btn' onClick={decreaseFontSize}>
+                                Decr
+                            </button>
+                            <button className='font-size-btn' onClick={defaultFontSize}>
+                                Default
+                            </button>
+                            <button className='font-size-btn' onClick={increaseFontSize}>
+                                Incr
+                            </button>
                         </div>
                     </section>
+                    <div className='two-sections'>
+                        <div className='passage-view'>
+                            <div className='test-title'>
+                                <>{currentPassage?.passageTitle}</>
+                            </div>
+                            <div className='test-reference'>
+                                <>{currentPassage?.passageSource}</>
+                            </div>
+                            <div className='test-passage'>
+                                <p style={{ fontSize: `${fontSize}px` }}>{currentPassage?.passage}</p>
+                            </div>
+                        </div>
+                        <section className='questions-side'>
+                            <div>
+                                <div>
+                                    <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 12 ? `-${questionNumberEnd}` : ''}</p></b>
+                                    <p className='p-description'>{currentPassage?.description}</p>
+                                    <div className='feature-block'>
+                                        <p className='features-font'>Features</p>
+                                        {currentFeatures?.map((feature, index) => (
+                                            <div className='features-item' key={index}>
+                                                <p className='currentFeatures-font'>{feature.label}. {feature.name}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className='question-container'>
+                                        {currentQuestions.map((q, index) => (
+                                            <div className='question-block' key={q.questionNumber || index}>
+                                                <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
+                                                <div className='options-list display-flex'>
+                                                    {(q.options || q.data).map((opt, index2) => (
+                                                        <React.Fragment key={opt}>
+                                                            <button
+                                                                className={`${userAnswers[q.questionNumber] === opt ? 'active-opt-letters' : 'opt-btn-letters'}`}
+                                                                onClick={() => userChoiceClick(q.questionNumber, opt)}
+                                                            >
+                                                                {opt}
+                                                            </button>
+                                                            <br />
+                                                        </React.Fragment>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className='next-back-buttons'>
+                                        {currentPage > 0 && (
+                                            <React.Fragment>
+                                                <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
+                                                <br />
+                                            </React.Fragment>
+                                        )}
+                                        {indexOfLastQuestion >= 10 ? (
+                                            <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
+                                        ) : (
+                                            <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
         </>
     )
 }

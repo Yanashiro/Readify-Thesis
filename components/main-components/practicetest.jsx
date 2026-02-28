@@ -101,6 +101,7 @@ function PTPage() {
             // change this post route if needed
             .get('/test-scoring', {params: queryParams, withCredentials: true})
             .then((res) => {
+                console.log('reached');
                 // Update all states with the response from the backend
                 //setCompleted(res.data.status);
                 setTestDetails(res.data);

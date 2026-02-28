@@ -34,10 +34,14 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    // Updated at the end of every test
+    bandScore:{
+        type: Number,
+        default: 0,
+    },
     testHistory: [
         {
-            passageId: { type: Number, required: true },
-            passageTitle: String,
+            testAttemptNumber: {type: Number, required: true},
             score: { type: Number, required: true },
             totalQuestions: { type: Number, required: true },
             takenAt: { type: Date, default: Date.now },
@@ -86,7 +90,7 @@ const passageSchema = new mongoose.Schema({
         required: true,
     },
     testType: {
-        // Dropdown
+        // Dropdownc
         // testType 1 (Multiple Choices)
         // testType 2 (Matching Features)
         // testType 3 (Matching Information)
@@ -113,6 +117,10 @@ const passageSchema = new mongoose.Schema({
         required: true,
     },
     passageImage:{
+        type: String,
+        required: false
+    },
+    passageSource: {
         type: String,
         required: false
     },

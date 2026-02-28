@@ -33,3 +33,10 @@ thead.ep-table-header {
 tr.ep-table-body:nth-child(odd) {
   background-color: #dddddd;
 }
+
+
+
+/* Update */
+.achievement-icon {
+    width: 50px;
+}
