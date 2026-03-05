@@ -121,8 +121,8 @@ function PTPage() {
 	}, []);
 
 
-	// This function now handles everything when a button is clicked
-	const handleButtonClick = (title, link) => {
+    // This function now handles everything when a button is clicked
+    const handleButtonClick = (title, link, type) => {
 
 		// If same title, close it. If new title, open it.
 		if (selectedTitle === title && isVisible) {
@@ -134,10 +134,10 @@ function PTPage() {
 		setIsVisible(true);
 		setFrontEndLink(link);
 
-		const queryParams = {
-			title: title,
-			designation: 'true'
-		}
+        const queryParams = {
+            type: type,
+            designation: 'false'
+        }
 
 		// Fetch the data for this specific test
 		// axios

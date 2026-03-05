@@ -187,172 +187,89 @@ function MTPage() {
 			.catch((err) => console.error(err));
 	}, [])
 
-	const getSkillLevel = (score) => {
-		if (score >= 11) return "Expert";
-		if (score >= 9) return "Very Good";
-		if (score >= 7) return "Good";
-		if (score === 6) return "Competent";
-		if (score === 5) return "Modest";
-		if (score === 4) return "Limited";
-		if (score === 3) return "Extremely Limited";
-		if (score === 2) return "Intermittent";
-		if (score === 1) return "Non-user";
-		return "-";
-	};
-	const getBandScore = (score) => {
-		if (score >= 11) return 9;
-		if (score >= 9) return 8;
-		if (score >= 7) return 7;
-		if (score === 6) return 6;
-		if (score === 5) return 5;
-		if (score === 4) return 4;
-		if (score === 3) return 3;
-		if (score === 2) return 2;
-		if (score === 1) return 1;
-		return "-";
-	};
-	const formatDate = (dateString) => {
-		const date = new Date(dateString);
-		return date.toLocaleString("en-PH", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit"
-		});
-	};
-	return (
-		<main className='maintest-main'>
-			<section id="section1">
-				<div className='maintest-title'>
-					<h1 className='main-test-h1'>Main Test</h1>
-				</div>
-				<div>
 
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices", 1)} >
-							<p className="title multipleChoice">Multiple Choice</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation", 4)} >
-							<p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews", 5)}>
-							<p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation", 3)}>
-							<p className="title matchingInfo">Matching Information</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings", 7)}>
-							<p className="title matchingHead">Matching Headings</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/maintest/matchingfeatures", 2)}>
-							<p className="title matchingFeat">Matching Features</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/maintest/matchingsentenceendings", 6)}>
-							<p className="title matchingSent">Matching Sentence Endings</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/maintest/sentencecompletion", 10)}>
-							<p className="title sentenceComp">Sentence Completion</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/maintest/summarycompletion", 8)}>
-							<p className="title summary">Summary Completion</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/maintest/diagramlabelcompletion", 11)}>
-							<p className="title diagramLabel">Diagram Label Completion</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-					<div className='buttons'>
-						<button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/maintest/shortanswerquestions", 9)}>
-							<p className="title shortAnswer">Short-Answer Questions</p>
-							<p className='main-arrow'>〉</p>
-						</button>
-					</div>
-				</div>
-			</section>
-			<section id="section2">
-				<TestDetails show={selectedTitle} isVisible={isVisible} alreadyAnswered={isAnswered} link={frontEndLink} allPassages={allPassages} currentPassage={currentPassage} score={isTestDetails.score} totalQuestions={isTestDetails.totalQuestions} band={isBandScore} /*mainResults={isMainResults}*/ />
-			</section>
-			<div className='section-main-test-results'>
-				<div className="main-test-results">
-
-					<table className="main-test-results table">
-
-						<thead className="main-test-results__head table__head">
-							<tr className="main-test-results__row main-test-results__row--header table__row">
-								<th className="main-test-results__cell table__cell">Test Type</th>
-								<th className="main-test-results__cell table__cell">Score</th>
-								<th className="main-test-results__cell table__cell">Band Score</th>
-								<th className="main-test-results__cell table__cell">Skill Level</th>
-								<th className="main-test-results__cell table__cell">Date Taken</th>
-							</tr>
-						</thead>
-
-						<tbody className="main-test-results__body table__body">
-
-							{userTestHistory
-								?.filter(test => test.testDesignation === true)
-								.map((test) => (
-									<tr key={test._id} className="main-test-results__row table__row">
-
-										<td className="main-test-results__cell table__cell">
-											{testTypeMap[test.testType]}
-										</td>
-
-										<td className="main-test-results__cell table__cell">
-											{test.score}
-										</td>
-
-										<td className="main-test-results__cell table__cell">
-											{getBandScore(test.score)}
-										</td>
-
-										<td className="main-test-results__cell table__cell">
-											{getSkillLevel(test.score)}
-										</td>
-
-										<td className="main-test-results__cell table__cell">
-											{formatDate(test.takenAt)}
-										</td>
-
-									</tr>
-								))}
-
-						</tbody>
-
-					</table>
-
-				</div>
-			</div>
-		</main>
-	)
+    return (
+        <main className='maintest-main'>
+            <section id="section1">
+                <div className='maintest-title'>
+                    <h1 className='main-test-h1'>Main Test</h1>
+                </div>
+                <div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Multiple Choice", "/maintest/multiplechoices")} >
+                            <p className="title multipleChoice">Multiple Choice</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Information", "/maintest/identifyinginformation")} >
+                            <p className="title identifyingInfo">Identifying Information (True/False/NotGiven)</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Identifying Writer's Views", "/maintest/identifyingwritersviews")}>
+                            <p className="title identifyingView">Identifying writer's views/claims (Yes/No/Not given)</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Information", "/maintest/matchinginformation")}>
+                            <p className="title matchingInfo">Matching Information</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Headings", "/maintest/matchingheadings")}>
+                            <p className="title matchingHead">Matching Headings</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Features", "/maintest/matchingfeatures")}>
+                            <p className="title matchingFeat">Matching Features</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Matching Sentence Endings", "/maintest/matchingsentenceendings")}>
+                            <p className="title matchingSent">Matching Sentence Endings</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Sentence Completion", "/maintest/sentencecompletion")}>
+                            <p className="title sentenceComp">Sentence Completion</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Summary Completion", "/maintest/summarycompletion")}>
+                            <p className="title summary">Summary Completion</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Diagram Label Completion", "/maintest/diagramlabelcompletion")}>
+                            <p className="title diagramLabel">Diagram Label Completion</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                    <div className='buttons'>
+                        <button className="main-test-buttons" onMouseDown={() => handleButtonClick("Short-Answer Questions", "/maintest/shortanswerquestions")}>
+                            <p className="title shortAnswer">Short-Answer Questions</p>
+                            <p className='main-arrow'>〉</p>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <section id="section2">
+                <div>
+                    <TestDetails show={selectedTitle} isVisible={isVisible} alreadyAnswered={isAnswered} link={frontEndLink} score={isTestDetails.score} totalQuestions={isTestDetails.totalQuestions} band={isBandScore} /*mainResults={isMainResults}*//>
+                </div>
+            </section>
+        </main>
+    )
 }
 
 export default MTPage;
