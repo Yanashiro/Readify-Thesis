@@ -1,339 +1,317 @@
-import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import SideTimer from '../main-components/timer';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './maintestpage.css'
+import SideTimer from '../main-components/timer';
+import './maintestpage.css';
 
 function SummaryCompletion() {
 
-    // remember, function uses parameters
-    // useState uses initiators and temporarily stores values, thats why they need initiators and "..." to store its current local history
-    const [showPopup, setShowPopup] = useState(false);
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}
-    });
-    const [allQuestions, setAllQuestions] = useState(() => {
-        const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []
-    });
-    const [currentPage, setCurrentPage] = useState(() => {
-        const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0
-    });
-    const [passageHistory, setPassageHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []
-    });
-    const [summaryHistory, setSummaryHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Summary History")
-        return saved ? JSON.parse(saved) : []
-    });
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20
-    });
-    const [time, setTime] = useState(() => {
-        const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 1080
-    })
-    const [passageId, setPassageId] = useState(() => {
-        const saved = sessionStorage.getItem("Passage ID");
-        return saved ? JSON.parse(saved) : null;
-    })
+  const [allPassages, setAllPassages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPassage, setCurrentPassage] = useState(null);
 
-    // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page, see line 84
-    const currentPassage = passageHistory[currentPage];
-    const currentSummary = summaryHistory[currentPage] || [];
-    // used to index an array of questions putting the maximum capacity to 3 questions per page
-    const questionsPerPage = 4;
-    // used as a 'cutter' to 'indexOfFirstQuestion' 
-    const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    // used to index the very first question after a "Next Page" removing the last question from the equation 
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
-    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
-    const questionNumberStart = indexOfFirstQuestion;
-    const questionNumberEnd = indexOfLastQuestion;
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
 
+  const [userAnswers, setUserAnswers] = useState({});
+  const [fontSize, setFontSize] = useState(20);
+  const [time, setTime] = useState(1080);
+  const [showPopup, setShowPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const hasFetched = useRef(false);
+  // ✅ Added loading state
+  const [isLoading, setIsLoading] = useState(true);
 
-    // initial request of data from the backend
-    useEffect(() => {
-        if (passageHistory.length === 0) {
-            if (hasFetched.current) return; // prevent second run
-            hasFetched.current = true;
+  const navigate = useNavigate();
 
+  // ✅ Safe fetch (same as your working pattern)
+  useEffect(() => {
 
-            const queryParams = {
-                designation: 'true',
-                type: 8
-            }
+    const fetchPassages = async () => {
+      try {
 
-            const queryString = new URLSearchParams(queryParams).toString();
+        const res = await fetch('/start-random-exam?designation=true&type=8');
+        const data = await res.json();
 
-            fetch(`/start-random-exam?${queryString}`)
-                .then((response) => {
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            alert("No passages detected");
-                            window.location.href = "/home"; // returns to home
-                            return;
-                        }
-                        throw new Error("Server error");
-                    }
-
-                    return response.json();
-                })
-                .then((data) => {
-                    if (!data) return;
-
-                    setAllQuestions(data.test.questions);
-                    // taking important details (JSON), set to passageHistory
-                    setPassageHistory(data.test);
-                    setSummaryHistory(data.test.summary);
-                    setPassageId(data.test.passageId);
-                })
-                .catch((err) => {
-                    console.error("Fetch error:", err);
-                });
-        }
-    }, [])
-    
-    // immediat3e sessionStorage collecting
-    useEffect(() => {
-        sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
-        sessionStorage.setItem("Font Size", fontSize);
-        sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
-        sessionStorage.setItem("Page History", JSON.stringify(currentPage));
-        sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-        sessionStorage.setItem("Summary History", JSON.stringify(summaryHistory))
-        sessionStorage.setItem("Passsage ID", JSON.stringify(passageId));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, summaryHistory, passageId]);
-
-    useEffect(() => {
-        sessionStorage.setItem("Timer remain", time)
-    }, [time])
-
-    const userWriteDown = (questionId, writeValue) => {
-        // setUserAnswers is initiated as "prev" parameter that saves previously answered questions 
-        // before adding new questions and new answers made by the user
-        setUserAnswers(prev => ({
-            ...prev,
-            [questionId]: writeValue
-        }))
-    }
-    // increase font size of passage
-    const increaseFontSize = () => {
-        if (fontSize == 40) {
-            return;
-        }
-        setFontSize(prevSize => prevSize + 2);
-    }
-    // return to default font size in passage
-    const defaultFontSize = () => {
-        setFontSize(20)
-    }
-    // decrease font size of passage
-    const decreaseFontSize = () => {
-        if (fontSize == 10) {
-            return;
-        }
-        setFontSize(prevSize => prevSize - 2);
-    }
-
-    const handleNextPage = () => {
-        // hard limit for questions
-        const totalLimit = 12;
-
-        if (passageHistory.length > currentPage + 1) {
-            // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
-            // then allow "Next Page" functionality and return 0, otherwise do skip this step;
-            setCurrentPage(prev => prev + 1);
-            return; // function stopper
+        if (data.status === 'success' && data.data?.length > 0) {
+          setAllPassages(data.data);
+          setCurrentPassage(data.data[0]);
+        } else {
+          console.error("Unexpected response:", data);
         }
 
-        if (allQuestions.length > totalLimit) { //apply >= if need exactly 10
-            // if length of allQuestions array is greater than variable totalLimit, function returns nothing
-            return; // stops the function
-        }
-        /*
-        // requesting data from the backend every "Next Page" click
-        axios
-            .post('/maintestroute/summarycompletion', {randomize: true})
-            .then((res) => {
-                setAllQuestions(prevQuestions => {
-                    // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
-                    // it is made as an array because the next questions (by res.data.questions) are the newly randomized 
-                    // by the server and needs to be added in the "combined" array that defines setAllQuestions 
-                    const combined = [...prevQuestions, ...res.data.questions]
-                    // condition: length of combined array must be greater than totalLimit, if yes: remove starting from index 0 to index 10, otherwise return combined array
-                    return combined.length > totalLimit ? combined.slice(0, totalLimit) : combined;
-                });
-                // setCurrentPage is initiated as prevPage and returns itself + 1, the reason
-                // you do this over "setCurrentPage + 1" is to save the history of previous pages
-                // rather than completely disregarding it after a "Next Page"
-                setCurrentPage(prevPage => prevPage + 1);
-                // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
-                setPassageHistory(prev => [...prev, res.data]); 
-                setSummaryHistory(prev => [...prev, res.data.summary])
-            })
-            .catch((err) => console.error(err))
-            */
-    }
-
-    const typeLabels = {
-        1: "Multiple Choice",
-        2: "Matching Features",
-        3: "Matching Information",
-        4: "Identifying Information",
-        5: "Identifying Writer's Views",
-        6: "Matching Sentence Endings",
-        7: "Matching Headings",
-        8: "Summary Completion",
-        9: "Short Answer Questions",
-        10: "Sentence Completion",
-        11: "Diagram Label Completion",
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
+    fetchPassages();
 
-    const sendUserAnswers = () => {
+  }, []);
 
-        const submissionData = {
-            testType: "Main",
-            testCategory: "Summary Completion",
-            userAnswers: userAnswers,
-            passageId: passageId,
-            testDate: new Date()
-        };
-
-        axios
-            .post('/submit-results', submissionData, { withCredentials: true })
-            .then((res) => {
-                if (res.status == 200) {
-                    setShowPopup(true);
-                    sessionStorage.removeItem("Answer")
-                    sessionStorage.removeItem("Font Size")
-                    sessionStorage.removeItem("Passage History")
-                    sessionStorage.removeItem("Page History")
-                    sessionStorage.removeItem("Questions History")
-                    sessionStorage.removeItem("Timer remain")
-                    sessionStorage.removeItem("Summary History")
-                }
-            })
-            .catch((err) => {
-                alert("Submission failed. Please check your internet and try again.")
-                console.error(err)
-            });
+  useEffect(() => {
+    if (allPassages.length > 0) {
+      setCurrentPassage(allPassages[currentIndex]);
     }
+  }, [currentIndex, allPassages]);
 
-    const navigate = useNavigate();
-    const handleGoBack = () => {
-        navigate("/home")
+  const increaseFontSize = () => fontSize < 40 && setFontSize(prev => prev + 2);
+  const decreaseFontSize = () => fontSize > 10 && setFontSize(prev => prev - 2);
+  const defaultFontSize = () => setFontSize(20);
+
+  const handleNextPassage = () => {
+    if (currentIndex < allPassages.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      handleSubmit();
     }
+  };
 
+  const handlePreviousPassage = () => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  };
+
+  const handleInputChange = (questionIndex, value) => {
+    const passageId = currentPassage.passageId;
+
+    setUserAnswers(prev => {
+      const existing = prev[passageId] || [];
+      const updated = [...existing];
+      updated[questionIndex] = value;
+      return { ...prev, [passageId]: updated };
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const submissionData = allPassages.map(p => ({
+        passageId: p.passageId,
+        answers: (userAnswers[p.passageId] || []).map(answer => {
+          if (!answer) return "";
+          return `"${answer.trim()}"`;
+        })
+      }));
+
+      const response = await fetch('/submit-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionData,
+          testType: 8,
+          testDesignation: true
+        }),
+      });
+
+      if (!response.ok)
+        throw new Error(`Server returned ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        setTotalCorrect(data.totalCorrect);
+        setTotalQuestions(data.totalQuestions);
+        setShowPopup(true);
+        setUserAnswers({});
+      }
+
+      setTimeout(() => {
+        window.location.href = '/home';
+      }, 3000);
+
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("Submission failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const typeLabels = {
+    8: "Summary Completion"
+  };
+
+  // ✅ BLOCK RENDER UNTIL DATA READY
+  if (!currentPassage) {
     return (
-        <main className='main-maintest'>
-            {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
-                        <h2>Test Finished</h2>
-                        <button className="popup-btn" onClick={handleGoBack}>
-                            Go back to Main Test
-                        </button>
-                    </div>
-                </div>
-            )}
-            <section className='sidebar'>
-                <div>
-                    <h1 className='name'>Readify</h1>
-                </div>
-                <div className='timer-component'>
-                    {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
-                </div>
-                <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Questions are Randomized. Multiple<br /> tab changes can result in exam <br />termination.</p>
-                </div>
-            </section>
-            <div className='section-flex'>
-                <section className='testing-flex'>
-                    <div className='title-div'>
-                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
-                    </div>
-                    <div className='view-size-buttons'>
-                        <button className='font-size-btn' onClick={decreaseFontSize}>
-                            Decr
-                        </button>
-                        <button className='font-size-btn' onClick={defaultFontSize}>
-                            Default
-                        </button>
-                        <button className='font-size-btn' onClick={increaseFontSize}>
-                            Incr
-                        </button>
-                    </div>
-                </section>
-                <div className='two-sections'>
-                    <div className='passage-view'>
-                        <div className='test-title'>
-                            {/* the print out version of the exam passages, "?." is an optional chaining that access the previous history/pages of passages.
-                                It also prevents white screen errors because it is accessing an array of previous stored passages. */}
-                            <>{currentPassage?.passageTitle}</>
-                        </div>
-                        <div className='test-reference'>
-                            <>{currentPassage?.passageSource}</>
-                        </div>
-                        <div className='test-passage'>
-                            <p style={{ fontSize: `${fontSize}px` }}>{currentPassage?.passage}</p>
-                        </div>
-                    </div>
-                    <section className='questions-side'>
-                        <div>
-                            <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 12 ? `-${questionNumberEnd}` : ''}</p></b>
-                                <p className='p-description'>{currentPassage?.description}</p>
-                                <div className='summary-block'>
-                                    <p className='features-font'>{currentSummary?.summaryTitle}</p>
-                                    <p className='summary-font'>{currentSummary?.question}</p>
-                                </div>
-                                <div className='question-container'>
-                                    {/*  */}
-                                    {currentQuestions.map((q, index) => (
-                                        <div className='question-block-summary' key={q.questionNumber || index}>
-                                            <p className='questions-summary'><strong>{indexOfFirstQuestion + index + 1}.</strong></p>
-                                            <input
-                                                type='text'
-                                                className='answer-input-summary'
-                                                placeholder=''
-                                                value={userAnswers[q.questionNumber] || ''}
-                                                onChange={(e) => userWriteDown(q.questionNumber, e.target.value)}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='next-back-buttons'>
-                                    {currentPage > 0 && (
-                                        <React.Fragment>
-                                            <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
-                                            <br />
-                                        </React.Fragment>
-                                    )}
-                                    {indexOfLastQuestion >= 10 ? (
-                                        <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
-                                    ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h1>Loading...</h1>
+        <button
+          onClick={() => navigate('/home')}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
+  // ✅ Safety fallback
+  if (!currentPassage) {
+    return (
+      <main className="main-maintest">
+        <h2 style={{ textAlign: "center", marginTop: "200px" }}>
+          No Test Available
+        </h2>
+      </main>
+    );
+  }
+
+  return (
+    <main className='main-maintest'>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h2>Test Finished you got {totalCorrect} / {totalQuestions}</h2>
+            <h5>Returning to dashboard...</h5>
+            <button
+              onClick={() => navigate('/home')}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                fontSize: "16px",
+                cursor: "pointer"
+              }}
+            >
+              Click here if you aren't redirected.
+            </button>
+          </div>
+        </div>
+      )}
+
+      <section className='sidebar'>
+        <h1 className='name'>Readify</h1>
+        <div className='timer-component'>
+          <SideTimer time={time} setTime={setTime} />
+        </div>
+        <div className='warning-tab'>
+          <p className='warning-text'>
+            Warning! Questions are randomized.
+          </p>
+        </div>
+      </section>
+
+      <div className='section-flex'>
+
+        <section className='testing-flex'>
+          <div className='title-div'>
+            <h1 className='h1-title-div'>
+              {typeLabels[currentPassage?.testType]}
+            </h1>
+          </div>
+        </section>
+
+        <div className='two-sections'>
+
+          {/* Passage */}
+          <div className='passage-view'>
+            <div className='test-title'>{currentPassage.passageTitle}</div>
+            <div className='test-reference'>{currentPassage.passageSource}</div>
+            <div className='test-passage'>
+              <p style={{ fontSize: `${fontSize}px` }}>
+                {currentPassage.passage}
+              </p>
             </div>
-        </main>
-    )
+          </div>
+
+          {/* Questions */}
+          <section className='questions-side'>
+            <div className='view-size-buttons'>
+              <center>
+                <p>Font Size Controls</p>
+                <button onClick={decreaseFontSize}>-</button>
+                <button onClick={defaultFontSize}> o </button>
+                <button onClick={increaseFontSize}>+</button>
+              </center>
+            </div>
+            <div className="instructions">
+              <h3 className='instructions__heading'>Instructions:</h3>
+              <ul className="instructions__list">
+                <li className="instructions__item">Complete the summary below.
+                </li>
+                <li className="instructions__item">Choose NO MORE THAN TWO WORDS from the passage for each answer.
+                </li>
+                <li className="instructions__item">Type your answers in boxes 1–4.
+                </li>
+
+              </ul>
+            </div>
+            <b>
+              <p className='p-questionRange'>
+                Questions 1-
+                {currentPassage?.questions?.length || 0}
+              </p>
+            </b>
+
+            {/* Summary text comes from questionText of first question */}
+            <div className='summary-block'>
+              <p className='summary-font'>
+                {currentPassage?.questions?.[0]?.questionText}
+              </p>
+            </div>
+
+            <div className='question-container'>
+              {currentPassage?.questions?.map((q, idx) => {
+
+                const passageId = currentPassage.passageId;
+                const typedAnswer =
+                  (userAnswers[passageId] || [])[idx] || '';
+
+                return (
+                  <div className='question-block-summary' key={q.questionNumber || idx}>
+
+                    <p className='questions-summary'>
+                      <strong>{q.questionNumber}.</strong>
+                    </p>
+
+                    <input
+                      type="text"
+                      className='answer-input-summary'
+                      value={typedAnswer}
+                      onChange={(e) =>
+                        handleInputChange(idx, e.target.value)
+                      }
+                    />
+
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className='next-back-buttons'>
+              <button
+                onClick={handlePreviousPassage}
+                disabled={currentIndex === 0}
+                className='back-btn'
+              >
+                Back
+              </button>
+
+              <button
+                onClick={handleNextPassage}
+                disabled={isSubmitting}
+                className='next-page-btn'
+              >
+                {currentIndex === allPassages.length - 1
+                  ? 'Submit Test'
+                  : 'Next Page'}
+              </button>
+            </div>
+
+          </section>
+
+        </div>
+      </div>
+    </main>
+  );
 }
 
 export default SummaryCompletion;

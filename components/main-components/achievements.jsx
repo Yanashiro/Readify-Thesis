@@ -1,5 +1,4 @@
-import React from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import lockedImage from '../../images/locked.png'
 import firstSteps from '../../images/first_steps.png'
 import getAHang from '../../images/getting_the_hang_of_it.png'
@@ -14,49 +13,71 @@ import axios from 'axios'
 
 function Achievements() {
 
-	const [unlocked, setUnlocked] = useState([]);
+	const [unlocked, setUnlocked] = useState({})
 
 	const achievementList = [
-		{ title: 'firstSteps', name: 'First Steps', desc: 'Completed first reading test', img: firstSteps },
-		{ title: 'getAHang', name: 'Getting the Hang of it', desc: 'Completed 5 tests', img: getAHang },
-		{ title: 'marathon', name: 'Marathon Reader', desc: 'Completed 10 tests', img: marathon },
-		{ title: 'comprehensionStart', name: 'Comprehension Starter', desc: 'Scored 50% or higher in a test', img: comprehensionStart },
-		{ title: 'sharpRead', name: 'Sharp Reader', desc: 'Scored 75% or higher in a test', img: sharpRead },
-		{ title: 'ieltsStar', name: 'IELTS Star', desc: 'Scored 90% or higher in a test', img: ieltsStar },
-		{ title: 'perfectScore', name: 'Perfect Score', desc: 'Scored 100% in one test', img: perfectScore },
-		{ title: 'elite', name: 'Elite Achiever', desc: 'Unlocked all achievements', img: elite }
+		{ name: 'First Steps', desc: 'Completed first reading test', img: firstSteps },
+		{ name: 'Getting the Hang of it', desc: 'Completed 5 tests', img: getAHang },
+		{ name: 'Marathon Reader', desc: 'Completed 10 tests', img: marathon },
+		{ name: 'Comprehension Starter', desc: 'Scored 50% or higher in a test', img: comprehensionStart },
+		{ name: 'Sharp Reader', desc: 'Scored 75% or higher in a test', img: sharpRead },
+		{ name: 'IELTS Star', desc: 'Scored 90% or higher in a test', img: ieltsStar },
+		{ name: 'Perfect Score', desc: 'Scored 100% in one test', img: perfectScore },
+		{ name: 'Elite Achiever', desc: 'Unlocked all achievements', img: elite }
 	]
 
 	useEffect(() => {
+
 		axios
 			.get('/achievements', { withCredentials: true })
 			.then((res) => {
-				setUnlocked(res.data)
+
+				const unlockedMap = {}
+
+				res.data.data.forEach(a => {
+					unlockedMap[a.title] = true
+				})
+
+				setUnlocked(unlockedMap)
+
 			})
 			.catch((err) => console.error(err))
+
 	}, [])
 
 	return (
-		<>
-			<main className='achievements-main'>
-				<div className='achievements-title'>
-					<h1>Achievements</h1>
-				</div>
-				<div>
-					{achievementList.map((ach) => (
-						<div className="container" key={ach.title}>
-							<img src={unlocked[ach.title] ? ach.img : lockedImage} width={"80px"} height={"80px"} alt={ach.name}></img>
-							<div className='achievements-name-center'>
-								<p className="p-b"><b>{ach.name}</b></p>
-								<p className="p-a">{ach.desc}</p>
-							</div>
+		<main className='achievements-main'>
+
+			<div className='achievements-title'>
+				<h1>Achievements</h1>
+			</div>
+
+			<div>
+
+				{achievementList.map((ach) => (
+
+					<div className="container" key={ach.name}>
+
+						<img
+							src={unlocked[ach.name] ? ach.img : lockedImage}
+							width="80px"
+							height="80px"
+							alt={ach.name}
+						/>
+
+						<div className='achievements-name-center'>
+							<p className="p-b"><b>{ach.name}</b></p>
+							<p className="p-a">{ach.desc}</p>
 						</div>
-					))}
-				</div>
-			</main>
-		</>
-	);
+
+					</div>
+
+				))}
+
+			</div>
+
+		</main>
+	)
 }
 
-export default Achievements;
-
+export default Achievements

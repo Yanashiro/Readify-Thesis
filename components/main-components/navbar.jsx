@@ -13,6 +13,7 @@ import logoutIcon from '../../images/icons/logout.png';
 import aboutUsIcon from '../../images/icons/aboutus.png';
 import Dashboard from './dashboard';
 import MTPage from './maintest';
+// import MainTestResults from './mainTestResults'
 import PTPage from './practicetest';
 import TipsnTricks from './tipsntricks';
 import AboutUs from './aboutus';

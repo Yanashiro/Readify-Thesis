@@ -8,10 +8,15 @@ const {
 	readifyUser_Collection,
 	questionCollection,
 	passageCollection,
+	vocabCollection,
 } = require("./config");
-
+const { ObjectId } = require('mongodb');
 const { name } = require("ejs");
 const { Collection } = require("mongoose");
+
+// Routers
+const userRouter = require('./userRoutes');
+const { log } = require("console");
 // Express
 const app = express();
 
@@ -31,6 +36,8 @@ app.use(session({
 		httpOnly: true  // Helps prevent XSS
 	}
 }));
+
+app.use('/api/v1/users', userRouter);
 
 const isAuthenticated = (req, res, next) => {
 	// Check if the session has our userId variable
@@ -68,6 +75,8 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 // Static files for bundle.js and bundle.css created by Vite/Rollup - new from patrick
 app.use(express.static(path.join(__dirname, "../dist")));
+
+
 
 // Home Render
 app.get("/Home", isAuthenticated, (req, res) => {
@@ -207,6 +216,172 @@ app.get("/auth/me", (req, res) => { // This can be used when the frontend is loo
 	});
 });
 
+app.delete('/attempt', async (req, res) => {
+	try {
+
+		const { userId, attemptId } = req.body;
+
+		if (!userId || !attemptId) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'Missing userId or attemptId'
+			});
+		}
+
+		await readifyUser_Collection.updateOne(
+			{ _id: new ObjectId(userId) },
+			{
+				$pull: {
+					testHistory: { _id: new ObjectId(attemptId) }
+				}
+			}
+		);
+
+		res.status(200).json({
+			status: 'success',
+			message: 'Attempt deleted successfully'
+		});
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			status: 'error',
+			message: 'Server error'
+		});
+	}
+});
+
+const testTypeMap = {
+	"Multiple Choice": 1,
+	"Matching Features": 2,
+	"Matching Information": 3,
+	"Identifying Information": 4,
+	"Identifying Writer's Views": 5,
+	"Matching Sentence Endings": 6,
+	"Matching Headings": 7,
+	"Summary Completion": 8,
+	"Short-Answer Questions": 9,
+	"Sentence Completion": 10,
+	"Diagram Label Completion": 11
+};
+
+
+
+app.get('/maintestselection/retrieveData', async (req, res) => {
+	try {
+
+		const { title, designation } = req.query;
+
+		if (!req.session.userId) {
+			return res.status(401).json({
+				status: false,
+				message: "Not authenticated"
+			});
+		}
+
+		const user = await readifyUser_Collection.findOne({
+			_id: new ObjectId(req.session.userId)
+		});
+
+		if (!user) {
+			return res.status(404).json({
+				status: false,
+				message: "User not found"
+			});
+		}
+
+		const testType = testTypeMap[title];
+
+		if (!testType) {
+			return res.status(400).json({
+				status: false,
+				message: "Invalid test type"
+			});
+		}
+
+		// Filter attempts for:
+		// - Main test only
+		// - Specific testType
+		const attempts = user.testHistory
+			.filter(t =>
+				t.testDesignation === true &&
+				t.testType === testType
+			)
+			.sort((a, b) => new Date(b.takenAt) - new Date(a.takenAt));
+
+		if (attempts.length === 0) {
+			return res.status(200).json({
+				status: false,
+				score: 0,
+				totalQuestions: 0,
+				band: 0
+			});
+		}
+
+		const latestAttempt = attempts[0];
+
+		// Placeholder band formula (replace later)
+		const percent = (latestAttempt.score / latestAttempt.totalQuestions) * 100;
+
+		let band = 1;
+		if (percent >= 85) band = 9;
+		else if (percent >= 70) band = 7;
+		else if (percent >= 55) band = 5;
+		else if (percent >= 40) band = 3;
+
+		res.status(200).json({
+			status: true,
+			score: latestAttempt.score,
+			totalQuestions: latestAttempt.totalQuestions,
+			band: band
+		});
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			status: false,
+			message: "Server error"
+		});
+	}
+});
+
+app.get('/user', async (req, res) => {
+	try {
+
+		const { userId } = req.query;
+
+		if (!userId) {
+			return res.status(400).json({
+				status: 'error',
+				message: 'User ID is required'
+			});
+		}
+
+		const user = await readifyUser_Collection.findOne({
+			_id: new ObjectId(userId)
+		});
+
+		if (!user) {
+			return res.status(404).json({
+				status: 'error',
+				message: 'User not found'
+			});
+		}
+
+		res.status(200).json({
+			status: 'success',
+			data: user
+		});
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({
+			status: 'error',
+			message: 'Server error'
+		});
+	}
+});
+
 
 app.get("/create-passage", isAuthenticated, (req, res) => {
 	res.render("PassageCreation");
@@ -215,7 +390,7 @@ app.get("/create-passage", isAuthenticated, (req, res) => {
 // Create Test Passage
 app.post('/create-passage', upload.single('passageImage'), async (req, res) => {
 	try {
-		const { testDesignation, testType, passageTitle, passage, questions } = req.body;
+		const { testDesignation, testType, passageTitle, passage, passageImage, passageSource, questions } = req.body;
 
 		// Get image path if a file was uploaded
 		const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -224,7 +399,8 @@ app.post('/create-passage', upload.single('passageImage'), async (req, res) => {
 			questionNumber: parseInt(q.number),
 			questionText: q.text,
 			correctAnswer: q.answer,
-			data: q.data ? q.data.split(',').map(item => item.trim()) : null
+			data: q.data ? q.data.split(',').map(item => item.trim()) : null,
+			answerExplaination: q.explaination
 		}));
 
 		const newPassage = new passageCollection({
@@ -233,9 +409,9 @@ app.post('/create-passage', upload.single('passageImage'), async (req, res) => {
 			passageTitle,
 			passage,
 			passageImage: imagePath, // Save the path to DB
+			passageSource,
 			questions: formattedQuestions
 		});
-
 		await newPassage.save();
 		res.redirect('/test-selection');
 	} catch (err) {
@@ -330,47 +506,238 @@ app.get('/take-exam', async (req, res) => {
 // Exam Results Route - Processes the submitted answers and calculates the score
 app.post('/submit-results', async (req, res) => {
 	try {
-		const { passageId, userAnswers } = req.body;
-		const test = await passageCollection.findOne({ passageId: passageId });
-		if (!test) return res.status(404).send("Test not found.");
-		let score = 0;
-		const results = test.questions.map((q, index) => {
-			const rawAnswer = (userAnswers && userAnswers[index]) ? userAnswers[index] : "";
-			const userAns = Array.isArray(rawAnswer) ? rawAnswer[0].trim() : rawAnswer.trim();
-			const correctAns = q.correctAnswer.toString().trim();
-			const isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
-			if (isCorrect) score++;
-			return {
-				questionNumber: q.questionNumber,
-				userAns,
-				correctAns,
-				isCorrect
-			};
-		});
 
-		// SAVE TO USER HISTORY
-		if (req.session.userId) {
-			await readifyUser_Collection.findOneAndUpdate(
-				{ userId: req.session.userId },
+		const { submissionData, testType } = req.body;
+		const testDesignation = req.body.testDesignation;
+
+		console.log('test type: ', testType);
+		console.log('test designation: ', testDesignation);
+
+		if (!submissionData) {
+			return res.status(400).json({ status: "error", message: "No data received" });
+		}
+
+		let totalCorrect = 0;
+		let totalQuestions = 0;
+
+		for (const passageResult of submissionData) {
+
+			const passage = await passageCollection.findOne({
+				passageId: passageResult.passageId
+			});
+
+			if (!passage) continue;
+
+			const questions = passage.questions || [];
+			totalQuestions += questions.length;
+
+			questions.forEach((q, idx) => {
+
+				const userAnswer = passageResult.answers[idx];
+
+				console.log('User answer: ', userAnswer);
+				console.log('Correct answer: ', q.correctAnswer);
+
+				if (userAnswer && userAnswer.toLowerCase() === q.correctAnswer.toLowerCase()) {
+					totalCorrect++;
+				}
+
+			});
+		}
+
+		console.log(`User Score: ${totalCorrect} / ${totalQuestions}`);
+
+		/* =========================
+			 UPSERT TEST HISTORY
+		========================= */
+
+		const updateResult = await readifyUser_Collection.updateOne(
+			{
+				_id: new ObjectId(req.session.userId),
+				testHistory: {
+					$elemMatch: {
+						testDesignation: testDesignation,
+						testType: testType
+					}
+				}
+			},
+			{
+				$set: {
+					"testHistory.$.score": totalCorrect,
+					"testHistory.$.totalQuestions": totalQuestions,
+					"testHistory.$.takenAt": new Date()
+				}
+			}
+		);
+
+		if (updateResult.matchedCount === 0) {
+
+			await readifyUser_Collection.updateOne(
+				{ _id: new ObjectId(req.session.userId) },
 				{
 					$push: {
 						testHistory: {
-							passageId: test.passageId,
-							passageTitle: test.passageTitle,
-							score: score,
-							totalQuestions: test.questions.length,
+							testDesignation,
+							testType,
+							score: totalCorrect,
+							totalQuestions,
 							takenAt: new Date()
 						}
 					}
 				}
 			);
+
 		}
-		res.render('Results', { score, total: test.questions.length, results, passageTitle: test.passageTitle });
+
+		/* =========================
+			 ACHIEVEMENTS (MAIN TESTS ONLY)
+		========================= */
+
+		let newAchievements = [];
+
+		if (testDesignation === true) {
+
+			const achievementList = [
+				{ title: "First Steps", description: "Completed your first test", icon: "/icons/test.jpg" },
+				{ title: "Getting the Hang of it", description: "Completed 5 tests", icon: "/icons/test.jpg" },
+				{ title: "Marathon Reader", description: "Completed 10 tests", icon: "/icons/test.jpg" },
+				{ title: "Comprehension Starter", description: "Scored 50% or higher in a test", icon: "/icons/test.jpg" },
+				{ title: "Sharp Reader", description: "Scored 75% or higher in a test", icon: "/icons/test.jpg" },
+				{ title: "IELTS Star", description: "Scored 90% or higher in a test", icon: "/icons/test.jpg" },
+				{ title: "Perfect Score", description: "Scored 100% in one test", icon: "/icons/test.jpg" },
+				{ title: "Elite Achiever", description: "Unlocked all achievements", icon: "/icons/test.jpg" }
+			];
+
+			const user = await readifyUser_Collection.findOne({
+				_id: new ObjectId(req.session.userId)
+			});
+
+			const earnedTitles = user.achievements.map(a => a.title);
+
+			const percentage = (totalCorrect / totalQuestions) * 100;
+
+			/* count ONLY main tests */
+			const mainTestsCompleted =
+				user.testHistory.filter(t => t.testDesignation === true).length;
+
+			function unlock(title) {
+
+				const achievement = achievementList.find(a => a.title === title);
+
+				if (achievement && !earnedTitles.includes(title)) {
+
+					newAchievements.push({
+						title: achievement.title,
+						description: achievement.description,
+						icon: achievement.icon,
+						earnedAt: new Date(),
+						userId: req.session.userId
+					});
+
+				}
+			}
+
+			/* TEST COUNT ACHIEVEMENTS */
+
+			if (mainTestsCompleted >= 1) unlock("First Steps");
+			if (mainTestsCompleted >= 5) unlock("Getting the Hang of it");
+			if (mainTestsCompleted >= 10) unlock("Marathon Reader");
+
+			/* SCORE ACHIEVEMENTS */
+
+			if (percentage >= 50) unlock("Comprehension Starter");
+			if (percentage >= 75) unlock("Sharp Reader");
+			if (percentage >= 90) unlock("IELTS Star");
+			if (percentage === 100) unlock("Perfect Score");
+
+			/* ELITE ACHIEVER */
+
+			const possibleAchievements = achievementList.length - 1;
+
+			if ((user.achievements.length + newAchievements.length) === possibleAchievements) {
+				unlock("Elite Achiever");
+			}
+
+			/* SAVE NEW ACHIEVEMENTS */
+
+			if (newAchievements.length > 0) {
+
+				await readifyUser_Collection.updateOne(
+					{ _id: new ObjectId(req.session.userId) },
+					{
+						$push: {
+							achievements: { $each: newAchievements }
+						}
+					}
+				);
+
+			}
+
+		}
+
+		/* =========================
+			 RESPONSE
+		========================= */
+
+		res.status(200).json({
+			status: "success",
+			totalCorrect,
+			totalQuestions,
+			newAchievements
+		});
+
 	} catch (err) {
+
 		console.error(err);
-		res.status(500).send("Error processing results.");
+
+		res.status(500).json({
+			status: "error",
+			message: "Server error"
+		});
+
 	}
 });
+// const { passageId, userAnswers } = req.body;
+// const test = await passageCollection.findOne({ passageId: passageId });
+// if (!test) return res.status(404).send("Test not found.");
+// let score = 0;
+// const results = test.questions.map((q, index) => {
+// 	const rawAnswer = (userAnswers && userAnswers[index]) ? userAnswers[index] : "";
+// 	const userAns = Array.isArray(rawAnswer) ? rawAnswer[0].trim() : rawAnswer.trim();
+// 	const correctAns = q.correctAnswer.toString().trim();
+// 	const isCorrect = userAns.toLowerCase() === correctAns.toLowerCase();
+// 	if (isCorrect) score++;
+// 	return {
+// 		questionNumber: q.questionNumber,
+// 		userAns,
+// 		correctAns,
+// 		isCorrect
+// 	};
+// });
+
+// SAVE TO USER HISTORY
+// if (req.session.userId) {
+// 	await readifyUser_Collection.findOneAndUpdate(
+// 		{ userId: req.session.userId },
+// 		{
+// 			$push: {
+// 				testHistory: {
+// 					passageId: test.passageId,
+// 					passageTitle: test.passageTitle,
+// 					score: score,
+// 					totalQuestions: test.questions.length,
+// 					takenAt: new Date()
+// 				}
+// 			}
+// 		}
+// 	);
+// }
+// res.render('Results', { score, total: test.questions.length, results, passageTitle: test.passageTitle });
+// 	} catch (err) {
+// 		console.error(err);
+// 		res.status(500).send("Error processing results.");
+// 	}
+// });
 
 // Step 1: Show the Selection Page
 app.get('/exam-launcher', (req, res) => {
@@ -383,40 +750,88 @@ app.get('/exam-launcher', (req, res) => {
 	res.render('Launcher', { typeLabels });
 });
 
+// app.get('/start-main-test', async (req, res) => {
+// 	const testDesignation = req.query.designation === 'true';
+// 	const testType = parseInt(req.query.type);
+
+// 	const randomPassages = await passageCollection.aggregate([
+// 		{
+// 			$match: {
+// 				testDesignation: testDesignation,
+// 				testType: testType
+// 			}
+// 		},
+// 		{
+// 			$sample: { size: 3 }
+// 		}
+// 	]);
+
+// 	res.status(200).json({
+// 		status: 'success',
+// 		results: randomPassages.length,
+// 		data: randomPassages
+// 	})
+// })
+
+app.get('/start-vocabulary-exam', async (req, res) => {
+
+	try {
+		console.log('vocab runs');
+		
+
+		const randomWord = await vocabCollection.aggregate([
+			{ $sample: { size: 1 } }
+		]);
+
+		res.status(200).json({
+			status: "success",
+			data: randomWord[0]
+		});
+
+	} catch (err) {
+
+		console.error(err);
+
+		res.status(500).json({
+			status: "error",
+			message: "Server error"
+		});
+
+	}
+
+});
 // Step 2: Process selection and find Random Test
 app.get('/start-random-exam', async (req, res) => {
 	try {
-		const isMain = req.query.designation === 'true';
-		const type = parseInt(req.query.type);
-		const prevPassageId = req.query.previousPassageId;
+		const testDesignation = req.query.designation === 'true';
+		const testType = parseInt(req.query.type);
 
-		if (prevPassageId) {
-			const randomTest = await passageCollection.findOne({
-				$and: [
-					{ testDesignation: isMain },
-					{ testType: type },
-					{ passageId: { $ne: prevPassageId } }
-				]
-			});
-		} else {
-			const randomTest = await passageCollection.findOne({
-				$and: [
-					{ testDesignation: isMain },
-					{ testType: type },
-				]
-			});
-		}
+		const randomPassages = await passageCollection.aggregate([
+			{
+				$match: {
+					testDesignation,
+					testType
+				}
+			},
+			{
+				$sample: { size: 3 }
+			}
+		]);
 
-		console.log(randomTest)
-		if (randomTest.length === 0) {
+		// console.log(randomPassages)
+
+		if (!randomPassages) {
 			return res.status(404).json({
 				status: 'failed',
 				message: 'No passages detected',
 			});
 		} else {
-			console.log('id: ', randomTest[0].passageId)
-			res.redirect(`/take-exam/${randomTest[0].passageId}`)
-		};// Redirect to the Exam Mode with the specific ID found
+			return res.status(200).json({
+				status: 'success',
+				results: randomPassages.length,
+				data: randomPassages
+			});
+		};
 	} catch (err) {
 		res.status(500).send("Error selecting test.");
 	}
@@ -490,7 +905,7 @@ app.get("/UserManagement", isAuthenticated, async (req, res) => {
 	try {
 		const users = await readifyUser_Collection.find();
 
-		console.log(users)
+		// console.log(users)
 
 		res.status(200).json({
 			status: "success",
@@ -548,7 +963,7 @@ app.post('/UserManagement/create', isAuthenticated, async (req, res) => {
 		const userdata = new readifyUser_Collection(data);
 		await userdata.save();
 		// Logging
-		console.log(userdata);
+		// console.log(userdata);
 		res.redirect('/UserManagement');
 	}
 });
@@ -632,11 +1047,14 @@ app.get('/achievements', async (req, res, next) => {
 			return res.redirect('/login');
 		}
 
-		if (user.testHistory) {
-			user.testHistory.sort((a, b) => b.takenAt - a.takenAt);
+		if (user.achievements) {
+			user.achievements.sort((a, b) => b.earnedAt - a.earnedAt);
 		}
+		console.log(user.achievements);
 
 		res.status(200).json({
+			status: 'success',
+			results: user.achievements.length,
 			data: user.achievements
 		});
 	} catch (err) {
@@ -673,3 +1091,5 @@ const port = 5000;
 app.listen(port, () => {
 	console.log(`Server running on Port: ${port}`);
 });
+
+module.exports = app;

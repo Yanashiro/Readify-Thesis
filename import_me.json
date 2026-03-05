@@ -1,0 +1,188 @@
+[
+  {
+    "passageId": 1,
+    "testDesignation": false,
+    "testType": 1,
+    "passageTitle": "The Discovery of Penicillin",
+    "passage": "In 1928, Dr Alexander Fleming  returned from a holiday to find mold growing on a Petri dish of Staphylococcus bacteria. He noticed that the mold seemed to be preventing the bacteria around it from growing. He soon identified that the mold produced a self-defence chemical that could kill bacteria. He named the substance “Penicillin”. \nFleming published his findings and presented his discovery to the Medical Research Club. To his surprise, his peers showed little interest in his work. He then enlisted the help of several chemists in-order to purify Penicillin from the mold, However none were successful and it was declared by Harold Raistrick that the production of Penicillin for purposes of treatment was impossible. It was then labeled a laboratory curiosity and subsequently abandoned. \nTen years later in 1937, Howard Florey and Ernst Chain discovered Fleming’s Research and assembled a team of scientists to work solely on the “Penicillin Project” in-order to develop a way to purify penicillin from the mold. And after three years of hard labor and work, they managed to accomplish it and began trials on rats in 1940. \nThe paper they published detailing the experiment gained immediate interest, but the team was now severely limited by production. Gallons of mold broth was required to produce just a fingernail of penicillin. The team resorted to using bedpans, milk churns, food tins and even bathtubs to store the broth. Until the development of special fermentation vessels were made to specifically hold it.",
+    "passageSource": "https://www.sciencemuseum.org.uk/objects-and-stories/how-was-penicillin-developed",
+    "questions": [
+      {
+        "questionNumber": 1,
+        "questionText": "What type of bacteria did Alexander Fleming find...",
+        "data": {
+          "options": [
+            "Streptococcus",
+            "Salinicoccus",
+            "Staphylococcus",
+            "Staphylococcaceae"
+          ]
+        },
+        "correctAnswer": "Staphylococcus"
+      },
+      {
+        "questionNumber": 2,
+        "questionText": "Who declared that developing production...",
+        "data": {
+          "options": [
+            "Harold Raistrick",
+            "Alexander Fleming",
+            "Ernst Chain",
+            "Howard Florey"
+          ]
+        },
+        "correctAnswer": "Harold Raistrick"
+      },
+      {
+        "questionNumber": 3,
+        "questionText": "What year was Fleming's Research Discovered...",
+        "data": {
+          "options": [
+            "1930",
+            "1937",
+            "1933",
+            "1940"
+          ]
+        },
+        "correctAnswer": "1937"
+      },
+      {
+        "questionNumber": 4,
+        "questionText": "Before the development of Special Fermentation...",
+        "data": {
+          "options": [
+            "Group A",
+            "Group B",
+            "Group C",
+            "Bedpans / Milk Churns / Food Tins / Bathtubs"
+          ]
+        },
+        "correctAnswer": "Bedpans / Milk Churns / Food Tins / Bathtubs"
+      }
+    ]
+  },
+  {
+    "passageId": 2,
+    "testDesignation": false,
+    "testType": 1,
+    "passageTitle": "How Volcanoes Work",
+    "passage": "Whenever there is a major volcanic eruption in the world, you'll­ see a slew of newspaper articles and nightly news stories covering the catastrophe, all stressing a familiar set of words -- violent, raging, awesome.\n\nWhen people think of volcanoes, the first image that comes to mind is probably a tall, conical mountain with orange lava spewing out the top. There are certainly many volcanoes of this type. But the term volcano actually describes a much wider range of geological phenomena. Generally speaking, a volcano is any place on a planet where some material from the inside of the planet makes its way through to the planet's surface. One way is \"material spewing from the top of a mountain\", but there are other forms as well. \n\nThe first question to address is: why does the magma erupt at all? The erupting force generally comes from internal gas pressure. The material that forms magma contains a lot of dissolved gases -- gases that have been suspended in the magma solution. The gases are kept in this dissolved state as long as the confining pressure of the surrounding rock is greater than the vapor pressure of the gas. When this balance shifts and vapor pressure becomes greater than the confining pressure, the dissolved gas is allowed to expand, and forms small gas bubbles, called vesicles, in the magma. This happens if one of two things occurs:  The confining pressure decreases, due to decompression from the magma rising from a higher pressure point to a lower pressure point or The vapor pressure increases because the magma cools, initiating a crystallization process that enriches the gas content of the magma.\n\nIn either case, what you get is magma filled with tiny gas bubbles, which have a much lower density than the surrounding magma, and so push out to escape. This is the same thing that happens when you open a bottle of soda, particularly after shaking it up. When you decompress the soda (by opening the bottle), the tiny gas bubbles push out and escape. If you shake the bottle up first, the bubbles are all mixed up in the soda so they push a lot of the soda out with them. This is true for volcanoes as well. As the bubbles escape, they push the magma out, causing a spewing eruption.",
+    "passageSource": "https://science.howstuffworks.com/nature/natural-disasters/volcano.htm",
+    "questions": [
+      {
+        "questionNumber": 1,
+        "questionText": "According to the passage, Which of the following descriptions describe a volcano?",
+        "data": {
+          "options": [
+            "A Volcano is any place...",
+            "Volcanoes are openings...",
+            "Volcanoes are mountains...",
+            "Volcanoes are holes..."
+          ]
+        },
+        "correctAnswer": "A Volcano is any place on a planet where some material from the inside of the planet makes its way through to the planet's surface."
+      },
+      {
+        "questionNumber": 2,
+        "questionText": "Why does magma erupt?",
+        "data": {
+          "options": [
+            "Tectonic Plate movement",
+            "Internal gas pressure",
+            "Rainwater steam",
+            "Earth's Rotation"
+          ]
+        },
+        "correctAnswer": "The build-up of internal gas pressure from the magma."
+      },
+      {
+        "questionNumber": 3,
+        "questionText": "What is the primary cause of a spewing eruption?",
+        "data": {
+          "options": [
+            "Tectonic Plate Movement",
+            "Bubbles within the magma",
+            "Steam within the Crust",
+            "Carbon Dioxide Buildup"
+          ]
+        },
+        "correctAnswer": "Bubbles within the magma"
+      },
+      {
+        "questionNumber": 4,
+        "questionText": "According to the passage, what happens when vapor pressure becomes greater than the confining pressure?",
+        "data": {
+          "options": [
+            "Magma solidifies",
+            "Gas expands and forms bubbles",
+            "Rock increases pressure",
+            "Magma stops rising"
+          ]
+        },
+        "correctAnswer": "The dissolved gas expands and forms small bubbles in the magma."
+      }
+    ]
+  },
+  {
+    "passageId": 3,
+    "testDesignation": false,
+    "testType": 1,
+    "passageTitle": "The Great Wall of China",
+    "passage": "The Great Wall of China is an extensive bulwark erected in ancient China, and is one of the largest building-construction projects ever undertaken. The Great Wall actually consists of numerous walls—many of them parallel to each other—built over some two millennia across northern China and southern Mongolia. The most extensive and best-preserved version of the wall dates from the Ming dynasty (1368–1644) and runs for some 5,500 miles (8,850 km) east to west from Mount Hu near Dandong, southeastern Liaoning province, to Jiayu Pass west of Jiuquan, northwestern Gansu province. It was designated a UNESCO World Heritage site in 1987.\n\nLarge parts of the fortification system date from the 7th through the 4th century BCE. In the 3rd century BCE, Shi Huang Di (Qin Shi Huang), the first emperor of a united China (under the Qin dynasty), connected a number of existing defensive walls into a single system. Traditionally, the eastern terminus of the wall was considered to be Shanhai Pass (Shanhaiguan) in eastern Hebei province along the coast of the Bo Hai (Gulf of Chihli), and the wall’s length—without its branches and other secondary sections—was thought to extend for some 4,160 miles (6,700 km). However, government-sponsored investigations that began in the 1990s revealed sections of wall in Liaoning, and aerial and satellite surveillance eventually proved that this wall stretched continuously through much of the province. The greater total length of the Ming wall was announced in 2009.",
+    "passageSource": "https://www.britannica.com/topic/Great-Wall-of-China",
+    "questions": [
+      {
+        "questionNumber": 1,
+        "questionText": "What dynasty contributed the most extensive and best preserved version of the Great Wall of China?",
+        "data": {
+          "options": [
+            "Qin Dynasty",
+            "Han Dynasty",
+            "Ming Dynasty",
+            "Tang Dynasty"
+          ]
+        },
+        "correctAnswer": "Ming Dynasty"
+      },
+      {
+        "questionNumber": 2,
+        "questionText": "Which Emperor first united China and connected the then disconnected Great Wall of China into a single system?",
+        "data": {
+          "options": [
+            "Wu of Han",
+            "Taizhong",
+            "Qin Shi Huang",
+            "Shengzhu"
+          ]
+        },
+        "correctAnswer": "Qin Shi Huang"
+      },
+      {
+        "questionNumber": 3,
+        "questionText": "What province is the Shanhai Pass located?",
+        "data": {
+          "options": [
+            "Hebei",
+            "Heilongjiang",
+            "Henan",
+            "Hainan"
+          ]
+        },
+        "correctAnswer": "Hebei"
+      },
+      {
+        "questionNumber": 4,
+        "questionText": "Before the investigation in the 1990s, what was the estimated length of the Ming Wall without its branches and secondary sections?",
+        "data": {
+          "options": [
+            "4160 miles",
+            "5500 miles",
+            "13171 miles",
+            "6920 miles"
+          ]
+        },
+        "correctAnswer": "4160 miles"
+      }
+    ]
+  }
+]

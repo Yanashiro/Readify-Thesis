@@ -5,6 +5,37 @@ html {
     padding: 0%;
 }
 
+.matching-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.matching-box {
+  width: 45px;
+  height: 45px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+  background-color: white;
+}
+
+.matching-box:hover {
+  background-color: #f0f0f0;
+}
+
+.matching-box.selected {
+  background-color: #4f73ff;
+  color: white;
+  border-color: #4f73ff;
+}
+
 body {
     margin: 0%;
     padding: 0%;
@@ -348,4 +379,54 @@ button.submit-btn-test {
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
+}
+.section-flex {
+  display: flex;
+  gap: 40px;
+}
+
+.passage-view {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.questions-side {
+  flex: 1;
+  padding: 20px;
+}
+
+.feature-box {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  background: #f9f9f9;
+}
+
+.feature-item {
+  margin-bottom: 5px;
+}
+
+.letter-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.letter-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  background: #eee;
+  cursor: pointer;
+}
+
+.letter-btn:hover {
+  background: #ddd;
+}
+
+.active-letter {
+  background: #4a6cf7;
+  color: white;
+  border: none;
 }

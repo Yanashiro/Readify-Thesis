@@ -1,305 +1,257 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import SideTimer from '../main-components/timer';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './practicetestpage.css'
+import './practicetestpage.css';
 
 function MatchingFeatures() {
 
-    const [showPopup, setShowPopup] = useState(false);
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}});
-    const [currentPage, setCurrentPage] = useState(() => {
-        const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0});
-    const [allQuestions, setAllQuestions] = useState(() => {
-        const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
-    const [passageHistory, setPassageHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});
-    const [featuresHistory, setFeaturesHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Features History")
-        return saved ? JSON.parse(saved) : []});
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20});
-    const [time, setTime] = useState(() => {
-        const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 540});
-    const [passageId, setPassageId] = useState(() => {
-        const saved = sessionStorage.getItem("Passage ID");
-        return saved ? JSON.parse(saved) : null;
-    })
+	const [currentPassage, setCurrentPassage] = useState(null);
+	const [detailedResults, setDetailedResults] = useState([]);
+	const [userAnswers, setUserAnswers] = useState({});
+	const [fontSize, setFontSize] = useState(20);
+	const [time, setTime] = useState(300);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const questionsPerPage = 3;
-    const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage; 
-    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
-    const currentPassage = passageHistory[currentPage];
-    const currentFeatures = featuresHistory[currentPage] || [];
-    const questionNumberStart = indexOfFirstQuestion;
-    const questionNumberEnd = indexOfLastQuestion;
+	const testType = 2;
+	const testDesignation = false;
 
-    useEffect(() => {
-        if (passageHistory.length === 0) {
+	const navigate = useNavigate();
 
-        const queryParams = {
-            designation: 'false',
-            type: 2
-        }
+	// ✅ FETCH PRACTICE TEST
+	useEffect(() => {
+		fetch(`/start-random-exam?designation=${testDesignation}&type=${testType}`)
+			.then(res => res.json())
+			.then(data => {
+				if (data.data && data.data.length > 0) {
+					setCurrentPassage(data.data[0]);
+				}
+			})
+			.catch(err => console.error(err));
+	}, []);
 
-        axios
-            .get('/start-random-exam', {params: queryParams})
-            .then((res) => {
-                console.log("Backend response:", res.data)
-                // taking all questions from the randomizer (JSON)
-                setAllQuestions(res.data.test.questions);
-                // taking important details (JSON), set to passageHistory
-                setPassageHistory(res.data.test);
-                setFeaturesHistory(res.data.test.features);
-                setPassageId(res.data.test.passageId);
-            })
-            .catch((err) => console.error(err))
-        }
-    }, [])
+	const increaseFontSize = () => fontSize < 40 && setFontSize(prev => prev + 2);
+	const decreaseFontSize = () => fontSize > 10 && setFontSize(prev => prev - 2);
+	const defaultFontSize = () => setFontSize(20);
 
-    // immediat3e sessionStorage collecting
-    useEffect(() => {
-        sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
-        sessionStorage.setItem("Font Size", fontSize);
-        sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
-        sessionStorage.setItem("Features History", JSON.stringify(featuresHistory));
-        sessionStorage.setItem("Page History", JSON.stringify(currentPage));
-        sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, featuresHistory, passageId]);
+	const handleAnswerSelect = (questionIndex, option) => {
+		setUserAnswers(prev => ({
+			...prev,
+			[questionIndex]: option
+		}));
+	};
 
-    useEffect(() => {
-        sessionStorage.setItem("Timer remain", time)
-    }, [time])
+	// ✅ SUBMIT
+	const handleSubmit = async () => {
+		if (isSubmitting) return;
+		setIsSubmitting(true);
 
-    const userChoiceClick = (questionId, choiceValue) => {
-        setUserAnswers(prev => ({
-            ...prev,
-            [questionId]: choiceValue,
-        }))
-    }
+		try {
+			const submissionData = [{
+				passageId: currentPassage.passageId,
+				answers: currentPassage.questions.map((_, idx) => userAnswers[idx] || "")
+			}];
 
-    // increase font size of passage
-    const increaseFontSize = () => {
-        if (fontSize == 40) {
-            return;
-        }
-        setFontSize(prevSize => prevSize + 2);
-    }
-    // return to default font size in passage
-    const defaultFontSize = () => {
-        setFontSize(20)
-    }
-    // decrease font size of passage
-    const decreaseFontSize = () => {
-        if (fontSize == 10) {
-            return;
-        }
-        setFontSize(prevSize => prevSize - 2);
-    }
+			const response = await fetch('/submit-results', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					submissionData,
+					testType,
+					testDesignation
+				}),
+			});
 
-    const handleNextPage = () => {
+			if (!response.ok) throw new Error("Submission failed");
 
-        const totalLimit = 6;
+			const data = await response.json();
 
-        if(passageHistory.length > currentPage +  1) {
-            setCurrentPage(prev => prev + 1)
-            return;
-        }
-        if(allQuestions.length >= totalLimit) {
-            return;
-        }
-        /*
-        axios
-            .post('/practicetestroute/matchingfeatures', {randomize: true})
-            .then((res) => {
-                setAllQuestions(prevQuestions => {
-                    // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
-                    // it is made as an array because the next questions (by res.data.questions) are the newly randomized 
-                    // by the server and needs to be added in the "combined" array that defines setAllQuestions 
-                    const combined = [...prevQuestions, ...res.data.questions]
-                    // condition: length of combined array must be greater than totalLimit, if yes: remove starting from index 0 to index 10, otherwise return combined array
-                    return combined.length > totalLimit ? combined.slice(0, totalLimit) : combined;
-                });
-                // setCurrentPage is initiated as prevPage and returns itself + 1, the reason
-                // you do this over "setCurrentPage + 1" is to save the history of previous pages
-                // rather than completely disregarding it after a "Next Page"
-                setCurrentPage(prevPage => prevPage + 1);
-                // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
-                setPassageHistory(prev => [...prev, res.data]); 
-                setFeaturesHistory(prev => [...prev, res.data.features]);
-            })
-            .catch((err) => console.error(err));
-        */
-    }
+			if (data.status === 'success') {
 
-    const typeLabels = {
-        1: "Multiple Choice",
-        2: "Matching Features",
-        3: "Matching Information",
-        4: "Identifying Information",
-        5: "Identifying Writer's Views",
-        6: "Matching Sentence Endings",
-        7: "Matching Headings",
-        8: "Summary Completion",
-        9: "Short Answer Questions",
-        10: "Sentence Completion",
-        11: "Diagram Label Completion",
-    };
+				const results = currentPassage.questions.map((q, idx) => ({
+					questionNumber: q.questionNumber,
+					questionText: q.questionText,
+					selectedAnswer: userAnswers[idx] || "",
+					correctAnswer: q.correctAnswer,
+					explanation: q.answerExplanation
+				}));
 
-    const sendUserAnswers = () => {
-        
-        const submissionData = {
-            testType: "Practice",
-            testCategory: "Matching Features",
-            userAnswers: userAnswers,
-            passageId: passageId,
-            testDate: new Date()
-        };
-        
-        axios
-            .post('/submit-results', submissionData, { withCredentials: true})
-            .then((res) => {
-                if (res.status == 200) {
-                    setShowPopup(true);
-                    sessionStorage.removeItem("Answer")
-                    sessionStorage.removeItem("Font Size")
-                    sessionStorage.removeItem("Passage History")
-                    sessionStorage.removeItem("Page History")
-                    sessionStorage.removeItem("Questions History")
-                    sessionStorage.removeItem("Timer remain")
-                }
-            })
-            .catch((err) => {
-                alert("Submission failed. Please check your internet and try again.")
-                console.error(err)});
-    }
+				setDetailedResults(results);
+				setIsSubmitted(true);
+			}
 
-    const navigate = useNavigate();
-    const handleGoBack = () => {
-        navigate("/home")
-    }
+		} catch (err) {
+			console.error(err);
+			alert("Submission failed.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-    if (!allQuestions || !passageHistory) return <h1>Loading...</h1>
+	if (!currentPassage) return <h1>Loading...</h1>;
 
-    return (
-        <>
-        <main className='main-maintest'>
-            {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
-                        <h2>Test Finished</h2>
-                        <button className="popup-btn" onClick={handleGoBack}>
-                            Go back to Main Test
-                        </button>
-                    </div>
-                </div>
-            )}
-            <section className='sidebar'>
-                <div>
-                    <h1 className='name'>Readify</h1>
-                </div>
-                <div className='timer-component'>
-                    {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
-                </div>
-                <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
-                </div>
-            </section>
-            <div className='section-flex'>
-                <section className='testing-flex'>
-                    <div className='title-div'>
-                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
-                    </div>
-                    <div className='view-size-buttons'>
-                        <button className='font-size-btn' onClick={decreaseFontSize}>
-                            Decr
-                        </button>
-                        <button className='font-size-btn' onClick={defaultFontSize}>
-                            Default
-                        </button>
-                        <button className='font-size-btn' onClick={increaseFontSize}>
-                            Incr
-                        </button>
-                    </div>
-                </section>
-                <div className='two-sections'>
-                    <div className='passage-view'>
-                        <div className='test-title'>
-                            <>{currentPassage?.passageTitle}</>
-                        </div>
-                        <div className='test-reference'>
-                            <>{currentPassage?.passageSource}</>
-                        </div>
-                        <div className='test-passage'>
-                            <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
-                        </div>
-                    </div>
-                    <section className='questions-side'>
-                        <div>
-                            <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 6 ? `-${questionNumberEnd}` : ''}</p></b>
-                                <p className='p-description'>{currentPassage?.description}</p>
-                                <div className='feature-block'>
-                                    <p className='features-font'>Features</p>
-                                    {currentFeatures?.map((feature, index) => (
-                                        <div className='features-item' key={index}>
-                                            <p className='currentFeatures-font'>{feature.label}. {feature.name}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='question-container'>
-                                    {currentQuestions.map((q, index) => (
-                                        <div className='question-block' key={q.questionNumber || index}>
-                                            <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
-                                            <div className='options-list display-flex'>
-                                                {(q.options || q.data).map((opt, index2) => (
-                                                    <React.Fragment key={opt}>
-                                                        <button
-                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt-letters': 'opt-btn-letters'}`}
-                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
-                                                        >
-                                                            {opt}
-                                                        </button>
-                                                        <br/>
-                                                    </React.Fragment>
-                                                ))}
-                                            </div>   
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='next-back-buttons'>
-                                    {currentPage > 0 && (
-                                    <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
-                                        <br/>
-                                    </React.Fragment>
-                                    )}
-                                    {indexOfLastQuestion >= 10 ? (
-                                        <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
-                                    ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </main>
-        </>
-    )
+	// 🔥 SHARED OPTIONS (same for all questions)
+	const sharedOptions =
+		currentPassage?.questions?.[0]?.data?.options || [];
+
+	return (
+		<main className='main-maintest'>
+
+			{/* SIDEBAR */}
+			<section className='sidebar'>
+				<h1 className='name'>Readify</h1>
+
+				<div className='timer-component'>
+					<h3 className='sidetimer-h2'>
+						<SideTimer time={time} setTime={setTime} />
+					</h3>
+				</div>
+
+				<div className='warning-tab'>
+					<p className='warning-text'>
+						Warning! Multiple tab changes can result in exam termination.
+					</p>
+				</div>
+			</section>
+
+			<div className='section-flex'>
+
+				{/* LEFT SIDE */}
+				<div className='passage-view'>
+					<h2 className='test-title'>{currentPassage.passageTitle}</h2>
+					<p className='test-reference'>{currentPassage.passageSource}</p>
+
+					<div className='test-passage'>
+						<p style={{ fontSize: `${fontSize}px` }}>
+							{currentPassage.passage}
+						</p>
+					</div>
+				</div>
+
+				{/* RIGHT SIDE */}
+				<section className='questions-side'>
+					<div className='view-size-buttons'>
+						<center>
+							<p>Font Size Controls</p>
+							<button onClick={decreaseFontSize}>-</button>
+							<button onClick={defaultFontSize}> o </button>
+							<button onClick={increaseFontSize}>+</button>
+						</center>
+					</div>
+					<div className="instructions">
+						<h3 className='instructions__heading'>Instructions:</h3>
+						<ul className="instructions__list">
+							<li className="instructions__item">Look at the following statements (1–4) and the list of features (A–E).
+							</li>
+							<li className="instructions__item">Match each statement with the correct feature.
+							</li>
+							<li className="instructions__item">Select the correct letter A–E.
+							</li>
+
+
+						</ul>
+					</div>
+					<b>
+						<p className='p-questionRange'>
+							Questions 1-{currentPassage.questions.length}
+						</p>
+					</b>
+
+					{/* FEATURES BOX */}
+					<div className='feature-box'>
+						<h4>Features</h4>
+						{sharedOptions.map((opt, idx) => (
+							<div key={idx} className='feature-item'>
+								{opt}
+							</div>
+						))}
+					</div>
+
+					{/* QUESTIONS */}
+					<div className='question-container'>
+
+						{!isSubmitted ? (
+
+							currentPassage.questions.map((q, idx) => {
+
+								const selectedAnswer = userAnswers[idx] || '';
+
+								return (
+									<div className='question-block' key={idx}>
+
+										<p className='questions'>
+											<strong>{q.questionNumber}.</strong> {q.questionText}
+										</p>
+
+										{/* LETTER BUTTONS ONLY */}
+										<div className='letter-options'>
+											{sharedOptions.map((opt, optionIdx) => {
+
+												const letter = opt.split('.')[0];
+
+												return (
+													<button
+														key={optionIdx}
+														className={
+															selectedAnswer === letter
+																? 'letter-btn active-letter'
+																: 'letter-btn'
+														}
+														onClick={() => handleAnswerSelect(idx, letter)}
+													>
+														{letter}
+													</button>
+												);
+											})}
+										</div>
+
+									</div>
+								);
+							})
+
+						) : (
+
+							detailedResults.map((result, idx) => (
+								<div className='question-block' key={idx}>
+									<p className='questions'>
+										<strong>{result.questionNumber}.</strong> {result.questionText}
+									</p>
+
+									<p><b>Your Answer:</b> {result.selectedAnswer || "No answer"}</p>
+									<p><b>Correct Answer:</b> {result.correctAnswer}</p>
+									<p><b>Explanation:</b> {result.explanation}</p>
+
+									<hr />
+								</div>
+							))
+
+						)}
+
+					</div>
+
+					<div className='next-back-buttons'>
+						{!isSubmitted ? (
+							<button
+								onClick={handleSubmit}
+								disabled={isSubmitting}
+								className='submit-btn-test'
+							>
+								Submit Test
+							</button>
+						) : (
+							<button
+								onClick={() => navigate('/home')}
+								className='submit-btn-test'
+							>
+								Return to Dashboard
+							</button>
+						)}
+					</div>
+
+				</section>
+			</div>
+		</main>
+	);
 }
 
 export default MatchingFeatures;
-

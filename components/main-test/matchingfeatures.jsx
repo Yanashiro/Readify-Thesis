@@ -1,328 +1,316 @@
-import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import SideTimer from '../main-components/timer';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './maintestpage.css'
+import SideTimer from '../main-components/timer';
+import './maintestpage.css';
 
 function MatchingFeatures() {
+  const [allPassages, setAllPassages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPassage, setCurrentPassage] = useState(null);
 
-    const [showPopup, setShowPopup] = useState(false);
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}
-    });
-    const [currentPage, setCurrentPage] = useState(() => {
-        const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0
-    });
-    const [allQuestions, setAllQuestions] = useState(() => {
-        const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []
-    });
-    const [passageHistory, setPassageHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []
-    });
-    const [featuresHistory, setFeaturesHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Features History")
-        return saved ? JSON.parse(saved) : []
-    });
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 20
-    });
-    const [time, setTime] = useState(() => {
-        const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 1080
-    });
-    const [passageId, setPassageId] = useState(() => {
-        const saved = sessionStorage.getItem("Passage ID");
-        return saved ? JSON.parse(saved) : null;
-    })
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
 
-    const questionsPerPage = 4;
-    const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
-    const currentPassage = passageHistory[currentPage];
-    const currentFeatures = featuresHistory[currentPage] || [];
-    const questionNumberStart = indexOfFirstQuestion;
-    const questionNumberEnd = indexOfLastQuestion;
+  const [userAnswers, setUserAnswers] = useState({});
+  const [fontSize, setFontSize] = useState(20);
+  const [time, setTime] = useState(1080);
+  const [showPopup, setShowPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionCount, setSubmissionCount] = useState(0);
 
-    const hasFetched = useRef(false);
+  // ✅ Added loading state
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        if (passageHistory.length === 0) {
-            if (hasFetched.current) return; // prevent second run
-            hasFetched.current = true;
-            const queryParams = {
-                designation: 'true',
-                type: 2
-            }
+  const navigate = useNavigate();
 
-            const queryString = new URLSearchParams(queryParams).toString();
+  // ✅ Safe fetch (same pattern as MatchingInformation)
+  useEffect(() => {
 
-            fetch(`/start-random-exam?${queryString}`)
-                .then((response) => {
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            alert("No passages detected");
-                            window.location.href = "/home"; // returns to home
-                            return;
-                        }
-                        throw new Error("Server error");
-                    }
+    const fetchPassages = async () => {
+      try {
 
-                    return response.json();
-                })
-                .then((data) => {
-                    if (!data) return;
-                    setAllQuestions(data.test.questions);
-                    // taking important details (JSON), set to passageHistory
-                    setPassageHistory(data.test);
-                    setFeaturesHistory(data.test.features);
-                    setPassageId(data.test.passageId);
-                    // immediat3e sessionStorage collecting
-                })
-                .catch((err) => {
-                    console.error("Fetch error:", err);
-                });
+        const res = await fetch('/start-random-exam?designation=true&type=2');
+        const data = await res.json();
+
+        if (data.data && data.data.length > 0) {
+          setAllPassages(data.data);
+          setCurrentPassage(data.data[0]);
+        } else {
+          console.error("Unexpected response:", data);
         }
-    }, [])
 
-    useEffect(() => {
-        sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
-        sessionStorage.setItem("Font Size", fontSize);
-        sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
-        sessionStorage.setItem("Features History", JSON.stringify(featuresHistory));
-        sessionStorage.setItem("Page History", JSON.stringify(currentPage));
-        sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-        sessionStorage.setItem("Passage ID", JSON.stringify(passageId));
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, featuresHistory, passageId]);
-
-    useEffect(() => {
-        sessionStorage.setItem("Timer remain", time)
-    }, [time])
-
-    const userChoiceClick = (questionId, choiceValue) => {
-        setUserAnswers(prev => ({
-            ...prev,
-            [questionId]: choiceValue,
-        }))
-    }
-
-    // increase font size of passage
-    const increaseFontSize = () => {
-        if (fontSize == 40) {
-            return;
-        }
-        setFontSize(prevSize => prevSize + 2);
-    }
-    // return to default font size in passage
-    const defaultFontSize = () => {
-        setFontSize(20)
-    }
-    // decrease font size of passage
-    const decreaseFontSize = () => {
-        if (fontSize == 10) {
-            return;
-        }
-        setFontSize(prevSize => prevSize - 2);
-    }
-
-    const handleNextPage = () => {
-
-        const totalLimit = 12;
-
-        if (passageHistory.length > currentPage + 1) {
-            setCurrentPage(prev => prev + 1)
-            return;
-        }
-        if (allQuestions.length >= totalLimit) {
-            return;
-        }
-        /*
-        axios
-            .post('/maintestroute/matchingfeatures', {randomize: true})
-            .then((res) => {
-                setAllQuestions(prevQuestions => {
-                    // setAllQuestions was initiated as prevQuestions parameter "..." means all previous following data, 
-                    // it is made as an array because the next questions (by res.data.questions) are the newly randomized 
-                    // by the server and needs to be added in the "combined" array that defines setAllQuestions 
-                    const combined = [...prevQuestions, ...res.data.questions]
-                    // condition: length of combined array must be greater than totalLimit, if yes: remove starting from index 0 to index 10, otherwise return combined array
-                    return combined.length > totalLimit ? combined.slice(0, totalLimit) : combined;
-                });
-                // setCurrentPage is initiated as prevPage and returns itself + 1, the reason
-                // you do this over "setCurrentPage + 1" is to save the history of previous pages
-                // rather than completely disregarding it after a "Next Page"
-                setCurrentPage(prevPage => prevPage + 1);
-                // setPassageHistory is declared as prev to store previous history before logging it to passageHistory, then accepting data from the backend
-                setPassageHistory(prev => [...prev, res.data]); 
-                setFeaturesHistory(prev => [...prev, res.data.features]);
-            })
-            .catch((err) => console.error(err));
-            */
-    }
-
-    const typeLabels = {
-        1: "Multiple Choice",
-        2: "Matching Features",
-        3: "Matching Information",
-        4: "Identifying Information",
-        5: "Identifying Writer's Views",
-        6: "Matching Sentence Endings",
-        7: "Matching Headings",
-        8: "Summary Completion",
-        9: "Short Answer Questions",
-        10: "Sentence Completion",
-        11: "Diagram Label Completion",
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    const sendUserAnswers = () => {
+    fetchPassages();
 
-        const submissionData = {
-            testType: "Main",
-            testCategory: "Matching Features",
-            userAnswers: userAnswers,
-            passageId: passageId,
-            testDate: new Date()
-        };
+  }, []);
 
-        axios
-            .post('/submit-result', submissionData, { withCredentials: true })
-            .then((res) => {
-                if (res.status == 200) {
-                    setShowPopup(true);
-                    sessionStorage.removeItem("Answer")
-                    sessionStorage.removeItem("Font Size")
-                    sessionStorage.removeItem("Passage History")
-                    sessionStorage.removeItem("Page History")
-                    sessionStorage.removeItem("Questions History")
-                    sessionStorage.removeItem("Timer remain")
-                    sessionStorage.removeItem("Features History")
-                }
-            })
-            .catch((err) => {
-                alert("Submission failed. Please check your internet and try again.")
-                console.error(err)
-            });
+  // Update passage when index changes
+  useEffect(() => {
+    if (allPassages.length > 0) {
+      setCurrentPassage(allPassages[currentIndex]);
     }
+  }, [currentIndex, allPassages]);
 
-    const navigate = useNavigate();
-    const handleGoBack = () => {
-        navigate("/home")
+  const increaseFontSize = () => fontSize < 40 && setFontSize(prev => prev + 2);
+  const decreaseFontSize = () => fontSize > 10 && setFontSize(prev => prev - 2);
+  const defaultFontSize = () => setFontSize(20);
+
+  const handleNextPassage = () => {
+    if (currentIndex < allPassages.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      handleSubmit();
     }
+  };
 
+  const handlePreviousPassage = () => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  };
+
+  const handleAnswerSelect = (questionIndex, option) => {
+    const passageId = currentPassage.passageId;
+
+    setUserAnswers(prev => {
+      const existing = prev[passageId] || [];
+      const updated = [...existing];
+      updated[questionIndex] = option;
+      return { ...prev, [passageId]: updated };
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const submissionData = allPassages.map(p => ({
+        passageId: p.passageId,
+        answers: (userAnswers[p.passageId] || []).map(answer => {
+          if (!answer) return "";
+          return answer.replace(/^[A-Z]\.\s*/, "").trim();
+        })
+      }));
+
+      const response = await fetch('/submit-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionData,
+          testType: 2,
+          testDesignation: true
+        }),
+      });
+
+      if (!response.ok)
+        throw new Error(`Server returned ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        setTotalCorrect(data.totalCorrect);
+        setTotalQuestions(data.totalQuestions);
+        setShowPopup(true);
+        setUserAnswers({});
+      } else {
+        alert('Submission failed on server.');
+      }
+
+      setTimeout(() => {
+        window.location.href = '/home';
+      }, 3000);
+
+    } catch (err) {
+      console.error('Submission failed:', err);
+      alert('Submission failed. Please check your internet and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ✅ BLOCK RENDER UNTIL DATA IS READY
+  if (!currentPassage) {
     return (
-        <>
-            <main className='main-maintest'>
-                {showPopup && (
-                    <div className="popup-overlay">
-                        <div className="popup-content">
-                            <h2>Test Finished</h2>
-                            <button className="popup-btn" onClick={handleGoBack}>
-                                Go back to Main Test
-                            </button>
-                        </div>
-                    </div>
-                )}
-                <section className='sidebar'>
-                    <div>
-                        <h1 className='name'>Readify</h1>
-                    </div>
-                    <div className='timer-component'>
-                        {/* SideTimer is a component from another jsx file, acting as the standard timer for all tests */}
-                        <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime} /></h3>
-                    </div>
-                    <div className='warning-tab'>
-                        <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination</p>
-                    </div>
-                </section>
-                <div className='section-flex'>
-                    <section className='testing-flex'>
-                        <div className='title-div'>
-                            <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
-                        </div>
-                        <div className='view-size-buttons'>
-                            <button className='font-size-btn' onClick={decreaseFontSize}>
-                                Decr
-                            </button>
-                            <button className='font-size-btn' onClick={defaultFontSize}>
-                                Default
-                            </button>
-                            <button className='font-size-btn' onClick={increaseFontSize}>
-                                Incr
-                            </button>
-                        </div>
-                    </section>
-                    <div className='two-sections'>
-                        <div className='passage-view'>
-                            <div className='test-title'>
-                                <>{currentPassage?.passageTitle}</>
-                            </div>
-                            <div className='test-reference'>
-                                <>{currentPassage?.passageSource}</>
-                            </div>
-                            <div className='test-passage'>
-                                <p style={{ fontSize: `${fontSize}px` }}>{currentPassage?.passage}</p>
-                            </div>
-                        </div>
-                        <section className='questions-side'>
-                            <div>
-                                <div>
-                                    <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 12 ? `-${questionNumberEnd}` : ''}</p></b>
-                                    <p className='p-description'>{currentPassage?.description}</p>
-                                    <div className='feature-block'>
-                                        <p className='features-font'>Features</p>
-                                        {currentFeatures?.map((feature, index) => (
-                                            <div className='features-item' key={index}>
-                                                <p className='currentFeatures-font'>{feature.label}. {feature.name}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className='question-container'>
-                                        {currentQuestions.map((q, index) => (
-                                            <div className='question-block' key={q.questionNumber || index}>
-                                                <p className='questions'><strong>{indexOfFirstQuestion + index + 1}.</strong> {q.questionText}</p>
-                                                <div className='options-list display-flex'>
-                                                    {(q.options || q.data).map((opt, index2) => (
-                                                        <React.Fragment key={opt}>
-                                                            <button
-                                                                className={`${userAnswers[q.questionNumber] === opt ? 'active-opt-letters' : 'opt-btn-letters'}`}
-                                                                onClick={() => userChoiceClick(q.questionNumber, opt)}
-                                                            >
-                                                                {opt}
-                                                            </button>
-                                                            <br />
-                                                        </React.Fragment>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className='next-back-buttons'>
-                                        {currentPage > 0 && (
-                                            <React.Fragment>
-                                                <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn-test'>〈 Back</button>
-                                                <br />
-                                            </React.Fragment>
-                                        )}
-                                        {indexOfLastQuestion >= 10 ? (
-                                            <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
-                                        ) : (
-                                            <button onClick={handleNextPage} className='next-page-btn-test'>Next Page 〉</button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h1>Loading...</h1>
+        <button
+          onClick={() => navigate('/home')}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            fontSize: "16px",
+            cursor: "pointer"
+          }}
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
+
+  const sharedOptions =
+    currentPassage?.questions?.[0]?.data?.options || [];
+
+  return (
+    <main className='main-maintest'>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h2>Test Finished you got {totalCorrect} / {totalQuestions}</h2>
+            <h5>Returning to dashboard...</h5>
+            <button
+              onClick={() => navigate('/ home')}
+							style = {{
+                marginTop: "20px",
+                padding: "10px 20px",
+                fontSize: "16px",
+                cursor: "pointer"
+              }}
+            >
+              Click here if you aren't redirected.
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SIDEBAR */}
+      <section className='sidebar'>
+        <h1 className='name'>Readify</h1>
+        <div className='timer-component'>
+          <h3 className='sidetimer-h2'>
+            <SideTimer time={time} setTime={setTime} />
+          </h3>
+        </div>
+        <div className='warning-tab'>
+          <p className='warning-text'>
+            Warning! Multiple tab changes can result in exam termination.
+          </p>
+        </div>
+      </section>
+
+      {/* MAIN CONTENT */}
+      <div className='section-flex'>
+
+        {/* LEFT SIDE */}
+        <div className='passage-view'>
+          <h2 className='test-title'>{currentPassage.passageTitle}</h2>
+          <p className='test-reference'>{currentPassage.passageSource}</p>
+          <div className='test-passage'>
+            <p style={{ fontSize: `${fontSize}px` }}>
+              {currentPassage.passage}
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <section className='questions-side'>
+          <div className='view-size-buttons'>
+            <center>
+              <p>Font Size Controls</p>
+              <button onClick={decreaseFontSize}>-</button>
+              <button onClick={defaultFontSize}> o </button>
+              <button onClick={increaseFontSize}>+</button>
+            </center>
+          </div>
+          <div className="instructions">
+            <h3 className='instructions__heading'>Instructions:</h3>
+            <ul className="instructions__list">
+              <li className="instructions__item">Look at the following statements (1–4) and the list of features (A–E).
+              </li>
+              <li className="instructions__item">Match each statement with the correct feature.
+              </li>
+              <li className="instructions__item">Select the correct letter A–E.
+              </li>
+
+
+            </ul>
+          </div>
+          <b>
+            <p className='p-questionRange'>
+              Questions {currentIndex * 4 + 1}-
+              {currentIndex * 4 + currentPassage.questions.length}
+            </p>
+          </b>
+
+          <p className='p-description'>{currentPassage.description}</p>
+
+          {/* FEATURES BOX */}
+          <div className='feature-box'>
+            <h4>Features</h4>
+            {sharedOptions.map((opt, idx) => (
+              <div key={idx} className='feature-item'>
+                {opt}
+              </div>
+            ))}
+          </div>
+
+          {/* QUESTIONS */}
+          <div className='question-container'>
+            {currentPassage.questions.map((q, idx) => {
+              const passageId = currentPassage.passageId;
+              const selectedAnswer =
+                (userAnswers[passageId] || [])[idx] || '';
+
+              return (
+                <div className='question-block' key={idx}>
+                  <p className='questions'>
+                    <strong>{q.questionNumber}.</strong> {q.questionText}
+                  </p>
+
+                  <div className='letter-options'>
+                    {sharedOptions.map((opt, optionIdx) => {
+                      const letter = opt.split('.')[0];
+
+                      return (
+                        <button
+                          key={optionIdx}
+                          className={
+                            selectedAnswer === opt
+                              ? 'letter-btn active-letter'
+                              : 'letter-btn'
+                          }
+                          onClick={() => handleAnswerSelect(idx, opt)}
+                        >
+                          {letter}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-            </main>
-        </>
-    )
+              );
+            })}
+          </div>
+
+          <div className='next-back-buttons'>
+            <button
+              onClick={handlePreviousPassage}
+              disabled={currentIndex === 0}
+              className='back-btn'
+            >
+              Back
+            </button>
+
+            <button
+              onClick={handleNextPassage}
+              disabled={isSubmitting}
+              className='next-page-btn'
+            >
+              {currentIndex === allPassages.length - 1
+                ? 'Submit Test'
+                : 'Next Page'}
+            </button>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  );
 }
 
 export default MatchingFeatures;

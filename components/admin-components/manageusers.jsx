@@ -6,6 +6,9 @@ import './manageusers.css'
 
 function PopupMessage({ type, onClose, userData }) {
 
+	const [showPopup, setShowPopup] = useState(true);
+
+
 	const [selectedType, setSelectedType] = useState('');
 	const [addMessage, setAddMessage] = useState('');
 	const [editMessage, setEditMessage] = useState('');
@@ -87,6 +90,9 @@ function PopupMessage({ type, onClose, userData }) {
 	if (!type) return null;
 
 	return (
+
+
+
 		<div className='addUser-space'>
 			<div className='addUser-notification-box'>
 				{type === 'add' && (
@@ -223,114 +229,340 @@ function PopupMessage({ type, onClose, userData }) {
 
 
 function ManageUsers() {
+  const [activityUser, setActivityUser] = useState(null);
+  const [showActivityPopup, setShowActivityPopup] = useState(false);
 
-	const [query, setQuery] = useState('');
-	const [accountList, setAccountList] = useState([]);
+  const [query, setQuery] = useState("");
+  const [accountList, setAccountList] = useState([]);
 
-	const [popupType, setPopupType] = useState(null);
-	const [selectedUser, setSelectedUser] = useState(null);
+  const [popupType, setPopupType] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-	const handleInputChange = (e) => {
-		setQuery(e.target.value);
-	}
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
+  };
 
-	const filteredAndSortedList = [...accountList].filter((user) => {
-		const nameSearch = query.toLowerCase(user.name);
-		const emailSearch = query.toLowerCase(user.email);
-		const roleSearch = query.toLowerCase(user.isAdmin);
-		return (
-			(user.name || '').toLowerCase().includes(nameSearch) ||
-			(user.email || '').toLowerCase().includes(emailSearch) ||
-			((user.isAdmin || '') ? "Admin" : "Student").toLowerCase().includes(roleSearch)
-		);
-	}).sort((a, b) => (a.name || '').localeCompare(b.name));
+  // ------------------ FILTER ------------------
+  const filteredAndSortedList = [...accountList]
+    .filter((user) => {
+      const search = query.toLowerCase();
 
-	useEffect(() => {
-  async function fetchUsers() {
-    try {
-      const response = await fetch('/UserManagement');
-
-
-      // Check if request was successful
-      if (!response.success === 'success') {
-        throw new Error('Failed to fetch users');
-      }
-
-      const data = await response.json();
-			
-			// console.log(data.data);
-
-      // Example sorting:
-      const sortedData = data.data.sort((a, b) =>
-        a.name.localeCompare(b.name)
+      return (
+        (user.name || "").toLowerCase().includes(search) ||
+        (user.email || "").toLowerCase().includes(search) ||
+        (user.isAdmin ? "admin" : "student").includes(search)
       );
-      setAccountList(sortedData);
+    })
+    .sort((a, b) => (a.name || "").localeCompare(b.name));
 
-    } catch (error) {
-      console.error(error);
+  // ------------------ FETCH USERS ------------------
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch("/UserManagement");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const data = await response.json();
+
+        const sortedData = data.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setAccountList(sortedData);
+      } catch (error) {
+        console.error(error);
+      }
     }
-  }
 
-  fetchUsers();
-}, []);
+    fetchUsers();
+  }, []);
 
-	return (
-		<>
-			<main className='manage-users-main'>
-				<div className='manage-users-header'>
-					<div className='manage-users-title'>
-						<h2>Manage Users</h2>
-					</div>
-					<div className='manage-users-adduser'>
-						<button onClick={() => setPopupType('add')}>
-							Add User
-						</button>
-					</div>
-				</div>
-				<div className='div-centralize'>
-					<form onSubmit={(e) => e.preventDefault()}>
-						<input
-							type='text'
-							placeholder='⌕ Search by name, username, or email'
-							value={query}
-							onChange={handleInputChange}
-							className='search-bar'
-						/>
-					</form>
-				</div>
-				<div className='div-centralize'>
-					<div className='manageusers-table-setter'>
-						<table>
-							<thead className='mu-table-head'>
-								<tr className='manageusers-table-header'>
-									<th>Name</th>
-									<th>Username</th>
-									<th>Account Type</th>
-									<th>Email</th>
-									<th>Date Created</th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody className='mu-table-body'>
-								{filteredAndSortedList.map((fsl) => (
-									<tr key={fsl._id}>
-										<td>{fsl.name}</td>
-										<td>{fsl.name}</td>
-										<td>{fsl.isAdmin ? "Admin" : "Student"}</td>
-										<td>{fsl.email}</td>
-										<td>{fsl.dateCreated}</td>
-										<td><button onClick={() => { setSelectedUser(fsl); setPopupType('edit') }}>Edit</button><button onClick={() => { setSelectedUser(fsl); setPopupType('delete') }}>Delete</button></td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<PopupMessage type={popupType} onClose={() => { setSelectedUser(null); setPopupType(null) }} userData={selectedUser} />
-			</main>
-		</>
-	)
+  return (
+    <>
+      {/* ================= ACTIVITY POPUP ================= */}
+      {showActivityPopup && activityUser && (
+        <div className="popup-overlay">
+          <div className="popup-content large-popup">
+            <h3>User Activity: {activityUser.name}</h3>
+
+            {(() => {
+              const mainTests = activityUser.testHistory.filter(
+                (t) => t.testDesignation === true
+              );
+
+              const practiceTests = activityUser.testHistory.filter(
+                (t) => t.testDesignation === false
+              );
+
+              return (
+                <>
+                  {/* -------- MAIN TEST -------- */}
+                  <h4>Main Test</h4>
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th>Attempt</th>
+                        <th>Test Type</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mainTests.length === 0 ? (
+                        <tr>
+                          <td colSpan="5">No attempts</td>
+                        </tr>
+                      ) : (
+                        mainTests.map((test, index) => (
+                          <tr key={test._id}>
+                            <td>{index + 1}</td>
+                            <td>{test.testType}</td>
+                            <td>
+                              {test.score}/{test.totalQuestions}
+                            </td>
+                            <td>
+                              {new Date(test.takenAt).toLocaleString()}
+                            </td>
+                            <td>
+                              <button
+                                style={{ color: "red" }}
+                                onClick={async () => {
+                                  if (!window.confirm("Delete this attempt?"))
+                                    return;
+
+                                  try {
+                                    const response = await fetch("/attempt", {
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        userId: activityUser._id,
+                                        attemptId: test._id,
+                                      }),
+                                    });
+
+                                    const data = await response.json();
+
+                                    if (data.status === "success") {
+                                      setActivityUser((prev) => ({
+                                        ...prev,
+                                        testHistory:
+                                          prev.testHistory.filter(
+                                            (t) => t._id !== test._id
+                                          ),
+                                      }));
+                                    }
+                                  } catch (err) {
+                                    console.error("Delete failed:", err);
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+
+                  {/* -------- PRACTICE TEST -------- */}
+                  <h4 style={{ marginTop: "30px" }}>Practice Test</h4>
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th>Attempt</th>
+                        <th>Test Type</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {practiceTests.length === 0 ? (
+                        <tr>
+                          <td colSpan="5">No attempts</td>
+                        </tr>
+                      ) : (
+                        practiceTests.map((test, index) => (
+                          <tr key={test._id}>
+                            <td>{index + 1}</td>
+                            <td>{test.testType}</td>
+                            <td>
+                              {test.score}/{test.totalQuestions}
+                            </td>
+                            <td>
+                              {new Date(test.takenAt).toLocaleString()}
+                            </td>
+                            <td>
+                              <button
+                                style={{ color: "red" }}
+                                onClick={async () => {
+                                  if (!window.confirm("Delete this attempt?"))
+                                    return;
+
+                                  try {
+                                    const response = await fetch("/attempt", {
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        userId: activityUser._id,
+                                        attemptId: test._id,
+                                      }),
+                                    });
+
+                                    const data = await response.json();
+
+                                    if (data.status === "success") {
+                                      setActivityUser((prev) => ({
+                                        ...prev,
+                                        testHistory:
+                                          prev.testHistory.filter(
+                                            (t) => t._id !== test._id
+                                          ),
+                                      }));
+                                    }
+                                  } catch (err) {
+                                    console.error("Delete failed:", err);
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </>
+              );
+            })()}
+
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <button onClick={() => setShowActivityPopup(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MAIN PAGE ================= */}
+      <main className="manage-users-main">
+        <div className="manage-users-header">
+          <div className="manage-users-title">
+            <h2>Manage Users</h2>
+          </div>
+
+          <div className="manage-users-adduser">
+            <button onClick={() => setPopupType("add")}>Add User</button>
+          </div>
+        </div>
+
+        <div className="div-centralize">
+          <form onSubmit={(e) => e.preventDefault()}>
+            <input
+              type="text"
+              placeholder="⌕ Search by name, username, or email"
+              value={query}
+              onChange={handleInputChange}
+              className="search-bar"
+            />
+          </form>
+        </div>
+
+        <div className="div-centralize">
+          <div className="manageusers-table-setter">
+            <table>
+              <thead className="mu-table-head">
+                <tr className="manageusers-table-header">
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Account Type</th>
+                  <th>Email</th>
+                  <th>Date Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody className="mu-table-body">
+                {filteredAndSortedList.map((fsl) => (
+                  <tr key={fsl._id}>
+                    <td>{fsl.name}</td>
+                    <td>{fsl.name}</td>
+                    <td>{fsl.isAdmin ? "Admin" : "Student"}</td>
+                    <td>{fsl.email}</td>
+                    <td>{fsl.dateCreated}</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          setSelectedUser(fsl);
+                          setPopupType("edit");
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setSelectedUser(fsl);
+                          setPopupType("delete");
+                        }}
+                      >
+                        Delete
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(
+                              `/user?userId=${fsl._id}`
+                            );
+                            const data = await response.json();
+
+                            if (data.status === "success") {
+                              setActivityUser(data.data);
+                              setShowActivityPopup(true);
+                            }
+                          } catch (err) {
+                            console.error(
+                              "Error fetching activity:",
+                              err
+                            );
+                          }
+                        }}
+                      >
+                        Activity
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <PopupMessage
+          type={popupType}
+          onClose={() => {
+            setSelectedUser(null);
+            setPopupType(null);
+          }}
+          userData={selectedUser}
+        />
+      </main>
+    </>
+  );
 }
 
-export default ManageUsers
+export default ManageUsers;
+
 

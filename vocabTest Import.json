@@ -1,0 +1,52 @@
+[
+  {
+    "wordEntry": "Ephemeral",
+    "wordDescriptors": [
+      "Lasting for a very short time",
+      "Extremely deep or profound",
+      "Hard to understand; obscure",
+      "Showing great attention to detail"
+    ],
+    "correctAnswer": "Lasting for a very short time"
+  },
+  {
+    "wordEntry": "Alacrity",
+    "wordDescriptors": [
+      "A state of physical or mental weariness",
+      "Brisk and cheerful readiness",
+      "The quality of being very talkative",
+      "A feeling of intense dislike"
+    ],
+    "correctAnswer": "Brisk and cheerful readiness"
+  },
+  {
+    "wordEntry": "Mitigate",
+    "wordDescriptors": [
+      "To make something more severe",
+      "To officially decide something",
+      "To make less severe, serious, or painful",
+      "To copy someone's actions"
+    ],
+    "correctAnswer": "To make less severe, serious, or painful"
+  },
+  {
+    "wordEntry": "Pernicious",
+    "wordDescriptors": [
+      "Having a harmful effect, especially in a gradual way",
+      "Extremely beautiful and delicate",
+      "Showing a lack of courage",
+      "Easily persuaded or controlled"
+    ],
+    "correctAnswer": "Having a harmful effect, especially in a gradual way"
+  },
+  {
+    "wordEntry": "Lacquered",
+    "wordDescriptors": [
+      "Rough and unfinished",
+      "Coated with a protective film",
+      "Broken into many small pieces",
+      "Highly flammable"
+    ],
+    "correctAnswer": "Coated with a protective film"
+  }
+]

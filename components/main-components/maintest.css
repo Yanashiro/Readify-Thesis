@@ -1,5 +1,84 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+/* Maintest table - start */
+
+/* ===== SECTION ===== */
+.section-main-test-results,
+.section-practice-test-results {
+  grid-column: 1 / -1;
+  grid-row: 2 / 3;
+  justify-self: start;
+
+  width: 100%;
+  padding-left: 1rem;
+}
+
+/* ===== TABLE CONTAINER ===== */
+.practice-test-results,
+.main-test-results {
+  width: 100%;
+  max-width: max-content;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* ===== TABLE ===== */
+.practice-test-results table,
+.main-test-results table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: serif;
+  font-weight: 700;
+}
+
+/* ===== HEADER ===== */
+.practice-test-results__head,
+.main-test-results__head {
+  background-color: #f5f7fa;
+}
+
+.practice-test-results__head th,
+.main-test-results__head th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight:900;
+  font-size: 14px;
+  color: #333;
+}
+
+/* ===== BODY ROW ===== */
+.practice-test-results__row,
+.main-test-results__row {
+  transition: background 0.2s ease;
+  font-weight: 300;
+}
+
+.practice-test-results__row:hover,
+.main-test-results__row:hover {
+  background-color: #f9fafb;
+
+}
+
+.main-test-results__row:hover > .main-test-results__cell> {
+  font-weight: 1000;
+}
+
+/* ===== TABLE CELLS ===== */
+.practice-test-results__cell,
+.main-test-results__cell {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #404040;
+}
+
+/* ===== LAST ROW BORDER FIX ===== */
+.practice-test-results__body tr:last-child td,
+.main-test-results__body tr:last-child td {
+  border-bottom: none;
+}
+
 /* html, body {
   margin: 0;
   padding: 0;
@@ -19,7 +98,7 @@ h1 {
 }
 
 section#section1 {
-  width: 65%;
+  width: 100%;
   height: 100%;
 }
 
@@ -28,13 +107,21 @@ div.maintest-title {
 }
 
 section#section2 {
-  width: 30%;
-  height: 100%;
+  display: grid;
+  justify-content: center;
+
+
+  width: 100%;
+  height: max-content;
 }
 
 main.maintest-main {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  column-gap: 4rem;
+
+  width: 100%;
   /*gap: 40px;
   padding: 40px;
   max-width: 1400px;
@@ -47,7 +134,7 @@ div.buttons {
   box-shadow: 1px 1px 2px #000000;
   background-color: white;
   color: black;
-  width: 90%;
+  width: 100%;
   border-radius: 20px;
 
   p.main-arrow {
@@ -59,19 +146,20 @@ div.buttons {
 }
 
 button.main-test-buttons {
-    width: 100%;
-    display: flex;
-    background-color: white;
-    border-radius: 20px;
-    p.title {
-      width: 90%;
-      font-family: "Poppins", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      text-align: left;
-      margin-left: 10px;
-      margin: 15px;
-    }
+  width: 100%;
+  display: flex;
+  background-color: white;
+  border-radius: 20px;
+
+  p.title {
+    width: 90%;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    text-align: left;
+    margin-left: 10px;
+    margin: 15px;
+  }
 }
 
 button.main-test-buttons:hover {
@@ -84,14 +172,17 @@ button.main-test-buttons:focus {
   color: white
 }
 
-div.test-details-container {
+div.test-details-container,
+div.test-details-container2 {
+
+
   padding: 10px;
   margin-top: 80px;
   border-radius: 20px;
   background-color: rgb(35, 53, 110);
   color: white;
   font-family: sans-serif;
-  width: 85%;
+  width: 20rem;
 }
 
 div.test-Title-Div {
@@ -111,17 +202,18 @@ div#test-Items {
   place-items: center;
 }
 
-ul#test-List { 
+ul#test-List {
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 20px;
-} 
+}
 
 div#note-Test {
   text-align: center;
   margin: 20px;
   margin-top: 50px;
+
   p#note {
     color: yellow;
     font-family: "Poppins", sans-serif;
@@ -134,7 +226,7 @@ div#button-Test-Div {
   padding: 20px;
 }
 
-div.test-details-container2 {
+/* div.test-details-container2 {
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
@@ -143,7 +235,7 @@ div.test-details-container2 {
   background-color: rgb(35, 53, 110);
   color: white;
   width: 85%;
-}
+} */
 
 div.test-title-div2 {
   text-align: center;
@@ -160,6 +252,7 @@ div#button-Design {
   text-align: center;
   background-color: white;
   border-radius: 20px;
+
   a#start-Test {
     text-decoration: none;
     color: black;

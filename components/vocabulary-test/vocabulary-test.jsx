@@ -1,267 +1,192 @@
-import react from 'react'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import SideTimer from '../main-components/timer'
 import './vocabulary-test.css'
 import axios from 'axios'
 
 function VocabularyTest() {
 
-    const [showPopup, setShowPopup] = useState(false);
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const saved = sessionStorage.getItem("Answer");
-        return saved ? JSON.parse(saved) : {}});
-    const [time, setTime] = useState(() => {
-        const saved = sessionStorage.getItem("Timer remain");
-        return saved ? JSON.parse(saved) : 900})
-    const [allQuestions, setAllQuestions] = useState(() => {
-        const saved = sessionStorage.getItem("Questions History");
-        return saved ? JSON.parse(saved) : []});
-    const [fontSize, setFontSize] = useState(() => {
-        const saved = sessionStorage.getItem("Font Size");
-        return saved ? JSON.parse(saved) : 60});
-    const [passageHistory, setPassageHistory] = useState(() => {
-        const saved = sessionStorage.getItem("Passage History");
-        return saved ? JSON.parse(saved) : []});
-    const [passageId, setPassageId] = useState(() => {
-        const saved = sessionStorage.getItem("Passage ID");
-        return saved ? JSON.parse(saved) : null});
-    const [currentPage, setCurrentPage] = useState(() => {
-        const saved = sessionStorage.getItem("Page History");
-        return saved ? JSON.parse(saved) : 0});
+	const navigate = useNavigate()
 
-    // stores passage history when clicking the "back" button array of currentPage serves as an updator of the page
-    const currentPassage = passageHistory[currentPage];
-    // used to index an array of questions putting the maximum capacity to 4 questions per page
-    const questionsPerPage = 4;
-    // used as a 'cutter' to 'indexOfFirstQuestion' 
-    const indexOfLastQuestion = (currentPage + 1) * questionsPerPage;
-    // used to index the very first question after a "Next Page" removing the last question from the equation 
-    const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-    // used to print out current questions from "allQuestions" hook (remember it was intercepted by setAllQuestions at Axios call line 31) Excluding those that have been "sliced"
-    const currentQuestions = (allQuestions || []).slice(indexOfFirstQuestion, indexOfLastQuestion);
-    const questionNumberStart = indexOfFirstQuestion;
-    const questionNumberEnd = indexOfLastQuestion;
+	const [vocab, setVocab] = useState(null)
+	const [selectedAnswer, setSelectedAnswer] = useState("")
+	const [isSubmitted, setIsSubmitted] = useState(false)
+	const [isCorrect, setIsCorrect] = useState(false)
+	const [showPopup, setShowPopup] = useState(false)
 
-    useEffect(() => {
-        sessionStorage.setItem("Answer", JSON.stringify(userAnswers));
-        sessionStorage.setItem("Font Size", fontSize);
-        sessionStorage.setItem("Passage History", JSON.stringify(passageHistory));
-        sessionStorage.setItem("Page History", JSON.stringify(currentPage));
-        sessionStorage.setItem("Questions History", JSON.stringify(allQuestions));
-        sessionStorage.setItem("Passage ID", JSON.stringify(passageId))
-    }, [userAnswers, fontSize, currentPage, allQuestions, passageHistory, passageId]);
+	const [fontSize, setFontSize] = useState(20)
 
-    const userChoiceClick = (questionId, choiceValue) => {
-        // used to save user choices (answers) even if the page is moved
-        setUserAnswers(prev => ({
-            ...prev,
-            [questionId]: choiceValue
-        }))
+	/* ===============================
+	   FETCH RANDOM VOCAB
+	=============================== */
 
-    }
+	const fetchVocab = () => {
 
-    useEffect(() => {
-        sessionStorage.setItem("Timer remain", JSON.stringify(time))
-    }, [time]) 
+		// reset states first
+		setVocab(null)
+		setSelectedAnswer("")
+		setIsSubmitted(false)
+		setShowPopup(false)
 
-    const increaseFontSize = () => {
-        if (fontSize == 150) {
-            return;
-        }
-        setFontSize(prevSize => prevSize + 2);
-    }
+		axios
+			.get('/start-vocabulary-exam')
+			.then(res => {
 
-    const defaultFontSize = () => {
-        setFontSize(60)
-    }
+				console.log("Fetched vocab:", res.data.data)
 
-    const decreaseFontSize = () => {
-        if (fontSize == 10) {
-            return;
-        }
-        setFontSize(prevSize => prevSize - 2);
-    }
+				setVocab(res.data.data)
 
-    useEffect(() => {
+			})
+			.catch(err => console.error(err))
 
-        const queryParams = {
-            designation: 'false',
-            type: 12
-        }
+	}
 
-        axios
-            .get('/start-vocabulary-exam', { params: queryParams })
-            .then((res) => {
-                setAllQuestions(res.data.test.questions)
-                setPassageHistory([res.data.test]);
-                setPassageId(res.data.test.passageId);
-            })
-            .catch((err) => console.error(err))
-    }, [])
+	useEffect(() => {
+		fetchVocab()
+	}, [])
 
-    const typeLabels = {
-        12: "Vocabulary Test"
-    }
+	/* ===============================
+	   FONT SIZE
+	=============================== */
 
-    const handleNextPage = () => {
+	const increaseFontSize = () => fontSize < 40 && setFontSize(prev => prev + 2)
+	const decreaseFontSize = () => fontSize > 10 && setFontSize(prev => prev - 2)
+	const defaultFontSize = () => setFontSize(20)
 
-        const totalLimit = 4;
+	/* ===============================
+	   SUBMIT ANSWER
+	=============================== */
 
-        if (passageHistory.length > currentPage + 1) {
-            // if the length of passageHistory is still greater than the currentPage that adds by "Next Page"
-            // then allow "Next Page" functionality and return 0, otherwise do skip this step;
-            setCurrentPage(prev => prev + 1);
-            return; // function stopper
-        }
+	const handleSubmit = () => {
 
-        if (allQuestions.length >= totalLimit) { //apply >= if need exactly 10
-            // if length of allQuestions array is greater than variable totalLimit, function returns nothing
-            return; // stops the function
-        } 
-    }
+		const correct = selectedAnswer === vocab.correctAnswer
 
-    //if ((allQuestions || []).length === 0) return <h1>Loading...</h1>
+		setIsCorrect(correct)
+		setIsSubmitted(true)
+		setShowPopup(true)
 
-    const sendUserAnswers = () => {
-        
-        const submissionData = {
-            testType: 'Vocabulary Test',
-            testCategory: 'Vocabulary Test',
-            userAnswers: userAnswers,
-            passageId: passageId,
-            data: new Date()
-        };
-        
-        axios
-            .post('/submit-results', submissionData, { withCredentials: true })
-            .then((res) => {
-                if (res.status == 200) {
-                    setShowPopup(true);
-                    sessionStorage.removeItem("Answer")
-                    sessionStorage.removeItem("Font Size")
-                    sessionStorage.removeItem("Passage History")
-                    sessionStorage.removeItem("Page History")
-                    sessionStorage.removeItem("Questions History")
-                    sessionStorage.removeItem("Timer remain")
-                }
-            })
-            .catch((err) => {
-                alert("Submission failed. Please check your internet and try again.")
-                console.error(err)});
-    }
+	}
 
-    const navigate = useNavigate();
-    const handleGoBack = () => {
-        navigate("/home")
-    }
+	/* ===============================
+	   LOADING STATE
+	=============================== */
 
-    return (
-        <>
-        <main className='main-maintest'>
-            {/* This is the sidebar, where the timer resides */}
-            {showPopup && (
-                <div className="popup-overlay">
-                    <div className="popup-content">
-                        <h2>Test Finished</h2>
-                        <button className="popup-btn" onClick={handleGoBack}>
-                            Go back to Main Test
-                        </button>
-                    </div>
-                </div>
-            )}
-            <section className='sidebar'>
-                <div>
-                    <h1 className='name'>Readify</h1>
-                </div>
-                <div className='timer-component'>
-                    <h3 className='sidetimer-h2'><SideTimer time={time} setTime={setTime}/></h3>
-                </div>
-                <div className='warning-tab'>
-                    <p className='warning-text'>Warning! Multiple<br /> tab changes can result in exam <br />termination. </p>
-                </div>
-            </section>
-            <div className='section-flex'>
-                <section className='testing-flex'>
-                    <div className='title-div'>
-                        {/* This is the exam category*/}
-                        <h1 className='h1-title-div'>{typeLabels[currentPassage?.testType]}</h1>
-                    </div>
-                    <div className='view-size-buttons'>
-                        <button className='font-size-btn' onClick={decreaseFontSize}>
-                            Decr
-                        </button>
-                        <button className='font-size-btn' onClick={defaultFontSize}>
-                            Default
-                        </button>
-                        <button className='font-size-btn' onClick={increaseFontSize}>
-                            Incr
-                        </button>
-                    </div>
-                </section>
-                <div className='two-sections'>
-                    <div className='passage-view'>
-                        {/* This is the passage title */}
-                        <div className='test-title'>
-                            <>{currentPassage?.passageTitle}</>
-                        </div>
-                        {/* This is the passage link */}
-                        <div className='test-reference'>
-                            <>{currentPassage?.passageSource}</>
-                        </div>
-                        {/* This is the passage text/content */}
-                        <div className='test-passage'>
-                            <p style={{fontSize: `${fontSize}px`}}>{currentPassage?.passage}</p>
-                        </div>
-                    </div>
-                    <section className='questions-side'>
-                        <div>
-                            <div>
-                                <b><p className='p-questionRange'>Questions {questionNumberStart + 1}{questionNumberEnd <= 4}</p></b>
-                                <p className='p-description'>{currentPassage?.description}</p>
-                                <div className='question-container'>
-                                    {/* map loops over the array of question to determine how many questions does the current page have */}
-                                    {currentQuestions.map((q, index) => (
-                                        // the question container - keys make the array of questions individually unique based on the "id" from the backend
-                                        <div className='question-block' key={q.id || index}>
-                                            {/*  */} 
-                                            <div className='options-list'>
-                                                {(q.options || q.data).map((opt, index2) => (
-                                                    <React.Fragment key={opt}>
-                                                        <button
-                                                            className={`${userAnswers[q.questionNumber] === opt ? 'active-opt': 'opt-btn'}`}
-                                                            onClick={() => userChoiceClick(q.questionNumber, opt)}
-                                                        >
-                                                            {String.fromCharCode(65 + index2)}. {opt}
-                                                        </button>
-                                                        <br/>
-                                                    </React.Fragment>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className='next-back-buttons'>
-                                    {currentPage > 0 && (
-                                    <React.Fragment>
-                                        <button onClick={() => setCurrentPage(prev => prev - 1)} className='back-btn'>Back</button>
-                                        <br/>
-                                    </React.Fragment>
-                                    )}
-                                    {indexOfLastQuestion >= 10 ? (
-                                        <button onClick={sendUserAnswers} className='submit-btn-test'>Submit Test</button>
-                                    ) : (
-                                        <button onClick={handleNextPage} className='next-page-btn'>Next Page</button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </main>
-        </>
-    )
+	if (!vocab) {
+		return (
+			<div className="loading-screen">
+				<h2>Loading Vocabulary...</h2>
+			</div>
+		)
+	}
+
+	return (
+
+		<main className='main-maintest'>
+
+			{/* POPUP */}
+
+			{showPopup && (
+
+				<div className="popup-overlay">
+
+					<div className="popup-content">
+
+						<h2>{isCorrect ? "Correct!" : "Incorrect"}</h2>
+
+						<p><b>Correct Answer:</b> {vocab.correctAnswer}</p>
+
+						<button
+							className="popup-btn"
+							onClick={() => navigate('/home')}
+						>
+							Return to Dashboard
+						</button>
+
+						<button
+							className="popup-btn"
+							onClick={fetchVocab}
+						>
+							Take Another Vocabulary Test
+						</button>
+
+					</div>
+
+				</div>
+
+			)}
+
+			<div className='section-flex'>
+
+				<section className='testing-flex'>
+
+					<div className='title-div'>
+						<h1 className='h1-title-div'>
+							Vocabulary Test
+						</h1>
+					</div>
+
+					<div className='view-size-buttons'>
+						<center>
+							<p>Font Size Controls</p>
+							<button onClick={decreaseFontSize}>-</button>
+							<button onClick={defaultFontSize}>o</button>
+							<button onClick={increaseFontSize}>+</button>
+						</center>
+					</div>
+
+				</section>
+
+				<section className='questions-side'>
+
+					<div className='question-container'>
+
+						<p className='questions'>
+							<strong>What does "{vocab.wordEntry}" mean?</strong>
+						</p>
+
+						<div className='options-list'>
+
+							{vocab.wordDescriptors.map((opt, idx) => (
+
+								<button
+									key={idx}
+									className={selectedAnswer === opt ? 'active-opt' : 'opt-btn'}
+									onClick={() => setSelectedAnswer(opt)}
+								>
+									{String.fromCharCode(65 + idx)}. {opt}
+								</button>
+
+							))}
+
+						</div>
+
+					</div>
+
+					{/* SUBMIT BUTTON */}
+
+					{!isSubmitted && (
+
+						<div className='next-back-buttons'>
+
+							<button
+								onClick={handleSubmit}
+								className='submit-btn-test'
+								disabled={!selectedAnswer}
+							>
+								Submit Answer
+							</button>
+
+						</div>
+
+					)}
+
+				</section>
+
+			</div>
+
+		</main>
+
+	)
+
 }
 
-export default VocabularyTest;
+export default VocabularyTest

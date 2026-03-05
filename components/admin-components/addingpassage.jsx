@@ -29,6 +29,7 @@ export default function CreatePassage() {
       formData.append(`questions[${i}][text]`, q.text);
       formData.append(`questions[${i}][answer]`, q.answer);
       formData.append(`questions[${i}][data]`, q.data);
+      formData.append(`questions[${i}][explaination]`,q.explaination);
     });
 
     fetch("/create-passage", {
@@ -106,7 +107,7 @@ export default function CreatePassage() {
                 style={{ width: 50 }}
                 onChange={e => handleQuestionChange(i, "number", e.target.value)}
               />
-
+              <br />
               <label>Question Text:</label>
               <input
                 type="text"
@@ -115,19 +116,27 @@ export default function CreatePassage() {
                 onChange={e => handleQuestionChange(i, "text", e.target.value)}
               />
 
-              <div style={{ marginTop: 10 }}>
+              <div style={{ marginTop: 5}}>
                 <label>Correct Answer:</label>
                 <input
                   value={q.answer}
                   onChange={e => handleQuestionChange(i, "answer", e.target.value)}
                 />
-
+                <br />
                 <label>Options (CSV for MCQs):</label>
                 <input
                   value={q.data}
                   placeholder="Choice A, Choice B, Choice C"
                   onChange={e => handleQuestionChange(i, "data", e.target.value)}
                 />
+                <br />
+                <label>Answer Explaination (for Practice Tests):</label>
+                <input
+                  value={q.explaination}
+                  placeholder="Answer Explaination"
+                  onChange={e => handleQuestionChange(i, "explaination", e.target.value)}
+                />
+                
               </div>
             </div>
           ))}
